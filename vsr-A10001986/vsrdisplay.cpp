@@ -1,0 +1,673 @@
+/*
+ * -------------------------------------------------------------------
+ * Voltage Systems Regulator
+ * (C) 2024 Thomas Winischhofer (A10001986)
+ * https://github.com/realA10001986/VSR
+ * https://vsr.out-a-ti.me
+ *
+ * vsrBLEDs Class:   Button LEDs
+ * vsrDisplay Class: VSR 3-digit Display
+ *
+ * vsrBLEDs:
+ * - Either PWM on ESP32 (dimmable)
+ * - or via i2c port expander (8574/0x22; anode=VDD) (on/off)
+ * 
+ * vsrDisplay:
+ * Via HT16K33 (addr 0x70)
+ * 
+ * -------------------------------------------------------------------
+ * License: MIT
+ * 
+ * Permission is hereby granted, free of charge, to any person 
+ * obtaining a copy of this software and associated documentation 
+ * files (the "Software"), to deal in the Software without restriction, 
+ * including without limitation the rights to use, copy, modify, 
+ * merge, publish, distribute, sublicense, and/or sell copies of the 
+ * Software, and to permit persons to whom the Software is furnished to 
+ * do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be 
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF 
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY 
+ * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
+ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+#include "vsr_global.h"
+
+#include <Arduino.h>
+#include <math.h>
+#include "vsrdisplay.h"
+#include <Wire.h>
+
+/* vsrbleds class */
+
+// Store i2c address
+vsrBLEDs::vsrBLEDs(int numTypes, uint8_t addrArr[])
+{
+    _numTypes = min(4, numTypes);
+
+    for(int i = 0; i < _numTypes * 2; i++) {
+        _addrArr[i] = addrArr[i];
+    }
+}
+
+void vsrBLEDs::begin(int numLEDs)
+{
+    bool foundSt = false;
+
+    _nLEDs = numLEDs;
+    if(_nLEDs > 3) _nLEDs = 3;
+
+    for(int i = 0; i < _numTypes * 2; i += 2) {
+        _address = _addrArr[i];
+
+        Wire.beginTransmission(_address);
+        if(!Wire.endTransmission(true)) {
+        
+            switch(_addrArr[i+1]) {
+            case BLHW_PCF8574:
+                foundSt = true;
+                break;
+            }
+
+            if(foundSt) {
+                _hwt = _addrArr[i+1];
+
+                #ifdef VSR_DBG
+                const char *tpArr[4] = { "PCF8574", "", "", "" };
+                Serial.printf("Button LED driver: Detected %s (i2c)\n", tpArr[_hwt]);
+                #endif
+
+                break;
+            }
+        }
+    }
+
+    if(!foundSt) {
+        #ifdef VSR_DBG
+        Serial.println("No i2c button LED driver found, setting up fall-back PWM pins");
+        #endif
+        
+        _hwt =  BLHW_PWM;
+        _nLEDs = 3;
+        
+        setupPWM(0, 0, 5000, 8, BUTTON1_PWM_PIN);
+        setupPWM(1, 1, 5000, 8, BUTTON2_PWM_PIN);
+        setupPWM(2, 2, 5000, 8, BUTTON3_PWM_PIN);
+    }
+
+    _sMask = (_nLEDs > 0) ? (1 << _nLEDs) - 1 : 0;
+
+    setStates(0);
+    on();
+}
+
+void vsrBLEDs::on()
+{
+    _off = false;
+    setStates(_states);
+}
+
+void vsrBLEDs::off()
+{
+    _off = true;
+    setStates(_states);
+}
+
+void vsrBLEDs::setStates(uint8_t states)
+{
+    uint32_t onDC;
+    
+    _states = states & _sMask;
+    
+    switch(_hwt) {
+    case BLHW_PCF8574:
+        // Button LEDs are off in night mode
+        // TODO: Connect same LEDs with resistor to different ports?
+        Wire.beginTransmission(_address);
+        Wire.write(~(_off ? 0x00 : (_nightmode ? 0x00 : _states)));
+        Wire.endTransmission();
+        break;
+    case BLHW_PWM:
+        // Button LEDs are dimmed or off in night mode
+        onDC = _off ? 0 : (_nightmode ? (_nmOff ? 0 : 20) : 255);
+        for(int i = 0; i < _nLEDs; i++) {
+            setDC(i, (_states & (1 << i)) ? onDC : 0);
+        }
+        break;
+    }
+}
+
+uint8_t vsrBLEDs::getStates()
+{
+    switch(_hwt) {
+    case BLHW_PCF8574:
+    case BLHW_PWM:
+    default:
+        return _states;
+    }
+}
+
+void vsrBLEDs::setNightMode(bool mymode)
+{
+    _nightmode = mymode;
+    setStates(_states);
+}
+
+bool vsrBLEDs::getNightMode(void)
+{
+    return _nightmode;
+}
+
+void vsrBLEDs::setNMOff(bool NMOff)
+{
+    _nmOff = NMOff;
+}
+
+// Private
+
+void vsrBLEDs::setupPWM(int idx, uint8_t ledChannel, uint32_t freq, uint8_t resolution, uint8_t pwm_pin)
+{
+    _chnl[idx] = ledChannel;
+    _freq[idx] = freq;
+    _res[idx] = resolution;
+    _pwm_pin[idx] = pwm_pin;
+    
+    // Config PWM properties
+    ledcSetup(_chnl[idx], _freq[idx], _res[idx]);
+
+    // Attach channel to GPIO
+    ledcAttachPin(_pwm_pin[idx], _chnl[idx]);
+
+    // For 3.x (chnl unused)
+    //ledcAttach(_pwm_pin[idx], _freq[idx], _res[idx]);
+
+    // Set DC to 0
+    setDC(idx, 0);
+}
+
+void vsrBLEDs::setDC(int idx, uint32_t dutyCycle)
+{
+    _curDutyCycle[idx] = dutyCycle;
+    ledcWrite(_chnl[idx], dutyCycle);
+    //ledcWrite(_pwm_pin[idx], dutyCycle); // For 3.x
+}
+
+/* vsrdisplay class */
+
+// The segments' wiring to buffer bits
+// This reflects the actual hardware wiring
+
+// generic
+#define S7G_T   0b00000001    // top
+#define S7G_TR  0b00000010    // top right
+#define S7G_BR  0b00000100    // bottom right
+#define S7G_B   0b00001000    // bottom
+#define S7G_BL  0b00010000    // bottom left
+#define S7G_TL  0b00100000    // top left
+#define S7G_M   0b01000000    // middle
+#define S7G_DOT 0b10000000    // dot
+
+static const uint16_t font7segGeneric[47] = {
+    S7G_T|S7G_TR|S7G_BR|S7G_B|S7G_BL|S7G_TL,
+    S7G_TR|S7G_BR,
+    S7G_T|S7G_TR|S7G_B|S7G_BL|S7G_M,
+    S7G_T|S7G_TR|S7G_BR|S7G_B|S7G_M,
+    S7G_TR|S7G_BR|S7G_TL|S7G_M,
+    S7G_T|S7G_BR|S7G_B|S7G_TL|S7G_M,
+    S7G_BR|S7G_B|S7G_BL|S7G_TL|S7G_M,
+    S7G_T|S7G_TR|S7G_BR,
+    S7G_T|S7G_TR|S7G_BR|S7G_B|S7G_BL|S7G_TL|S7G_M,
+    S7G_T|S7G_TR|S7G_BR|S7G_TL|S7G_M,
+    S7G_T|S7G_TR|S7G_BR|S7G_BL|S7G_TL|S7G_M,
+    S7G_BR|S7G_B|S7G_BL|S7G_TL|S7G_M,
+    S7G_T|S7G_B|S7G_BL|S7G_TL,
+    S7G_TR|S7G_BR|S7G_B|S7G_BL|S7G_M,
+    S7G_T|S7G_B|S7G_BL|S7G_TL|S7G_M,
+    S7G_T|S7G_BL|S7G_TL|S7G_M,
+    S7G_T|S7G_BR|S7G_B|S7G_BL|S7G_TL,
+    S7G_TR|S7G_BR|S7G_BL|S7G_TL|S7G_M,
+    S7G_BL|S7G_TL,
+    S7G_TR|S7G_BR|S7G_B|S7G_BL,
+    S7G_T|S7G_BR|S7G_BL|S7G_TL|S7G_M,
+    S7G_B|S7G_BL|S7G_TL,
+    S7G_T|S7G_BR|S7G_BL,
+    S7G_T|S7G_TR|S7G_BR|S7G_BL|S7G_TL,
+    S7G_T|S7G_TR|S7G_BR|S7G_B|S7G_BL|S7G_TL,
+    S7G_T|S7G_TR|S7G_BL|S7G_TL|S7G_M,
+    S7G_T|S7G_TR|S7G_B|S7G_TL|S7G_M,
+    S7G_T|S7G_TR|S7G_BL|S7G_TL,
+    S7G_T|S7G_BR|S7G_B|S7G_TL|S7G_M,
+    S7G_B|S7G_BL|S7G_TL|S7G_M,
+    S7G_TR|S7G_BR|S7G_B|S7G_BL|S7G_TL,
+    S7G_TR|S7G_BR|S7G_B|S7G_BL|S7G_TL,
+    S7G_TR|S7G_B|S7G_TL,
+    S7G_TR|S7G_BR|S7G_BL|S7G_TL|S7G_M,
+    S7G_TR|S7G_BR|S7G_B|S7G_TL|S7G_M,
+    S7G_T|S7G_TR|S7G_B|S7G_BL|S7G_M,
+    S7G_DOT,
+    S7G_M,        // 37 minus
+    S7G_T,        // 38 coded as  1
+    S7G_TR,       // 39           2
+    S7G_BR,       // 40           3
+    S7G_B,        // 41           4
+    S7G_BL,       // 42           5
+    S7G_TL,       // 43           6
+    S7G_T|S7G_B,  // 44           7
+    S7G_T|S7G_BR|S7G_B|S7G_BL|S7G_M,  // 45 8
+    S7G_BR|S7G_B|S7G_BL|S7G_M,        // 46 9
+};
+
+static const struct dispConf {
+    uint8_t  num_digs;       //   total number of digits/letters
+    uint8_t  buf_packed;     //   2 digits in one buffer pos? (0=no, 1=yes)
+    uint8_t  loffset;        //   Offset from left (0 or 1) if display has more than 3 digits
+    uint8_t  bufPosArr[4];   //   The buffer positions of each of the digits from left to right
+    uint8_t  bufShftArr[4];  //   Shift-value for each digit from left to right
+    const uint16_t *fontSeg; //   Pointer to font
+} displays[VSR_DISP_NUM_TYPES] = {
+  { 3, 0, 0, { 0, 1, 3 }, { 0, 0, 0 }, font7segGeneric },  // Native
+#ifdef HAVE_DISPSELECTION  
+  { 3, 0, 0, { 0, 1, 3 }, { 0, 0, 0 }, font7segGeneric },  // SP_ADAF_7x4L (right) (ADA-878/877/5599;879/880/881/1002/5601/5602/5603/5604/1270/1271;1269)
+  { 3, 0, 0, { 1, 3, 4 }, { 0, 0, 0 }, font7segGeneric },  // SP_ADAF_7x4R (left)  (ADA-878/877/5599;879/880/881/1002/5601/5602/5603/5604/1270/1271;1269)
+#endif
+};
+
+// Store i2c address
+vsrDisplay::vsrDisplay(uint8_t address)
+{
+    _address = address;
+}
+
+// Start the display
+bool vsrDisplay::begin(int dispType)
+{
+    #ifdef HAVE_DISPSELECTION
+    if(dispType < VSR_DISP_MIN_TYPE || dispType >= VSR_DISP_NUM_TYPES) {
+        #ifdef VSR_DBG
+        Serial.printf("Bad display type: %d\n", dispType);
+        #endif
+        dispType = VSR_DISP_MIN_TYPE;
+    }
+    #endif
+
+    // Check for speedo on i2c bus
+    Wire.beginTransmission(_address);
+    if(Wire.endTransmission(true))
+        return false;
+
+    _dispType = dispType;
+    _num_digs = displays[dispType].num_digs;
+    _loffs = displays[dispType].loffset;
+    _buf_packed = displays[dispType].buf_packed;
+    _bufPosArr = displays[dispType].bufPosArr;
+    _bufShftArr = displays[dispType].bufShftArr;
+    
+    _fontXSeg = displays[dispType].fontSeg;
+
+    directCmd(0x20 | 1); // turn on oscillator
+
+    clearBuf();          // clear buffer
+    setBrightness(15);   // setup initial brightness
+    clearDisplay();      // clear display RAM
+    on();                // turn it on
+
+    return true;
+}
+
+// Turn on the display
+void vsrDisplay::on(bool force)
+{
+    if(_onCache > 0) return;
+    if(force || !_nightmode || !_nmOff) {
+        directCmd(0x80 | 1);
+        _onCache = 1;
+        _briCache = 0xfe;
+    }
+}
+
+// Turn off the display
+void vsrDisplay::off()
+{   
+    if(!_onCache) return;
+    directCmd(0x80);
+    _onCache = 0;
+}
+
+// Clear the buffer
+void vsrDisplay::clearBuf()
+{
+    // must call show() to actually clear display
+
+    for(int i = 0; i < 8; i++) {
+        _displayBuffer[i] = 0;
+    }
+}
+
+// Set display brightness
+// Valid brighness levels are 0 to 15. Default is 15.
+// 255 sets it to previous level
+uint8_t vsrDisplay::setBrightness(uint8_t level, bool isInitial)
+{
+    if(level == 255)
+        level = _brightness;    // restore to old val
+
+    _brightness = setBrightnessDirect(level);
+
+    if(isInitial)
+        _origBrightness = _brightness;
+
+    return _brightness;
+}
+
+uint8_t vsrDisplay::setBrightnessDirect(uint8_t level)
+{
+    if(level > 15)
+        level = 15;
+
+    if(level != _briCache) {
+        directCmd(0xE0 | level);  // Dimming command
+        _briCache = level;
+    }
+
+    return level;
+}
+
+uint8_t vsrDisplay::getBrightness()
+{
+    return _brightness;
+}
+
+void vsrDisplay::setNightMode(bool mymode)
+{
+    _nightmode = mymode;
+    show();
+}
+
+bool vsrDisplay::getNightMode(void)
+{
+    return _nightmode;
+}
+
+void vsrDisplay::setNMOff(bool NMOff)
+{
+    _nmOff = NMOff;
+}
+
+
+// Show data in display --------------------------------------------------------
+
+
+// Show the buffer
+void vsrDisplay::show()
+{
+    int i;
+
+    if(_nightmode) {
+        if(_nmOff) {
+            off();
+            _oldnm = 1;
+            return;
+        } else {
+            if(_oldnm < 1) {
+                setBrightness(0);
+                _oldnm = 1;
+            }
+        }
+    } else if(!_nmOff) {
+        if(_oldnm > 0) {
+            setBrightness(_origBrightness);
+        }
+        _oldnm = 0;
+    }
+
+    if(_dispType >= 0) {
+        Wire.beginTransmission(_address);
+        Wire.write(0x00);  // start address
+    
+        for(i = 0; i < 8; i++) {
+            Wire.write(_displayBuffer[i] & 0xFF);
+            Wire.write(_displayBuffer[i] >> 8);
+        }
+    
+        Wire.endTransmission();
+    }
+    
+    if(_nmOff && (_oldnm > 0)) on();
+    if(_nmOff) _oldnm = 0;
+}
+
+
+// Set data in buffer --------------------------------------------------------
+
+
+// Write given text to buffer
+void vsrDisplay::setText(const char *text)
+{
+    int idx = 0, pos = 0, dgt = 0;
+    int temp = 0;
+
+    clearBuf();
+
+    if(_dispType >= 0) {
+        while(text[idx] && (pos < (_num_digs / (1<<_buf_packed)))) {
+            temp = getLEDChar(text[idx]) << (*(_bufShftArr + dgt));
+            idx++;
+            if(text[idx] == '.') {
+                temp |= (getLEDChar('.') << (*(_bufShftArr + dgt)));
+                idx++;
+            }
+            dgt++;
+            if(_buf_packed && text[idx]) {
+                temp |= (getLEDChar(text[idx]) << (*(_bufShftArr + dgt)));
+                idx++;
+                if(text[idx] == '.') {
+                    temp |= (getLEDChar('.') << (*(_bufShftArr + dgt)));
+                    idx++;
+                }
+                dgt++;
+            }
+            _displayBuffer[*(_bufPosArr + pos)] = temp;
+            pos++;
+        }
+    }
+}
+
+// Write given number to buffer
+void vsrDisplay::setNumbers(int num1, int num2, int num3)
+{
+    uint16_t b;
+    int s = _loffs;
+    
+    clearBuf();
+
+    _curNums[0] = num1;
+    _curNums[1] = num2;
+    _curNums[2] = num3;
+
+    if(_dispType >= 0) {
+        for(int i = 0; i < 3; i++) {
+            if(_curNums[i] < 0) {
+                b = *(_fontXSeg + 37);
+            } else if(_curNums[i] > 9) {
+                b = *(_fontXSeg + ('H' - 'A' + 10));
+            } else {
+                b = *(_fontXSeg + (_curNums[i] % 10));
+            }
+            _displayBuffer[*(_bufPosArr + s)] |= (b << (*(_bufShftArr + s)));
+            s++;
+        }
+    }
+}
+
+void vsrDisplay::setNumber(int num)
+{
+    if(num < 0) {
+        setNumbers(-1, -1, -1);
+    } else {
+        int num1, num2, num3;
+        if(num > 999) {
+            char buf[4];
+            sprintf(buf, "%1.2d", (float)num/1000.0);
+            setText(buf);
+        } else {
+            num1 = num / 100;
+            num  %= 100;
+            num2 = num / 10;
+            num3 = num % 10;
+            setNumbers(num1, num2, num3);
+        }
+    }
+}
+
+void vsrDisplay::setSpeed(int speed)
+{
+    if(speed < 0) {
+        setText("---.");
+    } else {
+        char buf[4];
+        sprintf(buf, "%3d.", speed);
+        setText(buf);
+    }
+}
+
+void vsrDisplay::setTemperature(float temp)
+{
+    char buf[8];
+    char alignBuf[20];
+    int t, strlenBuf = 0;
+    const char *myNan = "---";
+
+    if((temp == -32768.0) || isnan(temp)) setText(myNan);
+    else if(temp <= -100.0)               setText("LOW");
+    else if(temp >= 1000.0)               setText("HI");
+    else if(temp >= 100.0 || temp <= -10.0) {
+        t = (int)roundf(temp);
+        sprintf(buf, "%d", t);
+        setText(buf);
+    } else {
+        sprintf(buf, "%.1f", temp);
+        setText(buf);
+    }
+}
+
+// Query data ------------------------------------------------------------------
+
+
+void vsrDisplay::getNumbers(int& num1, int& num2, int& num3)
+{
+    num1 = _curNums[0];
+    num2 = _curNums[1];
+    num3 = _curNums[2];
+}
+
+
+// Special purpose -------------------------------------------------------------
+
+#if 0 // Currently unused
+
+// Clears the display RAM and only shows the given text
+// does not use the buffer, writes directly to display
+// (clears colon; dots work like the buffer version.)
+void vsrDisplay::showTextDirect(const char *text)
+{
+    int idx = 0, pos = 0, dgt = 0;
+    int temp = 0;
+    uint16_t tt = 0, spec = 0;
+    bool commaAdded = false;
+
+    clearDisplay();
+
+    while(text[idx] && (pos < (_num_digs / (1<<_buf_packed)))) {
+        commaAdded = false;
+        temp = getLEDChar(text[idx]) << (*(_bufShftArr + dgt));
+        idx++;
+        if(text[idx] == '.') {
+            temp |= (getLEDChar('.') << (*(_bufShftArr + dgt)));
+            idx++;
+            commaAdded = true;
+        }
+        dgt++;
+        if(_buf_packed && text[idx]) {
+            temp |= (getLEDChar(text[idx]) << (*(_bufShftArr + dgt)));
+            idx++;
+            if(text[idx] == '.') {
+                temp |= (getLEDChar('.') << (*(_bufShftArr + dgt)));
+                idx++;
+            }
+            dgt++;
+        }
+        directCol(*(_bufPosArr + pos), temp);
+        pos++;
+    }
+    
+}
+
+#endif // if 0
+
+// Private functions ###########################################################
+
+// Returns bit pattern for provided character
+uint16_t vsrDisplay::getLEDChar(uint8_t value)
+{
+    if(value >= '0' && value <= '9') {
+        return *(_fontXSeg + (value - '0'));
+    } else if(value >= 'A' && value <= 'Z') {
+        return *(_fontXSeg + (value - 'A' + 10));
+    } else if(value >= 'a' && value <= 'z') {
+        return *(_fontXSeg + (value - 'a' + 10));
+    } else if(value == '.') {
+        return *(_fontXSeg + 36);
+    } else if(value == '-') {
+        return *(_fontXSeg + 37);
+    } else if(value >= 1 && value <= 9) {
+        return *(_fontXSeg + 38 + (value - 1));
+    } 
+
+    return 0;
+}
+
+#if 0 // Unused currently
+// Directly write to a column with supplied segments
+// (leave buffer intact, directly write to display)
+void vsrDisplay::directCol(int col, int segments)
+{
+    if(_dispType >= 0) {
+        Wire.beginTransmission(_address);
+        Wire.write(col * 2);  // 2 bytes per col * position
+        Wire.write(segments & 0xFF);
+        Wire.write(segments >> 8);
+        Wire.endTransmission();
+    }
+}
+#endif
+
+// Directly clear the display
+void vsrDisplay::clearDisplay()
+{
+    if(_dispType >= 0) {
+        Wire.beginTransmission(_address);
+        Wire.write(0x00);  // start address
+    
+        for(int i = 0; i < 8*2; i++) {
+            Wire.write(0x0);
+        }
+    
+        Wire.endTransmission();
+    }
+}
+
+void vsrDisplay::directCmd(uint8_t val)
+{
+    if(_dispType >= 0) {
+        Wire.beginTransmission(_address);
+        Wire.write(val);
+        Wire.endTransmission();
+    }
+}
