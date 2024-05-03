@@ -1,6 +1,6 @@
 LED: The LED display
 
-PW: Pushwheel carrier PCB
+PW: The pushwheel carrier
 
 Folders contain each
 - Gerbers for production at eg. JLCPCB (.zip)
