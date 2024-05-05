@@ -6,3 +6,5 @@ The KM1 (22x8mm) pushwheels can be attached by using 2mm pitched pin sockets and
 
 <img src="img/pw2.jpg">
 
+The two four-pin XH connectors are for connecting the LED display and the Control Board.
+
