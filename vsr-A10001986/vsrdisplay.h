@@ -9,8 +9,8 @@
  * vsrDisplay Class: VSR 3-digit Display
  *
  * vsrBLEDs:
- * - Either PWM on ESP32 (dimmable)
- * - or via i2c port expander (8574/0x22) (on/off)
+ * - Either GPIO on ESP32
+ * - or via i2c port expander (8574/0x22)
  * 
  * vsrDisplay:
  * Via HT16K33 (addr 0x70)
@@ -67,9 +67,6 @@ class vsrBLEDs {
 
     private:
 
-        void setupPWM(int idx, uint8_t ledChannel, uint32_t freq, uint8_t resolution, uint8_t pwm_pin);
-        void setDC(int idx, uint32_t dutyCycle);
-
         int     _numTypes = 0;
         uint8_t _addrArr[4*2];    // up to 4 hw types fit here
         int8_t  _hwt = -1;
@@ -85,8 +82,6 @@ class vsrBLEDs {
         uint8_t _sMask = 0;
 
         uint8_t   _lpins[3];
-
-        uint32_t _curDutyCycle[3];
 };
 
 /* vsrDisplay Class */

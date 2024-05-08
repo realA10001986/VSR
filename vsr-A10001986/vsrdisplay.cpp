@@ -9,8 +9,8 @@
  * vsrDisplay Class: VSR 3-digit Display
  *
  * vsrBLEDs:
- * - Either PWM on ESP32 (dimmable)
- * - or via i2c port expander (8574/0x22; anode=VDD) (on/off)
+ * - Either GPIO on ESP32
+ * - or via i2c port expander (8574/0x22; anode=VDD)
  * 
  * vsrDisplay:
  * Via HT16K33 (addr 0x70)
