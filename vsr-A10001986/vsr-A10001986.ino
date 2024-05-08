@@ -100,6 +100,8 @@
 
 /*  Changelog
  *  
+ *  2024/05/03 (A10001986)
+ *    - Adapt to Control Board 1.05
  *  2024/04/25 (A10001986)
  *    - Remove "display type" selection from CP
  *    - Make buttons active low by default
@@ -128,7 +130,6 @@ void setup()
     Serial.println();
 
     // I2C init
-    // PCF8574 only supports 100kHz, can't go to 400 here.
     Wire.begin(-1, -1, 100000);
 
     main_boot();

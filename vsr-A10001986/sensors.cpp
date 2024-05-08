@@ -5,7 +5,7 @@
  * https://github.com/realA10001986/VSR
  * https://vsr.out-a-ti.me
  *
- * Sensor Class: Temperature/humidty and Light Sensor handling
+ * Sensor Class: Temperature sensor handling
  *
  * This is designed for 
  * - MCP9808, TMP117, BMx280, SHT4x-Ax, SI7012, AHT20/AM2315C, HTU31D, 

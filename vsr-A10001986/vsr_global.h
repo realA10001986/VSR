@@ -20,8 +20,8 @@
  ***                          Version Strings                          ***
  *************************************************************************/
 
-#define VSR_VERSION "V0.04"
-#define VSR_VERSION_EXTRA "APR252024"
+#define VSR_VERSION "V0.05"
+#define VSR_VERSION_EXTRA "MAY032024"
 
 #define VSR_DBG              // debug output on Serial
 
@@ -43,9 +43,6 @@
 /*************************************************************************
  ***             Configuration for hardware/peripherals                ***
  *************************************************************************/
-
-// Uncomment if GPIO-buttons are active high
-//#define GPIO_BU_AH
 
 // Uncomment to drive buttons via I2C port expander (pins 13-15; com on 0)
 // Comment for using direct port pins BUTTONx_IO_PIN

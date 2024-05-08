@@ -1032,9 +1032,11 @@ void flushDelayedSave()
 static void chgVolume(int d)
 {
     char buf[8];
-    
+
+    #ifdef VSR_HAVEVOLKNOB
     if(curSoftVol == 255)
         return;
+    #endif
 
     int nv = curSoftVol;
     nv += d;
@@ -1367,10 +1369,12 @@ static void execute_remote_command()
             #ifdef VSR_HAVEAUDIO
             command -= 300;                       // 8300-8319/8399: Set fixed volume level / enable knob
             if(command == 99) {
+                #ifdef VSR_HAVEVOLKNOB
                 curSoftVol = 255;
                 volchanged = true;
                 volchgnow = millis();
                 updateConfigPortalVolValues();
+                #endif
             } else if(command <= 19) {
                 curSoftVol = command;
                 volchanged = true;

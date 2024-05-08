@@ -149,15 +149,9 @@ void Pushwheel_I2C::begin(unsigned int scanInterval, unsigned int holdTime, void
     Serial.println("Initializing direct GPIO buttons");
     #endif
 
-    #ifndef GPIO_BU_AH
     _vsrbutton[0].begin(BUTTON1_IO_PIN, true, true);  // active low, pullup
     _vsrbutton[1].begin(BUTTON2_IO_PIN, true, true);  // active low, pullup
     _vsrbutton[2].begin(BUTTON3_IO_PIN, true, true);  // active low, pullup
-    #else
-    _vsrbutton[0].begin(BUTTON1_IO_PIN, false, false);  // active high, no pullup
-    _vsrbutton[1].begin(BUTTON2_IO_PIN, false, false);  // active high, no pullup
-    _vsrbutton[2].begin(BUTTON3_IO_PIN, false, false);  // active high, no pullup
-    #endif
 
     _vsrbutton[0].setTicks(50, _holdTime);
     _vsrbutton[1].setTicks(50, _holdTime);
