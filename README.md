@@ -563,6 +563,16 @@ Number of times the firmware tries to reconnect to a WiFi network, before fallin
 
 Number of seconds before a timeout occurs when connecting to a WiFi network. When a timeout happens, another attempt is made (see immediately above), and if all attempts fail, the device falls back to AP-mode. See [here](#short-summary-of-first-steps)
 
+#### Settings for Night Mode
+
+##### &#9654; Display off
+
+If this is checked, the LED display is switched off in night mode. Otherwise, it will be dimmed.
+
+##### &#9654; Button lights off
+
+If this is checked, the button lights are switched off in night mode. Otherwise, they will be dimmed.
+
 #### Settings for temperature display
 
 ##### &#9654; Display in °Celsius
