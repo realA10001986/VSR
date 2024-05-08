@@ -520,6 +520,18 @@ If this option is checked, changing the pushwheels slowly and smoothly adapts th
 
 If this option is checked, the displayed pushwheel value slightly and randomly fluctuates. If this option is unchecked, the pushwheel value is statically displayed, without any fluctuations.
 
+##### &#9654; Display button mode on power-up
+
+If this is checked, the VSR briefly shows the current [button mode](#button-modes) upon power-up.
+
+##### &#9654; Lights indicate button mode
+
+If this is checked, the buttons lights permanently reflect the current [button mode](#button-modes), except for _light mode_.
+
+##### &#9654; Brightness level
+
+This selects brightness level for the LED display.
+
 ##### &#9654; Screen saver timer
 
 Enter the number of minutes until the Screen Saver should become active when the VSR is idle.
@@ -568,10 +580,6 @@ Number of seconds before a timeout occurs when connecting to a WiFi network. Whe
 ##### &#9654; Display off
 
 If this is checked, the LED display is switched off in night mode. Otherwise, it will be dimmed.
-
-##### &#9654; Button lights off
-
-If this is checked, the button lights are switched off in night mode. Otherwise, they will be dimmed.
 
 #### Settings for temperature display
 
