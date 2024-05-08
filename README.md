@@ -1,6 +1,6 @@
 # VSR
 
-This repository holds the most current firmware for a replica of the Voltage Systems Regulator ("VSR") known from the Delorean Time Machine. The hardware is still in the design stage.
+This repository holds the most current firmware for a replica of the Voltage Systems Regulator ("VSR") known from the Delorean Time Machine. There is no kit available yet; however, the electronics are done and you can make your own boards using the files in the _Electronics_ folder.
 
 Features include:
 
