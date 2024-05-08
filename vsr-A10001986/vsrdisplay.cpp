@@ -91,15 +91,20 @@ void vsrBLEDs::begin(int numLEDs)
 
     if(!foundSt) {
         #ifdef VSR_DBG
-        Serial.println("No i2c button LED driver found, setting up fall-back PWM pins");
+        Serial.println("No i2c button LED driver found, setting up fall-back GPIO pins");
         #endif
         
-        _hwt =  BLHW_PWM;
+        _hwt =  BLHW_GPIO;
         _nLEDs = 3;
-        
-        setupPWM(0, 0, 5000, 8, BUTTON1_PWM_PIN);
-        setupPWM(1, 1, 5000, 8, BUTTON2_PWM_PIN);
-        setupPWM(2, 2, 5000, 8, BUTTON3_PWM_PIN);
+
+        _lpins[0] = BUTTON1_PWM_PIN;
+        _lpins[1] = BUTTON2_PWM_PIN;
+        _lpins[2] = BUTTON3_PWM_PIN;
+
+        for(int i = 0; i < _nLEDs; i++) {
+            pinMode(_lpins[i], OUTPUT);
+            digitalWrite(_lpins[i], LOW);
+        }
     }
 
     _sMask = (_nLEDs > 0) ? (1 << _nLEDs) - 1 : 0;
@@ -122,23 +127,20 @@ void vsrBLEDs::off()
 
 void vsrBLEDs::setStates(uint8_t states)
 {
-    uint32_t onDC;
     
     _states = states & _sMask;
     
     switch(_hwt) {
     case BLHW_PCF8574:
         // Button LEDs are off in night mode
-        // TODO: Connect same LEDs with resistor to different ports?
         Wire.beginTransmission(_address);
         Wire.write(~(_off ? 0x00 : (_nightmode ? 0x00 : _states)));
         Wire.endTransmission();
         break;
-    case BLHW_PWM:
-        // Button LEDs are dimmed or off in night mode
-        onDC = _off ? 0 : (_nightmode ? (_nmOff ? 0 : 20) : 255);
+    case BLHW_GPIO:
+        // Button LEDs are off in night mode
         for(int i = 0; i < _nLEDs; i++) {
-            setDC(i, (_states & (1 << i)) ? onDC : 0);
+            digitalWrite(_lpins[i], _off ? LOW : (_nightmode ? LOW : !!(_states & (1 << i))));
         }
         break;
     }
@@ -148,7 +150,7 @@ uint8_t vsrBLEDs::getStates()
 {
     switch(_hwt) {
     case BLHW_PCF8574:
-    case BLHW_PWM:
+    case BLHW_GPIO:
     default:
         return _states;
     }
@@ -165,39 +167,6 @@ bool vsrBLEDs::getNightMode(void)
     return _nightmode;
 }
 
-void vsrBLEDs::setNMOff(bool NMOff)
-{
-    _nmOff = NMOff;
-}
-
-// Private
-
-void vsrBLEDs::setupPWM(int idx, uint8_t ledChannel, uint32_t freq, uint8_t resolution, uint8_t pwm_pin)
-{
-    _chnl[idx] = ledChannel;
-    _freq[idx] = freq;
-    _res[idx] = resolution;
-    _pwm_pin[idx] = pwm_pin;
-    
-    // Config PWM properties
-    ledcSetup(_chnl[idx], _freq[idx], _res[idx]);
-
-    // Attach channel to GPIO
-    ledcAttachPin(_pwm_pin[idx], _chnl[idx]);
-
-    // For 3.x (chnl unused)
-    //ledcAttach(_pwm_pin[idx], _freq[idx], _res[idx]);
-
-    // Set DC to 0
-    setDC(idx, 0);
-}
-
-void vsrBLEDs::setDC(int idx, uint32_t dutyCycle)
-{
-    _curDutyCycle[idx] = dutyCycle;
-    ledcWrite(_chnl[idx], dutyCycle);
-    //ledcWrite(_pwm_pin[idx], dutyCycle); // For 3.x
-}
 
 /* vsrdisplay class */
 

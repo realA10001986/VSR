@@ -352,6 +352,7 @@ static bool read_settings(File configFile)
         wd |= CopyCheckValidNumParm(json["smoothpw"], settings.smoothpw, sizeof(settings.smoothpw), 0, 1, DEF_SMOOTHPW);
         wd |= CopyCheckValidNumParm(json["fluct"], settings.fluct, sizeof(settings.fluct), 0, 1, DEF_FLUCT);
         wd |= CopyCheckValidNumParm(json["displayBM"], settings.displayBM, sizeof(settings.displayBM), 0, 1, DEF_DISP_BM);
+        wd |= CopyCheckValidNumParm(json["signalBM"], settings.signalBM, sizeof(settings.signalBM), 0, 1, DEF_SIG_BM);
         wd |= CopyCheckValidNumParm(json["ssTimer"], settings.ssTimer, sizeof(settings.ssTimer), 0, 999, DEF_SS_TIMER);
 
         if(json["hostName"]) {
@@ -372,7 +373,6 @@ static bool read_settings(File configFile)
         wd |= CopyCheckValidNumParm(json["wifiConTimeout"], settings.wifiConTimeout, sizeof(settings.wifiConTimeout), 7, 25, DEF_WIFI_TIMEOUT);
 
         wd |= CopyCheckValidNumParm(json["diNmOff"], settings.diNmOff, sizeof(settings.diNmOff), 0, 1, DEF_DI_NM);
-        wd |= CopyCheckValidNumParm(json["buNmOff"], settings.buNmOff, sizeof(settings.buNmOff), 0, 1, DEF_BU_NM);
 
         wd |= CopyCheckValidNumParm(json["tempUnit"], settings.tempUnit, sizeof(settings.tempUnit), 0, 1, DEF_TEMP_UNIT);
         #ifdef VSR_HAVETEMP
@@ -448,6 +448,7 @@ void write_settings()
     json["smoothpw"] = (const char *)settings.smoothpw;
     json["fluct"] = (const char *)settings.fluct;
     json["displayBM"] = (const char *)settings.displayBM;
+    json["signalBM"] = (const char *)settings.signalBM;
     json["ssTimer"] = (const char *)settings.ssTimer;
 
     json["hostName"] = (const char *)settings.hostName;
@@ -457,7 +458,6 @@ void write_settings()
     json["wifiConTimeout"] = (const char *)settings.wifiConTimeout;
 
     json["diNmOff"] = (const char *)settings.diNmOff;
-    json["buNmOff"] = (const char *)settings.buNmOff;
 
     json["tempUnit"] = (const char *)settings.tempUnit;
     #ifdef VSR_HAVETEMP

@@ -114,7 +114,12 @@ WiFiManagerParameter custom_fluct("flu", "Voltage fluctuations", settings.fluct,
 #ifdef DG_NOCHECKBOXES  // --- Standard text boxes: -------
 WiFiManagerParameter custom_displayBM("dbm", "Display button mode on power-up (0=no, 1=yes)", settings.displayBM, 1, "autocomplete='off' style='margin-top:5px;'");
 #else // -------------------- Checkbox hack: --------------
-WiFiManagerParameter custom_displayBM("dbm", "Display button mode on power-up", settings.displayBM, 1, "autocomplete='off' type='checkbox' style='margin-top:5px;margin-bottom:10px;'", WFM_LABEL_AFTER);
+WiFiManagerParameter custom_displayBM("dbm", "Display button mode on power-up", settings.displayBM, 1, "autocomplete='off' type='checkbox' class='mt5'", WFM_LABEL_AFTER);
+#endif // -------------------------------------------------
+#ifdef DG_NOCHECKBOXES  // --- Standard text boxes: -------
+WiFiManagerParameter custom_signalBM("sbm", "Lights indicate button mode (0=no, 1=yes)", settings.signalBM, 1, "autocomplete='off' style='margin-top:5px;'");
+#else // -------------------- Checkbox hack: --------------
+WiFiManagerParameter custom_signalBM("sbm", "Lights indicate button mode", settings.signalBM, 1, "autocomplete='off' type='checkbox' style='margin-top:5px;margin-bottom:10px;'", WFM_LABEL_AFTER);
 #endif // -------------------------------------------------
 WiFiManagerParameter custom_Bri("Bri", "<br>Brightness level (0-15)", settings.Bri, 2, "type='number' min='0' max='15' autocomplete='off'", WFM_LABEL_BEFORE);
 WiFiManagerParameter custom_ssDelay("ssDel", "Screen saver timer (minutes; 0=off)", settings.ssTimer, 3, "type='number' min='0' max='999' autocomplete='off'", WFM_LABEL_BEFORE);
@@ -145,10 +150,8 @@ WiFiManagerParameter custom_wifiConTimeout("wificon", "WiFi connection timeout (
 
 #ifdef TC_NOCHECKBOXES  // --- Standard text boxes: -------
 WiFiManagerParameter custom_diNmOff("dinMOff", "Display (0=dimmed, 1=off)", settings.diNmOfff, 1, aco);
-WiFiManagerParameter custom_buNmOff("bunMOff", "Button lights (0=dimmed, 1=off)", settings.buNmOff, 1, aco);
 #else // -------------------- Checkbox hack: --------------
 WiFiManagerParameter custom_diNmOff("dinMOff", "Display off", settings.diNmOff, 1, "title='Dimmed if unchecked' type='checkbox' class='mt5'", WFM_LABEL_AFTER);
-WiFiManagerParameter custom_buNmOff("bunMOff", "Button lights off", settings.buNmOff, 1, "title='Dimmed if unchecked (if supported by hardware)' type='checkbox' class='mt5'", WFM_LABEL_AFTER);
 #endif // -------------------------------------------------
 
 #ifdef TC_NOCHECKBOXES  // --- Standard text boxes: -------
@@ -408,10 +411,11 @@ void wifi_setup()
     }
     #endif
     
-    wm.addParameter(&custom_sectstart_head);// 6
+    wm.addParameter(&custom_sectstart_head);// 7
     wm.addParameter(&custom_smoothpw);
     wm.addParameter(&custom_fluct);
     wm.addParameter(&custom_displayBM);
+    wm.addParameter(&custom_signalBM);
     wm.addParameter(&custom_Bri);
     wm.addParameter(&custom_ssDelay);
 
@@ -430,9 +434,8 @@ void wifi_setup()
     wm.addParameter(&custom_wifiConRetries);
     wm.addParameter(&custom_wifiConTimeout);
 
-    wm.addParameter(&custom_sectstart_nm);  // 3
+    wm.addParameter(&custom_sectstart_nm);  // 2
     wm.addParameter(&custom_diNmOff);
-    wm.addParameter(&custom_buNmOff);
 
     wm.addParameter(&custom_sectstart_te); 
     wm.addParameter(&custom_tempUnit); 
@@ -780,9 +783,9 @@ void wifi_loop()
             mystrcpy(settings.smoothpw, &custom_smoothpw);
             mystrcpy(settings.fluct, &custom_fluct);
             mystrcpy(settings.displayBM, &custom_displayBM);
+            mystrcpy(settings.signalBM, &custom_signalBM);
 
             mystrcpy(settings.diNmOff, &custom_diNmOff);
-            mystrcpy(settings.buNmOff, &custom_buNmOff);
 
             mystrcpy(settings.tempUnit, &custom_tempUnit);
 
@@ -815,9 +818,9 @@ void wifi_loop()
             strcpyCB(settings.smoothpw, &custom_smoothpw);
             strcpyCB(settings.fluct, &custom_fluct);
             strcpyCB(settings.displayBM, &custom_displayBM);
+            strcpyCB(settings.signalBM, &custom_signalBM);
 
             strcpyCB(settings.diNmOff, &custom_diNmOff);
-            strcpyCB(settings.buNmOff, &custom_buNmOff);
 
             strcpyCB(settings.tempUnit, &custom_tempUnit);
 
@@ -1242,9 +1245,9 @@ void updateConfigPortalValues()
     custom_smoothpw.setValue(settings.smoothpw, 1);
     custom_fluct.setValue(settings.fluct, 1);
     custom_displayBM.setValue(settings.displayBM, 1);
+    custom_signalBM.setValue(settings.signalBM, 1);
 
     custom_diNmOff.setValue(settings.diNmOff, 1);
-    custom_buNmOff.setValue(settings.buNmOff, 1);
 
     custom_tempUnit.setValue(settings.tempUnit, 1);
     
@@ -1276,9 +1279,9 @@ void updateConfigPortalValues()
     setCBVal(&custom_smoothpw, settings.smoothpw);
     setCBVal(&custom_fluct, settings.fluct);
     setCBVal(&custom_displayBM, settings.displayBM);
+    setCBVal(&custom_signalBM, settings.signalBM);
 
     setCBVal(&custom_diNmOff, settings.diNmOff);
-    setCBVal(&custom_buNmOff, settings.buNmOff);
 
     setCBVal(&custom_tempUnit, settings.tempUnit);
     

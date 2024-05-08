@@ -45,7 +45,7 @@
 
 enum {
     BLHW_PCF8574 = 0, // i2c 0x22
-    BLHW_PWM          // fall-back PWM; should be last
+    BLHW_GPIO         // direct GPIO
 };
 
 class vsrBLEDs {
@@ -78,17 +78,13 @@ class vsrBLEDs {
 
         bool    _off = false;
         bool    _nightmode = false;
-        bool    _nmOff = false;
 
         uint8_t _states = 0;
 
         int     _nLEDs = 0;
         uint8_t _sMask = 0;
 
-        uint8_t   _pwm_pin[3];
-        uint8_t   _chnl[3];
-        uint32_t  _freq[3];
-        uint8_t   _res[3];
+        uint8_t   _lpins[3];
 
         uint32_t _curDutyCycle[3];
 };

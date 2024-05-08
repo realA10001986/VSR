@@ -86,6 +86,8 @@ static void controlsEvent(int idx, ButState bstate);
  */
 void controls_setup()
 {
+    signalBM = (atoi(settings.signalBM) > 0);
+    
     // Set up the pushwheels and buttons
     vsrControls.begin(50, BUTTON_HOLD_TIME, myCustomDelay_KP);
 

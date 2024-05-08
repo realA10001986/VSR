@@ -49,6 +49,7 @@ extern uint8_t musFolderNum;
 #define DEF_SMOOTHPW        1     // Smooth pushwheel changes
 #define DEF_FLUCT           0     // Voltage fluctuations 1=on, 0=off
 #define DEF_DISP_BM         1     // Display button mode upon power-up: 1=yes, 0=no
+#define DEF_SIG_BM          1     // Signal button mode by permanent button lights
 #define DEF_SS_TIMER        0     // "Screen saver" timeout in minutes; 0 = ss off
 
 #define DEF_HOSTNAME        "vsr"
@@ -56,7 +57,6 @@ extern uint8_t musFolderNum;
 #define DEF_WIFI_TIMEOUT    7     // 7-25; Default: 7 seconds
 
 #define DEF_DI_NM           0     // Night mode: display dimmed(0) or off(1)
-#define DEF_BU_NM           0     // Night mode: button lights dimmed(0; if supported by hw) or off(1)
 
 #define DEF_USE_TEMPSENS    1     // Default: Use temp sensor (if available)
 #define DEF_TEMP_UNIT       0     // Default: temperature unit Fahrenheit
@@ -87,6 +87,7 @@ struct Settings {
     char smoothpw[4]        = MS(DEF_SMOOTHPW);
     char fluct[4]           = MS(DEF_FLUCT);
     char displayBM[4]       = MS(DEF_DISP_BM);
+    char signalBM[4]        = MS(DEF_SIG_BM);
     char ssTimer[6]         = MS(DEF_SS_TIMER);
 
     char hostName[32]       = DEF_HOSTNAME;
@@ -96,7 +97,6 @@ struct Settings {
     char wifiConTimeout[4]  = MS(DEF_WIFI_TIMEOUT);
 
     char diNmOff[4]         = MS(DEF_DI_NM);
-    char buNmOff[4]         = MS(DEF_BU_NM);
 
     char tempUnit[4]        = MS(DEF_TEMP_UNIT);
     #ifdef VSR_HAVETEMP

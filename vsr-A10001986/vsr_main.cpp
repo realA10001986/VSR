@@ -89,8 +89,7 @@ tempSensor tempSens(8,
                           });
 #endif
 
-#define TT_DEBOUNCE    50    // tt button debounce time in ms
-#define TT_PRESS_TIME 200    // tt button will register a short press
+#define TT_DEBOUNCE   100    // tt button debounce time in ms (100 min)
 #define TT_HOLD_TIME 5000    // time in ms holding the tt button will count as a long press
 static bool isTTKeyPressed = false;
 static bool isTTKeyHeld = false;
@@ -99,7 +98,7 @@ int                  userDispMode = LDM_WHEELS;
 static int           dispMode = LDM_WHEELS;
 static int           lastDispMode = -1;
 static bool          displayBM = true;
-bool                 signalBM = true; //false;
+bool                 signalBM = true;
 
 static bool          doForceDispUpd = false;
 
@@ -335,7 +334,6 @@ void main_setup()
     ssDelay = ssOrigDelay = atoi(settings.ssTimer) * 60 * 1000;
 
     vsrdisplay.setNMOff((atoi(settings.diNmOff) > 0));
-    vsrLEDs.setNMOff((atoi(settings.buNmOff) > 0));
 
     #ifdef VSR_HAVEAUDIO
     playTTsounds = (atoi(settings.playTTsnds) > 0);

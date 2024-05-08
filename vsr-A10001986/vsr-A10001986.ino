@@ -100,6 +100,10 @@
 
 /*  Changelog
  *  
+ *  2024/05/08 (A10001986)
+ *    - Increase debounce time for tt button
+ *    - Make button mode indication by lights optional
+ *    - Switch button lights from PWM to LOW/HIGH to reflect actual hardware
  *  2024/05/03 (A10001986)
  *    - Adapt to Control Board 1.05
  *  2024/04/25 (A10001986)
