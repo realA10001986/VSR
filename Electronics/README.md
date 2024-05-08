@@ -14,7 +14,7 @@ To have JCLPCB make your boards:
 1) Create an account at jlcpcb.com
 2) Click "Upload Gerber file" or "order now"
 3) Upload the Gerber file (.zip, do not decompress!) for the PCB you want to make; leave all options at their defaults. You can choose a PCB color though...
-4) Activate "PCM assembly", click "NEXT"
+4) Activate "PCB assembly", click "NEXT"
 5) Upload the BOM and "PickAndPlace" files, click NEXT
 6) Read the remarks regarding the BOM files in each of the folders here
 7) Finalize order.
