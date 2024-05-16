@@ -408,7 +408,7 @@ In order to connect your VSR to the TCD using BTTFN, just enter the TCD's IP add
 Afterwards, the VSR and the TCD can communicate wirelessly and 
 - play time travel sequences in sync,
 - both play an alarm-sequence when the TCD's alarm occurs,
-- the VSR can be remote controlled through the TCD's keypad (command codes 3xxx),
+- the VSR can be remote controlled through the TCD's keypad (command codes 8xxx),
 - the VSR queries the TCD for temperature and GPS speed and for display,
 - the VSR queries the TCD for fake power and night mode, in order to react accordingly if so configured,
 - the VSR's Time Travel button can trigger a synchronized Time Travel on all BTTFN-connected devices, just like if that Time Travel was triggered through the TCD.
