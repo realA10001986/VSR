@@ -14,13 +14,14 @@ To have JCLPCB make your boards:
 1) Create an account at jlcpcb.com
 2) Click "Upload Gerber file" or "order now"
 3) Upload the Gerber file (.zip, do not decompress!) for the PCB you want to make; leave all options at their defaults. You can choose a PCB color though...
-4) Activate "PCB assembly", click "NEXT"
-5) Upload the BOM and "PickAndPlace" files, click NEXT
-6) Read the remarks regarding the BOM files in each of the folders here
-7) Finalize order.
+4) Activate "PCB assembly", click "NEXT" (not for LED tube carrier, there are no components JLCPCB can assemble)
+5) Enjoy a view of the PCB, click "NEXT"
+6) Upload the BOM and "PickAndPlace" files, click "NEXT"
+7) Read the remarks regarding the BOM files in each of the folders here
+8) Finalize order.
 
 You additionally need:
-- 1x NodeMCU ESP32S dev board; 2x 19pin femals headers, 2.54mm pitch
+- 1x NodeMCU ESP32S dev board; 2x [19pin femals headers](https://www.lcsc.com/product-detail/Female-Headers_CONNFLY-Elec-DS1023-1x19SF11_C7509529.html), 2.54mm pitch. If you can't get them for exactly 19 pins, get some longer ones and cut them off.
 - Screw terminals and XH connector on the back of the Control Board:
   - 2x DG308-2.54-02P-14-00A(H) (or any other; 2.54mm pitch, 2 pins)
   - 1x DG308-2.54-04P-14-00A(H) (or any other; 2.54mm pitch, 4 pins; optional: for time travel button)
