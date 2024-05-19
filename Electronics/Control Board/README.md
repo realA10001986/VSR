@@ -25,7 +25,7 @@ To have [JCLPCB](https://jlcpcb.com) make your Control Board:
 
 #### You additionally need:
 - 1x NodeMCU ESP32S dev board
-- 2x 19pin femals headers, 2.54mm pitch ([LCSC](https://www.lcsc.com) part number C7509529). If you can't get them for exactly 19 pins, get some longer ones and cut them.
+- 2x 19pin femals headers, 2.54mm pitch (LCSC part number C7509529). If you can't get them for exactly 19 pins, get some longer ones and cut them.
 - Screw terminals and XH connector on the back of the Control Board:
   - 2x DG308-2.54-02P-14-00A(H) (LCSC part number C699496) (or [any other](https://www.mouser.com/ProductDetail/Amphenol-Anytek/VN02A1500000G?qs=Mv7BduZupUgf8d3Xo6xdxw%3D%3D); 2.54mm pitch, 2 pins) for 5V and 12V connectors;
   - 1x DG308-2.54-04P-14-00A(H) (LCSC part number C708735) (or [any other](https://www.mouser.com/ProductDetail/Amphenol-Anytek/VN04A1500000G?qs=Mv7BduZupUg1gSttWAc7xA%3D%3D); 2.54mm pitch, 4 pins; optional: for time travel button);
