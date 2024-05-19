@@ -10,7 +10,7 @@ Folders contain each
 - BOMs for the PCB's (.csv)
 - PickAndPlace files for production
 
-To have JCLPCB make your boards:
+To have [JCLPCB](https://jlcpcb.com) make your boards:
 1) Create an account at jlcpcb.com
 2) Click "Upload Gerber file" or "order now"
 3) Upload the Gerber file (.zip, do not decompress!) for the PCB you want to make; leave all options at their defaults. You can choose a PCB color though...
@@ -18,7 +18,8 @@ To have JCLPCB make your boards:
 5) Enjoy a view of the PCB, click "NEXT"
 6) Upload the BOM and "PickAndPlace" (CPL) files, click "Process BOM & CPL"
 7) Read the remarks regarding the BOM files in each of the folders here before continuing
-8) Finalize order.
+8) Enjoy a nice 2D or 3D view of your future board, click "NEXT". (If the display stalls at "Processing files", click "NEXT" regardless).
+9) Select a "product description" (eg. "Movie prop") and click "Save to cart". Then finalize your order.
 
 You additionally need:
 - 1x NodeMCU ESP32S dev board; 2x [19pin femals headers](https://www.lcsc.com/product-detail/Female-Headers_CONNFLY-Elec-DS1023-1x19SF11_C7509529.html), 2.54mm pitch. If you can't get them for exactly 19 pins, get some longer ones and cut them off.
