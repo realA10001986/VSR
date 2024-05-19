@@ -34,6 +34,6 @@ To have [JCLPCB](https://jlcpcb.com) make your LED display:
 You additionally need:
 - 3x 9mm/0.36" (7.5x14mm) red single digit LED segment tubes with common cathode (available [here](https://www.mouser.com/ProductDetail/Lite-On/LTS-367HR?qs=%2FyTdksM2s8JsvE9suGTa9Q%3D%3D) or on ebay)
 - 1x 11pin 2mm pitch male pin header
-- 1x [11pin 2mm pitch female pin header]([11](https://www.mouser.com/ProductDetail/NorComp/25631101RP2?qs=TaIhzdgpGpUc9hecPJ8SJg%3D%3D))
+- 1x [11pin 2mm pitch female pin header](https://www.mouser.com/ProductDetail/NorComp/25631101RP2?qs=TaIhzdgpGpUc9hecPJ8SJg%3D%3D)
 - the ability to solder through-the-hole parts, and the required tools.
 
