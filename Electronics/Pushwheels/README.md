@@ -21,6 +21,6 @@ To have [JCLPCB](https://jlcpcb.com) make your Pushwheels Board:
 
 #### You additionally need:
 - 3x KM1 pushwheels (22x8mm)
-- 3x 11 or 12 pin 2mm pitch male (90 degrees) pin header
+- 3x [11](https://www.mouser.com/ProductDetail/Adam-Tech/2PH1R-11-UA?qs=HoCaDK9Nz5d0X2QsJeqJ4Q%3D%3D) or [12 pin 2mm pitch male (90 degrees) pin header](https://www.mouser.com/ProductDetail/Harwin/M22-2031205?qs=xxdqPuaJ%252Ba06lrlBpeOknw%3D%3D)
 - 3x [11](https://www.mouser.com/ProductDetail/NorComp/25631101RP2?qs=TaIhzdgpGpUc9hecPJ8SJg%3D%3D) or [12 pin 2mm pitch female](https://www.mouser.com/ProductDetail/Harwin/M22-7131242?qs=%252Bk6%2F5FB6qrmdMF9FvJ5n1g%3D%3D) pin headers; solder them to left pad row (12 holes); if 11 pin header is used, align to top, leave bottom hole empty.
 - the ability to solder through-the-hole parts, and the required tools.
