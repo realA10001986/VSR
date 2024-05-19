@@ -1,3 +1,4 @@
+## VSR Control Board
 
 To have [JCLPCB](https://jlcpcb.com) make your Control Board:
 1) Create an account at jlcpcb.com
