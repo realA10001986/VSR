@@ -23,3 +23,8 @@ To have [JCLPCB](https://jlcpcb.com) make your Pushwheels Board:
 
 - After processing BOM & CPL, JLCPCB will complain about "missing data" for PW1-PW3 and BUTTONS. PW1-PW3 are 12-pin 2mm pitch pin sockers, and they can't be assembled by JLCPCB. BUTTONS is not needed. Click "Continue".
 
+#### You additionally need:
+- 3x KM1 pushwheels (22x8mm)
+- 3x 11 or 12 pin 2mm pitch male (90 degrees) pin header
+- 3x 11 or 12 pin 2mm pitch female (0 degrees) pin headers
+- the ability to solder through-the-hole parts, and the required tools.
