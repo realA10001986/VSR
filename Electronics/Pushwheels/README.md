@@ -8,3 +8,6 @@ The KM1 (22x8mm) pushwheels can be attached by using 2mm pitched pin sockets and
 
 The two four-pin XH connectors are for connecting the LED display and the Control Board.
 
+
+- After processing BOM & CPL, JLCPCB will complain about "missing data" for PW1-PW3 and BUTTONS. PW1-PW3 are 12-pin 2mm pitch pin sockers, and they can't be assembled by JLCPCB. BUTTONS is not needed. Click "Continue".
+
