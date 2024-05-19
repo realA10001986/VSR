@@ -34,5 +34,5 @@ To have [JCLPCB](https://jlcpcb.com) make your Control Board:
 - XH 4pin cables to connect the three buttons ("BUT"/"BUT" pins: shorted by button; "L+"/"L-" pins for light)
 - the ability to solder through-the-hole parts, and the required tools.
 
-The voltage for the lights inside the buttons can be selected from 3.3V, 5V, and 12V. There is a "T" shaped solder jumper on the Control Board. Connect "3V3" and "LVcc" for 3.3V, for instance. If you go for 12V, the Control Board must be powered with 12V through the respective connector on the back of the PCB.
+The voltage for the lights inside the buttons can be selected from 3.3V, 5V, and 12V. There is a "T" shaped solder jumper on the Control Board. Connect "3V3" and "LVcc" for 3.3V, for instance. If you go for 12V, the Control Board must be powered with 12V through the respective connector on the back of the PCB. On the pictures above, 5V is selected.
 
