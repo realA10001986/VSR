@@ -32,8 +32,8 @@ To have [JCLPCB](https://jlcpcb.com) make your LED display:
 13) Finialize your order
 
 You additionally need:
-- 3x 9mm/0.36" red single digit LED segment tubes
+- 3x 9mm/0.36" red single digit LED segment tubes (available on ebay)
 - 1x 11pin 2mm pitch male pin header
-- 1x 11pin 2mm pitch female pin header
+- 1x [11pin 2mm pitch female pin header]([11](https://www.mouser.com/ProductDetail/NorComp/25631101RP2?qs=TaIhzdgpGpUc9hecPJ8SJg%3D%3D))
 - the ability to solder through-the-hole parts, and the required tools.
 
