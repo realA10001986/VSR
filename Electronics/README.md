@@ -17,7 +17,7 @@ To have JCLPCB make your boards:
 4) Activate "PCB assembly", click "NEXT" (not for LED tube carrier, there are no components JLCPCB can assemble)
 5) Enjoy a view of the PCB, click "NEXT"
 6) Upload the BOM and "PickAndPlace" (CPL) files, click "Process BOM & CPL"
-7) Read the remarks regarding the BOM files in each of the folders here
+7) Read the remarks regarding the BOM files in each of the folders here before continuing
 8) Finalize order.
 
 You additionally need:
