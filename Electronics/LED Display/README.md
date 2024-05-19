@@ -8,4 +8,4 @@ The LED display consists of two PCBs stacked on each other.
 The connection between the PCBs can be using a pin header/socket (11 pins, 2mm pitch), or soldered using a pin header long enough to keep a distance between the PCBs.
 
 ### Remark on BOM for i2c backpack:
-- After processing BOM & CPL, JLCPCB will complain about "missing data" for PW1-PW3 and BUTTONS. PW1-PW3 are 12-pin 2mm pitch pin sockers, and they can't be assembled by JLCPCB. BUTTONS is not needed. Click "Continue".
+
