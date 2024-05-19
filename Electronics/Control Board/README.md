@@ -1,5 +1,11 @@
 ## VSR Control Board
 
+<img src="img/cb1.jpg">
+
+<img src="img/cb2.jpg">
+
+<img src="img/cb3.jpg">
+
 To have [JCLPCB](https://jlcpcb.com) make your Control Board:
 1) Create an account at jlcpcb.com
 2) Click "Upload Gerber file" or "order now"
