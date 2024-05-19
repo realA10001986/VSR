@@ -6,11 +6,11 @@ The KM1 (22x8mm) pushwheels are attached through 2mm pitched pin sockets and 90 
 
 <img src="img/pw2.jpg">
 
+<img src="img/pw6.jpg">
+
 The two four-pin XH connectors are for connecting the LED display and the Control Board.
 
 <img src="img/pw3.jpg">
-
-<img src="img/pw6.jpg">
 
 To have [JCLPCB](https://jlcpcb.com) make your Pushwheels Board:
 1) Create an account at jlcpcb.com
