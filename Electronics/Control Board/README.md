@@ -27,9 +27,9 @@ To have [JCLPCB](https://jlcpcb.com) make your Control Board:
 - 1x NodeMCU ESP32S dev board
 - 2x [19pin femals headers](https://www.lcsc.com/product-detail/Female-Headers_CONNFLY-Elec-DS1023-1x19SF11_C7509529.html), 2.54mm pitch. If you can't get them for exactly 19 pins, get some longer ones and cut them.
 - Screw terminals and XH connector on the back of the Control Board:
-  - 2x DG308-2.54-02P-14-00A(H) (or any other; 2.54mm pitch, 2 pins) for 5V and 12V connectors;
-  - 1x DG308-2.54-04P-14-00A(H) (or any other; 2.54mm pitch, 4 pins; optional: for time travel button);
-  - 1x XH-4AWD connector; this is optional and only for connecting a temperature sensor.
+  - 2x [DG308-2.54-02P-14-00A(H)](https://www.lcsc.com/product-detail/Screw-terminal_DEGSON-DG308-2-54-02P-14-00A-H_C699496.html) (or [any other](https://www.mouser.com/ProductDetail/Amphenol-Anytek/VN02A1500000G?qs=Mv7BduZupUgf8d3Xo6xdxw%3D%3D); 2.54mm pitch, 2 pins) for 5V and 12V connectors;
+  - 1x [DG308-2.54-04P-14-00A(H)](https://www.lcsc.com/product-detail/Screw-terminal_DEGSON-DG308-2-54-04P-14-00A-H_C708735.html) (or [any other](https://www.mouser.com/ProductDetail/Amphenol-Anytek/VN04A1500000G?qs=Mv7BduZupUg1gSttWAc7xA%3D%3D); 2.54mm pitch, 4 pins; optional: for time travel button);
+  - 1x [XH-4AWD](https://www.lcsc.com/product-detail/Wire-To-Board-Wire-To-Wire-Connector_Boom-Precision-Elec-XH-4AWD_C8877.html) connector; this is optional and only for connecting a temperature sensor.
 - XH 4pin cables to connect the Control Board, the Pushwheels and the LED display
 - XH 4pin cables to connect the three buttons ("BUT"/"BUT" pins: shorted by button; "L+"/"L-" pins for light)
 - the ability to solder through-the-hole parts, and the required tools.
