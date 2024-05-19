@@ -10,6 +10,8 @@ The two four-pin XH connectors are for connecting the LED display and the Contro
 
 <img src="img/pw3.jpg">
 
+<img src="img/pw6.jpg">
+
 To have [JCLPCB](https://jlcpcb.com) make your Pushwheels Board:
 1) Create an account at jlcpcb.com
 2) Click "Upload Gerber file" or "order now"
