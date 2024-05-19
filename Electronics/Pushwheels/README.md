@@ -2,7 +2,7 @@
 
 <img src="img/pw1.jpg">
 
-The KM1 (22x8mm) pushwheels can be attached by using 2mm pitched pin sockets and 90 deg headers. There are two rows of solder pads; for the pin sockets, use the left one with 12 pads (12 because 12-pin pin sockets are more easily available than 11-pin versions, and you don't have to make ugle cuts)
+The KM1 (22x8mm) pushwheels are attached through 2mm pitched pin sockets and 90 deg headers. On the PCB, there are two rows of solder pads; please use the left one with 12 pads (12 because 12-pin pin sockets are more easily available than 11-pin versions, and you don't have to make ugle cuts). The bottom hole is unassigned.
 
 <img src="img/pw2.jpg">
 
@@ -26,5 +26,5 @@ To have [JCLPCB](https://jlcpcb.com) make your Pushwheels Board:
 #### You additionally need:
 - 3x KM1 pushwheels (22x8mm)
 - 3x 11 or 12 pin 2mm pitch male (90 degrees) pin header
-- 3x 11 or 12 pin 2mm pitch female (0 degrees) pin headers
+- 3x 11 or 12 pin 2mm pitch female (0 degrees) pin headers; solder them to left pad row (12 holes); if 11 pin header is used, align to top, leave bottom hole empty.
 - the ability to solder through-the-hole parts, and the required tools.
