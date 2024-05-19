@@ -24,4 +24,9 @@ To have [JCLPCB](https://jlcpcb.com) make your LED display:
 12) Do NOT activate "PCB assembly"; click on "Save to Cart"
 13) Finialize your order
 
+You additionally need:
+- 3x 9mm/0.36" red single digit LED segment tubes
+- 1x 11pin 2mm pitch male pin header
+- 1x 11pin 2mm pitch female pin header
+- the ability to solder through-the-hole parts, and the required tools.
 
