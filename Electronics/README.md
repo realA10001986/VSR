@@ -16,7 +16,7 @@ To have JCLPCB make your boards:
 3) Upload the Gerber file (.zip, do not decompress!) for the PCB you want to make; leave all options at their defaults. You can choose a PCB color though...
 4) Activate "PCB assembly", click "NEXT" (not for LED tube carrier, there are no components JLCPCB can assemble)
 5) Enjoy a view of the PCB, click "NEXT"
-6) Upload the BOM and "PickAndPlace" files, click "NEXT"
+6) Upload the BOM and "PickAndPlace" (CPL) files, click "Process BOM & CPL"
 7) Read the remarks regarding the BOM files in each of the folders here
 8) Finalize order.
 
