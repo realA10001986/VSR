@@ -1,5 +1,7 @@
 ## Electronics for the VSR
 
+<img src="img/thelot.jpg">
+
 The VSR electronics consist of four PCBs:
 - a Control Board, carrying the ESP32
 - a pushwheel controller, to which the pushwheels are attached
