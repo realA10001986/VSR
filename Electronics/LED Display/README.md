@@ -29,7 +29,7 @@ To have [JCLPCB](https://jlcpcb.com) make your LED display:
 10) Click "Order now" (top right on screen) to add the Tube holder PCB
 11) Upload the "Gerber_TC" file; select PCB color, leave all other options at their defaults
 12) Do NOT activate "PCB assembly"; click on "Save to Cart"
-13) Finialize your order
+13) Finalize your order
 
 You additionally need:
 - 3x 9mm/0.36" (7.5x14mm) red single digit LED segment tubes with common cathode (available [here](https://www.mouser.com/ProductDetail/Lite-On/LTS-367HR?qs=%2FyTdksM2s8JsvE9suGTa9Q%3D%3D) or on ebay)
