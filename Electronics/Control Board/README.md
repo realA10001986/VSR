@@ -24,10 +24,10 @@ To have [JCLPCB](https://jlcpcb.com) make your Control Board:
 3) When clicking "Next", JLCPCB will complain about "unselected parts". Click "Do not place".
 
 #### You additionally need:
-- 1x NodeMCU ESP32S dev board
+- 1x NodeMCU ESP32 devboard, preferably with CP2102 USB-to-UART converter. 19pin version. For example: [This one](https://www.waveshare.com/nodemcu-32s.htm)
 - 2x 19pin femals headers, 2.54mm pitch (LCSC part number C7509529). If you can't get them for exactly 19 pins, get some longer ones and cut them.
 - Screw terminals and XH connector on the back of the Control Board:
-  - 2x DG308-2.54-02P-14-00A(H) (LCSC part number C699496) (or [any other](https://www.mouser.com/ProductDetail/Amphenol-Anytek/VN02A1500000G?qs=Mv7BduZupUgf8d3Xo6xdxw%3D%3D); 2.54mm pitch, 2 pins) for 5V and 12V connectors;
+  - 2x DG308-2.54-02P-14-00A(H) (LCSC part number [C699496](https://www.lcsc.com/product-detail/Screw-terminal_DEGSON-DG308-2-54-02P-14-00A-H_C699496.html)) (or [any other](https://www.mouser.com/ProductDetail/Amphenol-Anytek/VN02A1500000G?qs=Mv7BduZupUgf8d3Xo6xdxw%3D%3D); 2.54mm pitch, 2 pins) for 5V and 12V connectors;
   - 1x DG308-2.54-04P-14-00A(H) (LCSC part number C708735) (or [any other](https://www.mouser.com/ProductDetail/Amphenol-Anytek/VN04A1500000G?qs=Mv7BduZupUg1gSttWAc7xA%3D%3D); 2.54mm pitch, 4 pins; optional: for time travel button);
   - 1x XH-4AWD connector (LCSC part number C8877); this is optional and only for connecting a temperature sensor.
 - XH 4pin cables to connect the Control Board, the Pushwheels and the LED display
