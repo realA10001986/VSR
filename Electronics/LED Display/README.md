@@ -13,7 +13,7 @@ The LED display consists of two PCBs stacked on each other.
 
 <img src="img/i2cbp1.jpg">
 
-The connection between the PCBs can be using a pin header/socket (11 pins, 2mm pitch), or soldered using a pin header long enough to keep a distance between the PCBs.
+The PCBs are connected by a pin header/socket (11 pins, 1 row, 2mm pitch). Alternatively, they could be soldered using a pin header long enough to keep a distance between the PCBs.
 
 <img src="img/combo.jpg">
 
