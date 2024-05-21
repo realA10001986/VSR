@@ -12,9 +12,9 @@ It has connectors for
 - power (5V or 12V, back side)
 - time travel button (back side)
 - temperature sensor (back side)
-- Buttons & lights
-- Pushwheels and LED display
-- speaker for audio.
+- Buttons & lights: Those JST XH four-pin connectors have two wires for the button (BUT, BUT) and two for the lights inside the buttons (L+, L+). BUT and BUT are supposed to be connected when the button is pressed, and open when it is released. The voltage for the lights inside the buttons can be selected from 3.3V, 5V, and 12V. There is a "T" shaped solder jumper on the Control Board. Connect "3V3" and "LVcc" for 3.3V, for instance. If you go for 12V, the Control Board must be powered with 12V through the respective connector on the back of the PCB. On the pictures above, 5V is selected.
+- Pushwheels and LED display: Pushwheels and LED display are daisy-chained.
+- speaker for audio (PH 2pin).
 
 
 
@@ -46,7 +46,7 @@ To have [JCLPCB](https://jlcpcb.com) make your Control Board:
 - [XH 4pin cables](https://www.amazon.com/Connector-pre-crimped-Housing-Adapter-Compatible/dp/B08G18PWQ6/ref=sr_1_21?th=1) to connect the three buttons ("BUT"/"BUT" pins: shorted by button; "L+"/"L-" pins for light)
 - the ability to solder through-the-hole parts, and the required tools.
 
-The voltage for the lights inside the buttons can be selected from 3.3V, 5V, and 12V. There is a "T" shaped solder jumper on the Control Board. Connect "3V3" and "LVcc" for 3.3V, for instance. If you go for 12V, the Control Board must be powered with 12V through the respective connector on the back of the PCB. On the pictures above, 5V is selected.
+
 
 
 _(If links to LCSC get you a 403 error, click into the URL field in your browser and press ENTER.)_
