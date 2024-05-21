@@ -5,7 +5,7 @@
 A video is [here](https://www.facebook.com/61553801874212/videos/475630928153628/).
 
 The VSR electronics consist of four PCBs:
-- a Control Board, carrying the ESP32
+- a Control Board
 - a pushwheel controller, to which the pushwheels are attached
 - two PCBs for the display: a controller and a "tube carrier".
 
