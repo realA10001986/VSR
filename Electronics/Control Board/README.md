@@ -6,6 +6,16 @@
 
 <img src="img/cb3.jpg">
 
+The Control Board is the heart of the VSR. It can run off 5V or 12V, and it is meant to be mounted face-down (with the connectors up) between the buttons and the display/pushwheel panel. The dimensions of the Control Board are 89x45mm, so it fits perfectly into the VSR's body.
+
+It has connectors for
+- power (back side)
+- time travel button (back side)
+- temperature sensor (back side)
+- Buttons & lights
+- Pushwheels and LED display
+- speaker for audio.
+
 To have [JCLPCB](https://jlcpcb.com) make your Control Board:
 1) Create an account at jlcpcb.com
 2) Click "Upload Gerber file" or "order now"
