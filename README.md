@@ -373,7 +373,7 @@ For a connection by wire, connect GND and GPIO on the VSR's "Time Travel" connec
     <tr>
      <td align="center">VSR</td>
      <td align="center">TCD with control board 1.2</td>
-     <td align="center">TCD with control board 1.3</td>
+     <td align="center">TCD with control board >=1.3</td>
     </tr>
    <tr>
      <td align="center">GND of "Time Travel" connector</td>
