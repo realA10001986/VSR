@@ -28,7 +28,7 @@ To have [JCLPCB](https://jlcpcb.com) make your Pushwheels Board:
 9) Select a "product description" (eg. "Movie prop") and click "Save to cart". Then finalize your order.
 
 #### You additionally need:
-- 3x KM1 pushwheels (22x8mm) (available on ebay)
+- 3x decimal KM1 pushwheels (22x8mm) (decimal, not BCD version; available on ebay and aliexpress; search terms: pushwheel thumbwheel KM1)
 - 3x [1x11pin 2mm pitch 90 degrees male pin header](https://www.mouser.com/ProductDetail/Adam-Tech/2PH1R-11-UA?qs=HoCaDK9Nz5d0X2QsJeqJ4Q%3D%3D). You can buy those in any length >11, they easily break off. For example: [This](https://www.mouser.com/ProductDetail/Harwin/M22-2031205?qs=xxdqPuaJ%252Ba06lrlBpeOknw%3D%3D)
 - 3x [1x11](https://www.mouser.com/ProductDetail/NorComp/25631101RP2?qs=TaIhzdgpGpUc9hecPJ8SJg%3D%3D) or [1x12 pin 2mm pitch female](https://www.mouser.com/ProductDetail/Harwin/M22-7131242?qs=%252Bk6%2F5FB6qrmdMF9FvJ5n1g%3D%3D) pin headers; solder them to left pad row (12 holes); if 11 pin header is used, align to top, leave bottom hole empty.
 - the ability to solder through-the-hole parts, and the required tools.
