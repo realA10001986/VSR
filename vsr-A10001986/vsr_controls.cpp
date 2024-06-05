@@ -145,6 +145,7 @@ static void controlsEvent(int idx, ButState bstate)
             #ifdef VSR_DBG
             Serial.printf("PRESSED: Bad key state idx %d bstate %d ButState %d\n", idx, butState[idx], bstate);
             #endif
+            break;
         }
         break;
 
@@ -245,6 +246,7 @@ static void controlsEvent(int idx, ButState bstate)
             #ifdef VSR_DBG
             Serial.printf("RELEASED: Bad key state idx %d bstate %d ButState %d\n", idx, butState[idx], bstate);
             #endif
+            break;
         }
         
         break;
@@ -290,6 +292,7 @@ static void controlsEvent(int idx, ButState bstate)
             #ifdef VSR_DBG
             Serial.printf("HOLD: Bad key state idx %d bstate %d ButState %d\n", idx, butState[idx], bstate);
             #endif
+            break;
         }
         
         break;
@@ -404,6 +407,7 @@ static void controlsEvent(int idx, ButState bstate)
             #ifdef VSR_DBG
             Serial.printf("HOLDEND: Bad key state idx %d bstate %d ButState %d\n", idx, butState[idx], bstate);
             #endif
+            break;
         }
         
         break;

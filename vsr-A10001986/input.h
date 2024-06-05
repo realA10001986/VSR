@@ -58,7 +58,7 @@ class VSRButton {
     public:
         VSRButton();
 
-        void begin(const int pin, const boolean activeLow = true, const bool pullupActive = true);
+        void begin(const int pin, const boolean activeLow = true, const bool pullupActive = true, const bool pulldownActive = false);
       
         void setTicks(const int debounceTs, const int lPressTs);
       

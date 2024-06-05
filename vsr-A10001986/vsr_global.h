@@ -20,10 +20,10 @@
  ***                          Version Strings                          ***
  *************************************************************************/
 
-#define VSR_VERSION "V0.06"
-#define VSR_VERSION_EXTRA "MAY082024"
+#define VSR_VERSION "V0.08"
+#define VSR_VERSION_EXTRA "JUN052024"
 
-#define VSR_DBG              // debug output on Serial
+//#define VSR_DBG              // debug output on Serial
 
 /*************************************************************************
  ***                     mDNS (Bonjour) support                        ***
@@ -35,10 +35,7 @@
 // This needs to be commented if WiFiManager provides mDNS
 #define VSR_MDNS
 // Uncomment this if WiFiManager has mDNS enabled
-//#define VSR_WM_HAS_MDNS 
-
-// Uncomment when using WiFiManager 2.0.17 or later
-//#define WIFIMANAGER_2_0_17      
+//#define VSR_WM_HAS_MDNS
 
 /*************************************************************************
  ***             Configuration for hardware/peripherals                ***
@@ -111,12 +108,12 @@
 
 #ifndef TW_PROTO_BOARD    // -------- Buttons and LEDs
 
-#define TT_IN_PIN         13      // Time Travel button (or TCD tt trigger input)
-#define YET_UNUSED_PIN    14      // Accessible GPIO, yet unused
+#define TT_IN_PIN         13      // Time Travel button (or TCD tt trigger input) (has internal PU/PD) (PD on CB)
+#define YET_UNUSED_PIN    14      // Accessible GPIO, yet unused                  (has internal PU/PD)
 
-#define BUTTON1_IO_PIN    15      // Button GPIO pins (if not via I2C)
-#define BUTTON2_IO_PIN    27
-#define BUTTON3_IO_PIN    32
+#define BUTTON1_IO_PIN    15      // Button GPIO pins (if not via I2C)            (has internal PU)
+#define BUTTON2_IO_PIN    27      //                                              (has internal PU)
+#define BUTTON3_IO_PIN    32      //                                              (has no internal PU?; PU on CB)
 
 #define BUTTON1_PWM_PIN   12      // Button LEDs (for PWM option)
 #define BUTTON2_PWM_PIN   16

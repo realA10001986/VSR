@@ -89,7 +89,7 @@ tempSensor tempSens(8,
                           });
 #endif
 
-#define TT_DEBOUNCE   100    // tt button debounce time in ms (100 min)
+#define TT_DEBOUNCE    50    // tt button debounce time in ms
 #define TT_HOLD_TIME 5000    // time in ms holding the tt button will count as a long press
 static bool isTTKeyPressed = false;
 static bool isTTKeyHeld = false;
@@ -369,7 +369,8 @@ void main_setup()
     TTKey.begin(
         TT_IN_PIN, 
         false,    // Button is active HIGH
-        false     // Disable internal pull-up resistor
+        false,    // Disable internal pull-up resistor
+        true      // Enable internal pull-down resistor
     );
     TTKey.attachPressEnd(TTKeyPressed);
     if(!TCDconnected) {
