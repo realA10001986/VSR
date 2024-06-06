@@ -16,7 +16,7 @@ Features include:
 
 If a previous version of the VSR firmware is installed on your device, you can update easily using the pre-compiled binary. Enter the [Config Portal](#the-config-portal), click on "Update" and select the pre-compiled binary file provided in this repository ([install/vsr-A10001986.ino.nodemcu-32s.bin](https://github.com/realA10001986/VSR/blob/main/install/vsr-A10001986.ino.nodemcu-32s.bin)). 
 
-If you are using a fresh ESP32 board, please see [vsr-A10001986.ino](https://github.com/realA10001986/VSR/blob/main/vsr-A10001986/vsr-A10001986.ino) for detailed build information.
+If you are using a fresh ESP32 board, please see [vsr-A10001986.ino](https://github.com/realA10001986/VSR/blob/main/vsr-A10001986/vsr-A10001986.ino) for detailed build and upload information.
 
 ### Audio data installation
 
