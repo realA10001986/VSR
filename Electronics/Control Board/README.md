@@ -29,13 +29,12 @@ To have [JCLPCB](https://jlcpcb.com) make your Control Board:
 
 #### Remarks on BOM (Bill of Materials):
 
-1) "ESP32" is the required ESP32 dev board (NodeMCU ESP32) and it is intentionally missing in the BOM. The ESP32 dev board should not be soldered to the PCB directly; use 1x19P female pin headers (LCSC part number C7509529) (pitch 2.54mm, height 8.5mm). When JLCPCB complains about a "missing data" after processing the BOM, click "Continue".
-2) You need to place _either_ "L1" _or_ "L2", not both. These are two alternative components, and they share the same physical location. In the "Bill of Materials" tab, deselect L1 or L2.
-3) When clicking "Next", JLCPCB will complain about "unselected parts". Click "Do not place".
+1) You need to place _either_ "L1" _or_ "L2", not both. These are two alternative components, and they share the same physical location. In the "Bill of Materials" tab, deselect L1 or L2.
+2) When clicking "Next", JLCPCB will complain about "unselected parts". Click "Do not place".
 
 #### You additionally need:
 - 1x NodeMCU ESP32 devboard, preferably with CP2102 USB-to-UART converter. 38pin, 25mm wide. For example: [This one](https://www.waveshare.com/nodemcu-32s.htm)
-- 2x 19pin femals headers, 8.5mm high, 2.54mm pitch (LCSC part number C7509529). If you can't get them for exactly 19 pins, get some longer ones and cut them.
+- If out of stock at JLCPCB: 2x 19pin femals headers, 8.5mm high, 2.54mm pitch (LCSC part number C7509529 or C2932678). If you can't get them for exactly 19 pins, get some longer ones and cut them.
 - Screw terminals and XH connector on the back of the Control Board:
   - 2x DG308-2.54-02P-14-00A(H) (LCSC part number C699496) (or [any other](https://www.mouser.com/ProductDetail/Amphenol-Anytek/VN02A1500000G?qs=Mv7BduZupUgf8d3Xo6xdxw%3D%3D); 2.54mm pitch, 2 pins) for 5V and 12V connectors;
   - 1x DG308-2.54-04P-14-00A(H) (LCSC part number C708735) (or [any other](https://www.mouser.com/ProductDetail/Amphenol-Anytek/VN04A1500000G?qs=Mv7BduZupUg1gSttWAc7xA%3D%3D); 2.54mm pitch, 4 pins; optional: for time travel button);
