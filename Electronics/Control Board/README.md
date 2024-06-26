@@ -6,7 +6,7 @@
 
 <img src="img/cb3.jpg">
 
-The Control Board is the heart of the VSR. It can run off 5V or 12V, and it is meant to be mounted face-down (with the connectors up) between the buttons and the display/pushwheel panel. The dimensions of the Control Board are 89x45mm, so it fits perfectly into the VSR's body.
+The Control Board is the heart of the VSR. It can run off 5V or 12V, and it is meant to be mounted face-down (with the power connectors up) between the buttons and the display/pushwheel panel. The dimensions of the Control Board are 89x45mm, so it fits perfectly into the VSR's body.
 
 It has connectors for
 - power (5V or 12V, back side; if you choose to mount the board in another way than intended, the connectors can also be put on the front)
