@@ -198,7 +198,7 @@ In this mode, the buttons light up when briefly pressed, and stay lit after _hol
      <td align="left">8012&#9166;</td>
     </tr>
     <tr>
-     <td align="left">Set volume level</td>
+     <td align="left">Set volume level (00-19)</td>
      <td align="left">8300&#9166; - 8319&#9166;</td>
     </tr>
     <tr>
@@ -218,7 +218,7 @@ In this mode, the buttons light up when briefly pressed, and stay lit after _hol
      <td align="left">8008&#9166;</td>
     </tr>
     <tr>
-     <td align="left"><a href="#the-music-player">Music Player</a>: Select music folder</td>
+     <td align="left"><a href="#the-music-player">Music Player</a>: Select music folder (0-9)</td>
      <td align="left">8050&#9166; - 8059&#9166;</td>
     </tr>
     <tr>
