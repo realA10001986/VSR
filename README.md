@@ -677,3 +677,6 @@ If you want copy settings from one SD card to another, do as follows:
 - Power-up the VSR, enter the Config Portal, re-enable _Save secondary settings on SD_, and click "SAVE".
 
 This procedure ensures that all your settings are copied from the old to the new SD card.
+
+
+_Text & images: (C) Thomas Winischhofer ("A10001986"). See LICENSE._
