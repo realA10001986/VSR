@@ -8,7 +8,7 @@
  * Pushwheel_I2C Class, VSRButton Class: I2C-Pushwheel and Button handling
  * 
  * -------------------------------------------------------------------
- * License: MIT
+ * License: MIT NON-AI
  * 
  * Permission is hereby granted, free of charge, to any person 
  * obtaining a copy of this software and associated documentation 
@@ -20,6 +20,25 @@
  *
  * The above copyright notice and this permission notice shall be 
  * included in all copies or substantial portions of the Software.
+ *
+ * In addition, the following restrictions apply:
+ * 
+ * 1. The Software and any modifications made to it may not be used 
+ * for the purpose of training or improving machine learning algorithms, 
+ * including but not limited to artificial intelligence, natural 
+ * language processing, or data mining. This condition applies to any 
+ * derivatives, modifications, or updates based on the Software code. 
+ * Any usage of the Software in an AI-training dataset is considered a 
+ * breach of this License.
+ *
+ * 2. The Software may not be included in any dataset used for 
+ * training or improving machine learning algorithms, including but 
+ * not limited to artificial intelligence, natural language processing, 
+ * or data mining.
+ *
+ * 3. Any person or organization found to be in violation of these 
+ * restrictions will be subject to legal action and may be held liable 
+ * for any damages resulting from such use.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF 
@@ -154,9 +173,9 @@ void Pushwheel_I2C::begin(unsigned int scanInterval, unsigned int holdTime, void
     _vsrbutton[1].begin(BUTTON2_IO_PIN, true, true);  // active low, pullup
     _vsrbutton[2].begin(BUTTON3_IO_PIN, true, true);  // active low, pullup
 
-    _vsrbutton[0].setTicks(50, _holdTime);
-    _vsrbutton[1].setTicks(50, _holdTime);
-    _vsrbutton[2].setTicks(50, _holdTime);
+    _vsrbutton[0].setTiming(50, _holdTime);
+    _vsrbutton[1].setTiming(50, _holdTime);
+    _vsrbutton[2].setTiming(50, _holdTime);
     #endif
         
     _customDelayFunc = myDelay;
@@ -431,10 +450,10 @@ void VSRButton::begin(const int pin, const boolean activeLow, const bool pullupA
 
 // debounce: Number of millisec that have to pass by before a click is assumed stable
 // lPress:   Number of millisec that have to pass by before a long press is detected
-void VSRButton::setTicks(const int debounceTs, const int lPressTs)
+void VSRButton::setTiming(const int debounceDur, const int lPressDur)
 {
-    _debounceTicks = debounceTs;
-    _longPressTicks = lPressTs;
+    _debounceDur = debounceDur;
+    _longPressDur = lPressDur;
 }
 
 // Register function for press-down event
@@ -480,9 +499,9 @@ void VSRButton::scan(int idx)
         break;
 
     case VSRBUS_PRESSED:
-        if((!active) && (waitTime < _debounceTicks)) {  // de-bounce
+        if((!active) && (waitTime < _debounceDur)) {  // de-bounce
             transitionTo(_lastState);
-        } else if((active) && (waitTime > _longPressTicks)) {
+        } else if((active) && (waitTime > _longPressDur)) {
             #ifdef VSR_DBG
             Serial.printf("->LONGPRESS %d\n", idx);
             #endif
@@ -504,7 +523,7 @@ void VSRButton::scan(int idx)
         break;
 
     case VSRBUS_RELEASED:
-        if((active) && (waitTime < _debounceTicks)) {  // de-bounce
+        if((active) && (waitTime < _debounceDur)) {  // de-bounce
             transitionTo(_lastState);
         } else if(!active) {
             if(_pressEndFunc) _pressEndFunc(idx, VSRBUS_RELEASED);
@@ -520,9 +539,9 @@ void VSRButton::scan(int idx)
         break;
 
     case VSRBUS_HOLDEND:
-        if((active) && (waitTime < _debounceTicks)) { // de-bounce
+        if((active) && (waitTime < _debounceDur)) { // de-bounce
             transitionTo(_lastState);
-        } else if(waitTime >= _debounceTicks) {
+        } else if(waitTime >= _debounceDur) {
             if(_longPressStopFunc) _longPressStopFunc(idx, VSRBUS_HOLDEND);
             reset();
         }
