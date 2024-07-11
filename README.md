@@ -129,7 +129,7 @@ There are four button modes: Light ("LGT"), Operation ("OPR"), Music Player ("MP
 
 #### Light mode 
 
-In this mode, the buttons light up when briefly pressed, and stay lit after _holding_ a button. At the next press, the light will go off again. This mode is only for playing with the lights, the buttons have to other function.
+In this mode, the buttons light up when briefly pressed, and stay lit after _holding_ a button. At the next press, the light will go off again. This mode is only for playing with the lights, the buttons have no other function.
 
 #### Operation mode
 
