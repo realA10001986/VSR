@@ -221,7 +221,7 @@ WiFiManagerParameter custom_playTTSnd("plyTTS", "Play time travel sounds (0=no, 
 WiFiManagerParameter custom_playTTSnd("plyTTS", "Play time travel sounds", settings.playTTsnds, 1, "autocomplete='off' title='Check to have the device play time travel sounds. Uncheck if other props provide time travel sound.' type='checkbox' style='margin-top:5px;'", WFM_LABEL_AFTER);
 #endif // -------------------------------------------------
 #ifdef TC_NOCHECKBOXES  // --- Standard text boxes: -------
-WiFiManagerParameter custom_playALSnd("plyALS", "Play TCD-alarm sounds (0=no, 1=yes)", settings.playALsnd, 1, "autocomplete='off' title='Enable to have the device play a sound then the TCD alarm sounds.'");
+WiFiManagerParameter custom_playALSnd("plyALS", "Play TCD-alarm sound (0=no, 1=yes)", settings.playALsnd, 1, "autocomplete='off' title='Enable to have the device play a sound then the TCD alarm sounds.'");
 #else // -------------------- Checkbox hack: --------------
 WiFiManagerParameter custom_playALSnd("plyALS", "Play TCD-alarm sound", settings.playALsnd, 1, "autocomplete='off' title='Check to have the device play a sound then the TCD alarm sounds.' type='checkbox'", WFM_LABEL_AFTER);
 #endif // -------------------------------------------------
@@ -1683,7 +1683,7 @@ static void mqttCallback(char *topic, byte *payload, unsigned int length)
       "DISPLAY_PW",
       "DISPLAY_TEMP",
       "DISPLAY_SPEED",
-      "WWW",
+      "WWW",              // [Placeholder]
       #ifdef VSR_HAVEAUDIO
       "MP_SHUFFLE_ON",    // 5 
       "MP_SHUFFLE_OFF",   // 6
@@ -1691,6 +1691,7 @@ static void mqttCallback(char *topic, byte *payload, unsigned int length)
       "MP_STOP",          // 8
       "MP_NEXT",          // 9
       "MP_PREV",          // 10
+      "MP_FOLDER_",       // 11  MP_FOLDER_0..MP_FOLDER_9
       #endif
       NULL
     };
@@ -1810,6 +1811,7 @@ static void mqttCallback(char *topic, byte *payload, unsigned int length)
             userDispMode = LDM_GPS;
             break;
         case 4:
+            // Placeholder
             break;
         #ifdef VSR_HAVEAUDIO
         case 5:
@@ -1829,6 +1831,13 @@ static void mqttCallback(char *topic, byte *payload, unsigned int length)
             break;
         case 10:
             if(haveMusic) mp_prev(mpActive);
+            break;
+        case 11:
+            if(haveSD) {
+                if(strlen(tempBuf) > j && tempBuf[j] >= '0' && tempBuf[j] <= '9') {
+                    switchMusicFolder((uint8_t)(tempBuf[j] - '0'));
+                }
+            }
             break;
         #endif
         }

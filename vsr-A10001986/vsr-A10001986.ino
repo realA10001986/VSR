@@ -119,6 +119,8 @@
 
 /*  Changelog
  *  
+ *  2024/07/11 (A10001986)
+ *    - MQTT: Add MP_FOLDER_x commands to set music folder number
  *  2024/06/05 (A10001986)
  *    - Minor fixes for WiFiManager
  *    * Switched to esp32-arduino 2.0.17 for pre-compiled binary.

@@ -393,7 +393,7 @@ static void controlsEvent(int idx, ButState bstate)
                         
                         break;
                     case 2:
-                        Serial.println("Deleting ip config; temporarily clearing AP mode WiFi password\n");
+                        Serial.println("Deleting ip config; clearing AP mode WiFi password\n");
                         #ifdef VSR_HAVEAUDIO
                         waitAudioDone();
                         #endif

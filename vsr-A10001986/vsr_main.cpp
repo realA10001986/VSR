@@ -1347,37 +1347,13 @@ static void execute_remote_command()
             ssRestartTimer();
           
         } else if(command >= 50 && command <= 59) {   // 8050-8059: Set music folder number
+            
             #ifdef VSR_HAVEAUDIO
             if(haveSD) {
-                bool wasActive = false;
-                bool waitShown = false;
-                uint8_t nmf = (uint8_t)command - 50;
-                if(musFolderNum != nmf) {
-                    musFolderNum = nmf;
-                    // Initializing the MP can take a while;
-                    // need to stop all audio before calling
-                    // mp_init()
-                    if(haveMusic && mpActive) {
-                        mp_stop();
-                        wasActive = true;
-                    }
-                    stopAudio();
-                    if(mp_checkForFolder(musFolderNum) == -1) {
-                        flushDelayedSave();
-                        showWaitSequence();
-                        waitShown = true;
-                        play_file("/renaming.mp3", PA_INTRMUS|PA_ALLOWSD);
-                        waitAudioDone();
-                    }
-                    saveMusFoldNum();
-                    updateConfigPortalMFValues();
-                    mp_init(false);
-                    if(waitShown) {
-                        endWaitSequence();
-                    }
-                }
+                switchMusicFolder((uint8_t)command - 50);
             }
             #endif
+            
         }
         
     } else if (command < 1000) {                      // 8xxx
@@ -1492,6 +1468,37 @@ void display_ip()
 }
 
 #ifdef VSR_HAVEAUDIO
+void switchMusicFolder(uint8_t nmf)
+{
+    bool wasActive = false;
+    bool waitShown = false;
+    
+    if(musFolderNum != nmf) {
+        musFolderNum = nmf;
+        // Initializing the MP can take a while;
+        // need to stop all audio before calling
+        // mp_init()
+        if(haveMusic && mpActive) {
+            mp_stop();
+            wasActive = true;
+        }
+        stopAudio();
+        if(mp_checkForFolder(musFolderNum) == -1) {
+            flushDelayedSave();
+            showWaitSequence();
+            waitShown = true;
+            play_file("/renaming.mp3", PA_INTRMUS|PA_ALLOWSD);
+            waitAudioDone();
+        }
+        saveMusFoldNum();
+        updateConfigPortalMFValues();
+        mp_init(false);
+        if(waitShown) {
+            endWaitSequence();
+        }
+    }
+}
+
 void waitAudioDone()
 {
     int timeout = 400;

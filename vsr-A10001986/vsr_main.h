@@ -126,12 +126,13 @@ void wakeup();
 
 void display_ip();
 
-void myCustomDelay_KP(unsigned long mydel);
-void mydelay(unsigned long mydel);
-
 #ifdef VSR_HAVEAUDIO
+void switchMusicFolder(uint8_t nmf);
 void waitAudioDone();
 #endif
+
+void myCustomDelay_KP(unsigned long mydel);
+void mydelay(unsigned long mydel);
 
 void bttfn_loop();
 bool BTTFNTriggerTT();
