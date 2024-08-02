@@ -554,7 +554,7 @@ The music player will continue to run.
 
 ##### Volume level (0-19)
 
-Enter a value between 0 (mute) or 19 (very loud) here. This is your starting point; you can change the volume via the VSR's buttons in _Operation_ [button mode](#button-modes) or via the TCD's keypad (83xx); the new volume will also be saved (and appear in this field when the page is reloaded in your browser).
+Enter a value between 0 (mute) or 19 (very loud) here. This is your starting point; you can change the volume via the VSR's buttons in _Admin_ [button mode](#button-modes) or via the TCD's keypad (83xx); the new volume will also be saved (and appear in this field when the page is reloaded in your browser).
 
 #### Network settings
 
