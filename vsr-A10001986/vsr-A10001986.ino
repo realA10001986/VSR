@@ -119,6 +119,13 @@
 
 /*  Changelog
  *  
+ *  2024/08/05 (A10001986)
+ *    - Display volume when pressing up/down key even if limit has been reached
+ *    - TT: Minimize duration of P0 in stand-alone mode
+ *    - TT: Relay-click earlier in sync'd tt
+ *    - Save user-selected display mode
+ *    - Display "AUD" if audio files need to be installed/updated
+ *    - Fix volume control by buttons (update CP; save)
  *  2024/07/11 (A10001986)
  *    - MQTT: Add MP_FOLDER_x commands to set music folder number
  *  2024/06/05 (A10001986)

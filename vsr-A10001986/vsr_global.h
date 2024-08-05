@@ -20,8 +20,8 @@
  ***                          Version Strings                          ***
  *************************************************************************/
 
-#define VSR_VERSION "V0.09"
-#define VSR_VERSION_EXTRA "JUL112024"
+#define VSR_VERSION "V0.10"
+#define VSR_VERSION_EXTRA "AUG052024"
 
 //#define VSR_DBG              // debug output on Serial
 
@@ -45,7 +45,7 @@
 // Comment for using direct port pins BUTTONx_IO_PIN
 //#define VSR_BUTTONS_I2C
 
-// Uncommend for audio support
+// Uncomment for audio support
 #define VSR_HAVEAUDIO
 
 // Uncomment for support of a temperature/humidity sensor (MCP9808, BMx280, 

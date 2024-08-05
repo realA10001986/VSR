@@ -276,6 +276,8 @@ vsrDisplay::vsrDisplay(uint8_t address)
 // Start the display
 bool vsrDisplay::begin(int dispType)
 {
+    bool ret = true;
+    
     #ifdef HAVE_DISPSELECTION
     if(dispType < VSR_DISP_MIN_TYPE || dispType >= VSR_DISP_NUM_TYPES) {
         #ifdef VSR_DBG
@@ -285,19 +287,24 @@ bool vsrDisplay::begin(int dispType)
     }
     #endif
 
-    // Check for speedo on i2c bus
+    // Check for display on i2c bus
     Wire.beginTransmission(_address);
-    if(Wire.endTransmission(true))
-        return false;
+    if(Wire.endTransmission(true)) {
 
-    _dispType = dispType;
-    _num_digs = displays[dispType].num_digs;
-    _loffs = displays[dispType].loffset;
-    _buf_packed = displays[dispType].buf_packed;
-    _bufPosArr = displays[dispType].bufPosArr;
-    _bufShftArr = displays[dispType].bufShftArr;
-    
-    _fontXSeg = displays[dispType].fontSeg;
+        ret = false;
+
+    } else {
+
+        _dispType = dispType;
+        _num_digs = displays[dispType].num_digs;
+        _loffs = displays[dispType].loffset;
+        _buf_packed = displays[dispType].buf_packed;
+        _bufPosArr = displays[dispType].bufPosArr;
+        _bufShftArr = displays[dispType].bufShftArr;
+
+        _fontXSeg = displays[dispType].fontSeg;
+
+    }
 
     directCmd(0x20 | 1); // turn on oscillator
 
@@ -306,7 +313,7 @@ bool vsrDisplay::begin(int dispType)
     clearDisplay();      // clear display RAM
     on();                // turn it on
 
-    return true;
+    return ret;
 }
 
 // Turn on the display
@@ -472,7 +479,7 @@ void vsrDisplay::setNumbers(int num1, int num2, int num3)
 {
     uint16_t b;
     int s = _loffs;
-    
+
     clearBuf();
 
     _curNums[0] = num1;
@@ -572,27 +579,29 @@ void vsrDisplay::showTextDirect(const char *text)
 
     clearDisplay();
 
-    while(text[idx] && (pos < (_num_digs / (1<<_buf_packed)))) {
-        commaAdded = false;
-        temp = getLEDChar(text[idx]) << (*(_bufShftArr + dgt));
-        idx++;
-        if(text[idx] == '.') {
-            temp |= (getLEDChar('.') << (*(_bufShftArr + dgt)));
-            idx++;
-            commaAdded = true;
-        }
-        dgt++;
-        if(_buf_packed && text[idx]) {
-            temp |= (getLEDChar(text[idx]) << (*(_bufShftArr + dgt)));
+    if(_dispType < 0) {
+        while(text[idx] && (pos < (_num_digs / (1<<_buf_packed)))) {
+            commaAdded = false;
+            temp = getLEDChar(text[idx]) << (*(_bufShftArr + dgt));
             idx++;
             if(text[idx] == '.') {
                 temp |= (getLEDChar('.') << (*(_bufShftArr + dgt)));
                 idx++;
+                commaAdded = true;
             }
             dgt++;
+            if(_buf_packed && text[idx]) {
+                temp |= (getLEDChar(text[idx]) << (*(_bufShftArr + dgt)));
+                idx++;
+                if(text[idx] == '.') {
+                    temp |= (getLEDChar('.') << (*(_bufShftArr + dgt)));
+                    idx++;
+                }
+                dgt++;
+            }
+            directCol(*(_bufPosArr + pos), temp);
+            pos++;
         }
-        directCol(*(_bufPosArr + pos), temp);
-        pos++;
     }
     
 }

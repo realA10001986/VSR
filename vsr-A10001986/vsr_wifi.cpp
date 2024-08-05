@@ -209,9 +209,9 @@ WiFiManagerParameter custom_uFPO("uFPO", "Follow TCD fake power (0=no, 1=yes)", 
 WiFiManagerParameter custom_uFPO("uFPO", "Follow TCD fake power", settings.useFPO, 1, "autocomplete='off' type='checkbox' style='margin-bottom:0px;'", WFM_LABEL_AFTER);
 #endif // -------------------------------------------------
 #ifdef TC_NOCHECKBOXES  // --- Standard text boxes: -------
-WiFiManagerParameter custom_bttfnTT("bttfnTT", "TT buttons triggers BTTFN-wide TT (0=no, 1=yes)<br><span style='font-size:80%'>If enabled, pressing the Time Travel buttons triggers a BTTFN-wide TT</span>", settings.bttfnTT, 1, "autocomplete='off'");
+WiFiManagerParameter custom_bttfnTT("bttfnTT", "TT buttons trigger BTTFN-wide TT (0=no, 1=yes)<br><span style='font-size:80%'>If enabled, pressing the Time Travel buttons triggers a BTTFN-wide TT</span>", settings.bttfnTT, 1, "autocomplete='off'");
 #else // -------------------- Checkbox hack: --------------
-WiFiManagerParameter custom_bttfnTT("bttfnTT", "TT buttons triggers BTTFN-wide TT<br><span style='font-size:80%'>If checked, pressing the Time Travel buttons triggers a BTTFN-wide TT</span>", settings.bttfnTT, 1, "autocomplete='off' type='checkbox' style='margin-bottom:0px;'", WFM_LABEL_AFTER);
+WiFiManagerParameter custom_bttfnTT("bttfnTT", "TT buttons trigger BTTFN-wide TT<br><span style='font-size:80%'>If checked, pressing the Time Travel buttons triggers a BTTFN-wide TT</span>", settings.bttfnTT, 1, "autocomplete='off' type='checkbox' style='margin-bottom:0px;'", WFM_LABEL_AFTER);
 #endif // -------------------------------------------------
 
 #ifdef VSR_HAVEAUDIO

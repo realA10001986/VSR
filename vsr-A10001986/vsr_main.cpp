@@ -186,6 +186,7 @@ static bool tcdFPO = false;
 bool        bttfnTT = false;
 
 // Time travel status flags etc.
+#define RELAY_AHEAD  1000                // Relay-click ahead of reaching 88 (in ms) (used for sync'd tts only)
 bool                 TTrunning = false;  // TT sequence is running
 static bool          extTT = false;      // TT was triggered by TCD
 static unsigned long TTstart = 0;
@@ -208,6 +209,8 @@ static bool          brichanged = false;
 static unsigned long brichgnow = 0;
 static bool          butchanged = false;
 static unsigned long butchgnow = 0;
+bool                 udispchanged = false;
+unsigned long        udispchgnow = 0;
 
 static unsigned long ssLastActivity = 0;
 static unsigned long ssDelay = 0;
@@ -327,6 +330,7 @@ void main_setup()
     updateConfigPortalBriValues();
 
     loadButtonMode();
+    loadUDispMode();
 
     // Init button lights/LEDs
     vsrLEDs.begin(3);
@@ -408,7 +412,12 @@ void main_setup()
         #ifdef VSR_DBG
         Serial.println(F("Current audio data not installed"));
         #endif
-        // TODO
+        vsrdisplay.on();
+        vsrdisplay.setText("AUD");
+        vsrdisplay.show();
+        delay(1000);
+        vsrdisplay.clearBuf();
+        vsrdisplay.show();
     }
     #endif
 
@@ -591,9 +600,7 @@ void main_loop()
 
     now = millis();
     
-    // TODO: Re-work TT sequence logic
-    // Is TT mutually exclusive with stuff below (like SID),
-    // or can we do those things simultaneously (like FC)?
+    // TT sequence logic: TT is mutually exclusive with stuff below (like SID)
     
     if(TTrunning) {
 
@@ -620,9 +627,21 @@ void main_loop()
                                 append_file("/humm.wav", PA_LOOP|PA_WAV|PA_INTRMUS|PA_ALLOWSD, TT_V_LEV);
                             }
                             #endif
+
                         }
                         TTfUpdNow = now;
                        
+                    } 
+                      
+                    // Update display during "acceleration"
+                    switch(dispMode) {
+                    case LDM_GPS:
+                        if(gpsSpeed != prevGPSSpeed) {
+                            vsrdisplay.setSpeed(gpsSpeed);
+                            vsrdisplay.show();
+                            prevGPSSpeed = gpsSpeed;
+                        }
+                        break;
                     }
 
                 } else {
@@ -1024,6 +1043,10 @@ void main_loop()
             butchanged = false;
             saveButtonMode();
         }
+        if(udispchanged && (now - udispchgnow > 10000)) {
+            udispchanged = false;
+            saveUDispMode();
+        }
     }
 
 }
@@ -1044,6 +1067,10 @@ void flushDelayedSave()
         butchanged = false;
         saveButtonMode();
     }
+    if(udispchanged) {
+        udispchanged = false;
+        saveUDispMode();
+    }
 }
 
 #ifdef VSR_HAVEAUDIO
@@ -1059,12 +1086,16 @@ static void chgVolume(int d)
     int nv = curSoftVol;
     nv += d;
     if(nv < 0 || nv > 19)
-        return;
+        nv = curSoftVol;
         
     curSoftVol = nv;
 
     sprintf(buf, "%3d", nv);
     displaySysMsg(buf, 1000);
+
+    volchanged = true;
+    volchgnow = millis();
+    updateConfigPortalVolValues();
 }
 
 void increaseVolume()
@@ -1101,7 +1132,9 @@ void timeTravel(bool TCDtriggered, uint16_t P0Dur)
         #ifdef VSR_DBG
         Serial.printf("P0 duration is %d\n", P0duration);
         #endif
-        if(P0duration > 600) {
+        if(P0duration > RELAY_AHEAD) {
+            TTFDelay = P0duration - RELAY_AHEAD;
+        } else if(P0duration > 600) {
             TTFDelay = P0duration - 600;
         } else {
             TTFDelay = 0;
@@ -1470,8 +1503,9 @@ void display_ip()
 #ifdef VSR_HAVEAUDIO
 void switchMusicFolder(uint8_t nmf)
 {
-    bool wasActive = false;
     bool waitShown = false;
+
+    if(nmf > 9) return;
     
     if(musFolderNum != nmf) {
         musFolderNum = nmf;
@@ -1480,7 +1514,6 @@ void switchMusicFolder(uint8_t nmf)
         // mp_init()
         if(haveMusic && mpActive) {
             mp_stop();
-            wasActive = true;
         }
         stopAudio();
         if(mp_checkForFolder(musFolderNum) == -1) {

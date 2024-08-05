@@ -58,12 +58,16 @@ enum {
    LDM_GPS,           // display GPS/RotEnc speed
    LDM_TEMP,          // display temperature
    LDM_BM,            // display button mode  (not for userDispMode)
-   LDM_SYS            // display system message (with time-out)
+   LDM_SYS            // display system message (with time-out) (not for userDispMode)
 };
 extern int userDispMode;
+#define NUM_UDM 3     // number of user-selectable display modes
 
-// Durations of tt phases for internal tt
-#define P0_DUR          5000    // acceleration phase
+extern bool          udispchanged;
+extern unsigned long udispchgnow;
+
+// Durations of tt phases for *internal* tt
+#define P0_DUR           700    // acceleration phase
 #define P1_DUR          5000    // time tunnel phase
 #define P2_DUR          3000    // re-entry phase
 

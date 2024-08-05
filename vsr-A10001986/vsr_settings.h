@@ -68,7 +68,7 @@ extern uint8_t musFolderNum;
 #define DEF_SMOOTHPW        1     // Smooth pushwheel changes
 #define DEF_FLUCT           0     // Voltage fluctuations 1=on, 0=off
 #define DEF_DISP_BM         1     // Display button mode upon power-up: 1=yes, 0=no
-#define DEF_SIG_BM          1     // Signal button mode by permanent button lights
+#define DEF_SIG_BM          0     // Signal button mode by permanent button lights
 #define DEF_SS_TIMER        0     // "Screen saver" timeout in minutes; 0 = ss off
 
 #define DEF_HOSTNAME        "vsr"
@@ -77,27 +77,24 @@ extern uint8_t musFolderNum;
 
 #define DEF_DI_NM           0     // Night mode: display dimmed(0) or off(1)
 
-#define DEF_USE_TEMPSENS    1     // Default: Use temp sensor (if available)
-#define DEF_TEMP_UNIT       0     // Default: temperature unit Fahrenheit
+#define DEF_TEMP_UNIT       0     // Default: temperature unit Fahrenheit (0) (or Celsius (1))
 #define DEF_TEMP_OFFS       0.0   // Default: temperature offset 0.0
 
 #define DEF_TCD_PRES        0     // 0: No TCD connected, 1: connected via GPIO
-#define DEF_NO_ETTO_LEAD    0     // Default: 0: TCD signals TT with ETTO_LEAD lead time; 1 without
+#define DEF_NO_ETTO_LEAD    0     // 0: TCD signals TT with ETTO_LEAD lead time; 1 without
 
 #define DEF_TCD_IP          ""    // TCD ip address for networked polling
-#define DEF_USE_GPSS        0     // 0: Ignore GPS speed; 1: Use it for display
-#define DEF_USE_TEMP        0     // 0: Ignore temperature; 1: Use it for display
 #define DEF_USE_NM          0     // 0: Ignore TCD night mode; 1: Follow TCD night mode
 #define DEF_USE_FPO         0     // 0: Ignore TCD fake power; 1: Follow TCD fake power
 
-#define DEF_BTTFN_TT        1     // 0: '0' on IR remove and TT button trigger stand-alone TT; 1: They trigger BTTFN-wide TT
+#define DEF_BTTFN_TT        1     // 0: "9" (in OPR-mode) and TT button trigger stand-alone TT; 1: They trigger BTTFN-wide TT
 
 #define DEF_PLAY_TT_SND     1     // 1: Play time travel sounds (0: Do not; for use with external equipment)
 #define DEF_PLAY_ALM_SND    0     // 1: Play TCD-alarm sound, 0: do not
 
 #define DEF_SHUFFLE         0     // Music Player: Do not shuffle by default
 
-#define DEF_CFG_ON_SD       1     // Default: Save vol/spd/IR/mbl settings on SD card
+#define DEF_CFG_ON_SD       1     // Default: Save secondary settings on SD card
 #define DEF_SD_FREQ         0     // SD/SPI frequency: Default 16MHz
 
 #define DEF_BRI             15    // Default display brightness
@@ -175,6 +172,9 @@ void saveBrightness(bool useCache = true);
 
 bool loadButtonMode();
 void saveButtonMode(bool useCache = true);
+
+bool loadUDispMode();
+void saveUDispMode(bool useCache = true);
 
 #ifdef VSR_HAVEAUDIO
 bool loadCurVolume();

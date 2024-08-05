@@ -62,7 +62,7 @@
 #include "vsr_settings.h"
 #include "vsr_wifi.h"
 
-#define MCP23017_ADDR     0x21  // I2C address of the MCP23017 port expander
+#define MCP23017_ADDR    0x21    // I2C address of the MCP23017 port expander
 
 #define BUTTON_DEBOUNCE    50    // button debounce time in ms
 #define BUTTON_PRESS_TIME 200    // button will register a short press
@@ -91,7 +91,7 @@ static uint8_t buttonModeChg = 0;
 static const char *bmodesText[NUM_BM+1] = {
     "LGT",
     "OPR",
-    "MPL",
+    "MUS",
     "ADM",
     "---"
 };
@@ -342,6 +342,8 @@ static void controlsEvent(int idx, ButState bstate)
                         userDispMode = LDM_GPS;
                         break;
                     }
+                    udispchanged = true;
+                    udispchgnow = millis();
                     break;
                 case VBM_MP:        // MP mode: Shuffle off/goto 0/shuffle on
                     if(signalBM) {
@@ -354,7 +356,7 @@ static void controlsEvent(int idx, ButState bstate)
                         #ifdef VSR_HAVEAUDIO
                         if(haveMusic) {
                             mp_makeShuffle(false);
-                            displaySysMsg("NOR", 1000);
+                            displaySysMsg("ORD", 1000);
                         } else 
                             play_button_bad();
                         #endif
@@ -469,7 +471,6 @@ void prepareReboot()
     vsrdisplay.off();
     vsrLEDs.off();
     flushDelayedSave();
-    vsrdisplay.off();
     delay(500);
     unmount_fs();
 }

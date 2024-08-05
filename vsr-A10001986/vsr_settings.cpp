@@ -105,6 +105,7 @@ static const char *cfgName    = "/vsrconfig.json";   // Main config (flash)
 static const char *ipCfgName  = "/vsripcfg.json";    // IP config (flash)
 static const char *briCfgName = "/vsrbricfg.json";   // Brightness config (flash/SD)
 static const char *butCfgName = "/vsrbutcfg.json";   // Buttonmode config (SD only)
+static const char *disCfgName = "/vsrdiscfg.json";   // User's display mode (SD only)
 #ifdef VSR_HAVEAUDIO
 static const char *volCfgName = "/vsrvolcfg.json";   // Volume config (flash/SD)
 static const char *musCfgName = "/vsrmcfg.json";     // Music config (SD only)
@@ -138,6 +139,7 @@ uint8_t musFolderNum = 0;
 /* Cache */
 static uint8_t   prevSavedBri = 12;
 static uint8_t   prevButtonMode = 0;
+static int       prevUDispMode = 0;
 #ifdef VSR_HAVEAUDIO
 static uint8_t   prevSavedVol = 255;
 static uint8_t*  (*r)(uint8_t *, uint32_t, int);
@@ -791,7 +793,7 @@ bool loadButtonMode()
         DECLARE_S_JSON(512,json);
         //StaticJsonDocument<512> json;
         if(!readJSONCfgFile(json, configFile, funcName)) {
-            if(!CopyCheckValidNumParm(json["buttonmode"], temp, sizeof(temp), 0, NUM_BM, 0)) {
+            if(!CopyCheckValidNumParm(json["buttonmode"], temp, sizeof(temp), 0, NUM_BM - 1, 0)) {
                 buttonMode = (uint8_t)atoi(temp);
             }
         } 
@@ -831,6 +833,69 @@ void saveButtonMode(bool useCache)
         prevButtonMode = buttonMode;
     }
 }
+
+/*
+ *  Load/save the user-preferred display mode
+ */
+
+bool loadUDispMode()
+{
+    const char *funcName = "loadUDispmode";
+    char temp[6];
+    File configFile;
+
+    if(!haveFS && !configOnSD) {
+        #ifdef SID_DBG
+        Serial.printf("%s: %s\n", funcName, fsNoAvail);
+        #endif
+        return false;
+    }
+
+    if(openCfgFileRead(disCfgName, configFile)) {
+        DECLARE_S_JSON(512,json);
+        //StaticJsonDocument<512> json;
+        if(!readJSONCfgFile(json, configFile, funcName)) {
+            if(!CopyCheckValidNumParm(json["udispmode"], temp, sizeof(temp), 0, NUM_UDM - 1, 0)) {
+                userDispMode = (uint8_t)atoi(temp);
+            }
+        } 
+        configFile.close();
+    }
+
+    // Do not write a default file, use pre-set value
+
+    prevUDispMode = userDispMode;
+
+    return true;
+}
+
+void saveUDispMode(bool useCache)
+{
+    const char *funcName = "saveUDispMode";
+    char buf[6];
+    DECLARE_S_JSON(512,json);
+    //StaticJsonDocument<512> json;
+
+    if(useCache && (prevUDispMode == userDispMode)) {
+        #ifdef VSR_DBG
+        Serial.printf("%s: Prev. saved displaymode identical, not writing\n", funcName);
+        #endif
+        return;
+    }
+
+    if(!haveFS && !configOnSD) {
+        Serial.printf("%s: %s\n", funcName, fsNoAvail);
+        return;
+    }
+
+    sprintf(buf, "%d", userDispMode);
+    json["udispmode"] = (const char *)buf;
+
+    if(writeJSONCfgFile(json, disCfgName, configOnSD, funcName)) {
+        prevUDispMode = userDispMode;
+    }
+}
+
 
 /*
  * Load/save Music Folder Number (SD only)
