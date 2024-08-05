@@ -1,6 +1,6 @@
 # VSR
 
-This repository holds the most current firmware for a replica of the Voltage Systems Regulator ("VSR") known from the Delorean Time Machine. There is no kit available yet; however, the electronics are done and you can make your own circuit boards using the files in the [Electronics](/Electronics/) folder. Below are some pictures of a fully functional prototype, still with minor optical imperfections (such as the buttons being located to far up):
+This repository holds the most current firmware for a replica of the Voltage Systems Regulator ("VSR") known from the Delorean Time Machine. There is no kit available yet; however, the electronics are done and you can make your own circuit boards using the files in the [Electronics](/Electronics/) folder. Below are some pictures of a fully functional prototype, still with minor optical imperfections (such as the buttons being located to far up and an early display bezel):
 
 [<img src="img/vsrpt_1s.jpg">](img/vsrpt_1.jpg)
 [<img src="img/vsrpt_2s.jpg">](img/vsrpt_2.jpg)
@@ -8,12 +8,12 @@ This repository holds the most current firmware for a replica of the Voltage Sys
 
 Features include:
 
-- Various display modes, selectable by buttons: Pushwheel values, temperature (from own sensor or from TCD via BTTFN), or speed (from TCD via BTTFN, through GPS receiver or rotary encoder for speed)
-- [Time Travel](#time-travel) function, triggered by button, [Time Circuits Display](https://tcd.out-a-ti.me) (TCD) or via [MQTT](#home-assistant--mqtt)
-- [Music player](#the-music-player): Play mp3 files located on an SD card, controlled by buttons or TCD keypad via BTTFN
+- Various display modes, selectable by buttons: Pushwheel values, temperature (from own sensor or from [Time Circuits Display](https://tcd.out-a-ti.me) via BTTFN), or speed (from [Time Circuits Display](https://tcd.out-a-ti.me) via BTTFN, through GPS receiver or rotary encoder for speed connected to TCD)
+- [Time Travel](#time-travel) function, triggered by button, [Time Circuits Display](https://tcd.out-a-ti.me) or via [MQTT](#home-assistant--mqtt)
+- [Music player](#the-music-player): Play mp3 files located on an SD card, controlled by buttons or [Time Circuits Display](https://tcd.out-a-ti.me) keypad via BTTFN
 - [SD card](#sd-card) support for custom audio files for effects, and music for the Music Player
 - Advanced network-accessible [Config Portal](#the-config-portal) for setup (http://vsr.local, hostname configurable)
-- [Wireless communication](#bttf-network-bttfn) with [Time Circuits Display](https://tcd.out-a-ti.me); used for synchonized time travels, alarm, night mode, fake power, temperature display and remote control through TCD keypad
+- [Wireless communication](#bttf-network-bttfn) with [Time Circuits Display](https://tcd.out-a-ti.me); used for synchonized time travels, alarm, night mode, fake power, temperature display and remote control through keypad
 - [Home Assistant](#home-assistant--mqtt) (MQTT 3.1.1) support
 
 ## Firmware Installation
@@ -104,11 +104,11 @@ By default, the display shows the value selected by the pushwheels, with slight 
 
 The three-digit display can be used for the pushwheel number, temperature or speed.
 
-In order to display temperature, a temperature sensor needs to be connected to either the VSR or your TCD, and in the latter case the VSR needs to be connected to the TCD via BTTFN.
+In order to display temperature, a temperature sensor needs to be connected to either the VSR or your Time Circuits Display (TCD), and in the latter case the VSR needs to be connected to the TCD via BTTFN.
 
 In order to display speed, a TCD with either a GPS receiver or a rotary encoder for speed is required, and the VSR needs to be connected to the TCD via BTTFN.
 
-Display modes are chosen by selecting the _Operation_ button mode, and _holding_ a single button until two beeps are emitted from the VSR, as described below.
+Display modes are chosen by selecting the _Operation_ button mode, and then _holding_ a single button until two beeps are emitted from the VSR, as described below.
 
 ### Button modes
 
