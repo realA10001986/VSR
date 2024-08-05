@@ -267,13 +267,13 @@ In this mode, the buttons light up when briefly pressed, and stay lit after _hol
 
 To trigger a "time travel" stand-alone, select the _Operation_ [button mode](#button-modes), and press "9".
 
-You can also connect a dedicated time travel button to your VSR; the button must connect "GPIO" to "3.3V" on the "Time Travel" connector. Pressing this button briefly will trigger a time travel.
+You can also connect a dedicated time travel button to your VSR; the button must connect "TT" to "3.3V" on the "Time Travel" connector. Pressing this button briefly will trigger a time travel.
 
 Other ways of triggering a time travel are available if a [Time Circuits Display](#connecting-a-time-circuits-display) is connected.
 
 ## Temperature display
 
-As mentioned above, the VSR can display temperature. The temperature value can come from either a connected temperature sensor, or from the TCD - if the latter has a sensor connected, and is connected to the VSR via [BTTFN](#bttf-network-bttfn).
+As mentioned above, the VSR can display temperature. The temperature value can come from either a connected temperature sensor, or from the TCD - if the latter has a sensor connected and is connected to the VSR via [BTTFN](#bttf-network-bttfn).
 
 The following sensor types are supported for direct (i2c) connection to the VSR: 
 - [MCP9808](https://www.adafruit.com/product/1782) (address 0x18 - non-default),
