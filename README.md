@@ -114,7 +114,7 @@ Display modes are chosen by selecting the _Operation_ button mode, and then _hol
 
 >Buttons can be _pressed_, which means a brief press-and-release, or _held_, meaning pressing and holding the button for 2 seconds.
 
-There are four button modes: Light ("LGT"), Operation ("OPR"), Music Player ("MPL") and Admin ("ADM"). In order to select a button mode, two or three buttons must be _held_ simultaneously until the display shows the selected mode.
+There are four button modes: Light ("LGT"), Operation ("OPR"), Music Player ("MUS") and Admin ("ADM"). In order to select a button mode, two or three buttons must be _held_ simultaneously until the display shows the selected mode.
 
 <table>
     <tr>
