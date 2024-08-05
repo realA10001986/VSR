@@ -24,7 +24,7 @@ If you are using a fresh ESP32 board, please see [vsr-A10001986.ino](https://git
 
 ### Audio data installation
 
-The firmware comes with some audio data ("sound-pack") which needs to be installed separately. The audio data is not updated as often as the firmware itself. If you have previously installed the latest version of the sound-pack, you normally don't have to re-install the audio data when you update the firmware. Only if the VSR [does something] during boot, an update of the audio data is needed.
+The firmware comes with some audio data ("sound-pack") which needs to be installed separately. The audio data is not updated as often as the firmware itself. If you have previously installed the latest version of the sound-pack, you normally don't have to re-install the audio data when you update the firmware. Only if the VSR displays "AUD" briefly during boot, an update of the audio data is needed.
 
 The first step is to download "install/sound-pack-xxxxxxxx.zip" and extract it. It contains one file named "VSRA.bin".
 
