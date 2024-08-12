@@ -242,12 +242,28 @@ In this mode, the buttons light up when briefly pressed, and stay lit after _hol
      <td align="left">8888xxx&#9166;</td>
     </tr>
     <tr>
+     <td align="left">Play "<a href="#additional-custom-sounds">key1.mp3</a>"</td>
+     <td align="left">8001&#9166;</td>
+    </tr>
+    <tr>
      <td align="left">Play "<a href="#additional-custom-sounds">key3.mp3</a>"</td>
      <td align="left">8003&#9166;</td>
     </tr>
     <tr>
+     <td align="left">Play "<a href="#additional-custom-sounds">key4.mp3</a>"</td>
+     <td align="left">8004&#9166;</td>
+    </tr>
+    <tr>
      <td align="left">Play "<a href="#additional-custom-sounds">key6.mp3</a>"</td>
      <td align="left">8006&#9166;</td>
+    </tr>
+    <tr>
+     <td align="left">Play "<a href="#additional-custom-sounds">key7.mp3</a>"</td>
+     <td align="left">8007&#9166;</td>
+    </tr>
+    <tr>
+     <td align="left">Play "<a href="#additional-custom-sounds">key9.mp3</a>"</td>
+     <td align="left">8009&#9166;</td>
     </tr>
     <tr>
      <td align="left">Display current IP address</td>
@@ -343,7 +359,10 @@ Your replacements need to be put in the root (top-most) directory of the SD card
 
 The firmware supports some additional user-provided sound effects, which it will load from the SD card. If the respective file is present, it will be used. If that file is absent, no sound will be played.
 
-- "key3.mp3"/"key6.mp3": Will be played when you press "10" or "4C" in _Operation_ [button mode](#button-modes), or type 8003 / 8006 on the TCD's keypad (connected through BTTFN).
+- "key3.mp3"/"key6.mp3": Will be played when you press "10" or "4C" in _Operation_ [button mode](#button-modes), or type 8003 / 8006 on the TCD's keypad (connected through BTTFN);
+- "key1.mp3", "key4.mp3", "key7.mp3", "key9.mp3": Will be played when you type 8001 / 8004 / 8007 / 8009 on the TCD's keypad (connected through BTTFN).
+
+> The seemingly odd numbering is because of synchronicity with other props, especially the TCD and its keymap where the MusicPlayer occupies keys 2, 5, 8.
 
 Those files are not provided here. You can use any mp3, with a bitrate of 128kpbs or less.
 
