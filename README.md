@@ -143,11 +143,11 @@ In this mode, the buttons light up when briefly pressed, and stay lit after _hol
      <td align="center"><img src="img/b9.png"></td><td>Trigger time travel</td>
      <td><a href="#display-modes">Display mode</a>: Pushwheel number</td>
     <tr>
-     <td align="center"><img src="img/b10.png"></td><td>Play "<a href=#additional-custom-sounds">key3.mp3</a>" on SD</td>
+     <td align="center"><img src="img/b10.png"></td><td>Play "<a href="#additional-custom-sounds">key3.mp3</a>" on SD</td>
       <td><a href="#display-modes">Display mode</a>: <a href="#temperature-display">Temperature</a></td>
     </tr>
     <tr>
-     <td align="center"><img src="img/b4c.png"></td><td>Play "<a href=#additional-custom-sounds">key6.mp3</a>" on SD</td>
+     <td align="center"><img src="img/b4c.png"></td><td>Play "<a href="#additional-custom-sounds">key6.mp3</a>" on SD</td>
       <td><a href="#display-modes">Display mode</a>: <a href="#speed-display">Speed</a></td>
     </tr>
 </table>
