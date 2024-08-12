@@ -67,7 +67,7 @@ extern uint8_t musFolderNum;
 
 #define DEF_SMOOTHPW        1     // Smooth pushwheel changes
 #define DEF_FLUCT           0     // Voltage fluctuations 1=on, 0=off
-#define DEF_DISP_BM         1     // Display button mode upon power-up: 1=yes, 0=no
+#define DEF_DISP_BM         1     // Show button mode upon power-up: 1=yes, 0=no
 #define DEF_SIG_BM          0     // Signal button mode by permanent button lights
 #define DEF_SS_TIMER        0     // "Screen saver" timeout in minutes; 0 = ss off
 
@@ -77,8 +77,8 @@ extern uint8_t musFolderNum;
 
 #define DEF_DI_NM           0     // Night mode: display dimmed(0) or off(1)
 
-#define DEF_TEMP_UNIT       0     // Default: temperature unit Fahrenheit (0) (or Celsius (1))
-#define DEF_TEMP_OFFS       0.0   // Default: temperature offset 0.0
+#define DEF_TEMP_UNIT       0     // Temperature unit: Fahrenheit (0=default) or Celsius (1)
+#define DEF_TEMP_OFFS       0.0   // Temperature offset: Default 0.0
 
 #define DEF_TCD_PRES        0     // 0: No TCD connected, 1: connected via GPIO
 #define DEF_NO_ETTO_LEAD    0     // 0: TCD signals TT with ETTO_LEAD lead time; 1 without
@@ -94,7 +94,7 @@ extern uint8_t musFolderNum;
 
 #define DEF_SHUFFLE         0     // Music Player: Do not shuffle by default
 
-#define DEF_CFG_ON_SD       1     // Default: Save secondary settings on SD card
+#define DEF_CFG_ON_SD       1     // Save secondary settings on SD card. Default: Yes (1)
 #define DEF_SD_FREQ         0     // SD/SPI frequency: Default 16MHz
 
 #define DEF_BRI             15    // Default display brightness

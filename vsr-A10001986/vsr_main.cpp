@@ -1321,6 +1321,11 @@ static void execute_remote_command()
 
     if(command < 10) {                                // 800x
         switch(command) {
+        case 1:
+            #ifdef VSR_HAVEAUDIO                      // 8001: play "key1.mp3"
+            play_file("/key1.mp3", PA_INTRMUS|PA_ALLOWSD|PA_DYNVOL);
+            #endif
+            break;
         case 2:
             #ifdef VSR_HAVEAUDIO
             if(haveMusic) {
@@ -1331,6 +1336,11 @@ static void execute_remote_command()
         case 3:
             #ifdef VSR_HAVEAUDIO                      // 8003: play "key3.mp3"
             play_file("/key3.mp3", PA_INTRMUS|PA_ALLOWSD|PA_DYNVOL);
+            #endif
+            break;
+        case 4:
+            #ifdef VSR_HAVEAUDIO                      // 8004: play "key4.mp3"
+            play_file("/key4.mp3", PA_INTRMUS|PA_ALLOWSD|PA_DYNVOL);
             #endif
             break;
         case 5:                                       // 8005: Play/stop
@@ -1349,11 +1359,21 @@ static void execute_remote_command()
             play_file("/key6.mp3", PA_INTRMUS|PA_ALLOWSD|PA_DYNVOL);
             #endif
             break;
+        case 7:
+            #ifdef VSR_HAVEAUDIO                      // 8007: play "key7.mp3"
+            play_file("/key7.mp3", PA_INTRMUS|PA_ALLOWSD|PA_DYNVOL);
+            #endif
+            break;
         case 8:                                       // 8008: Next song
             #ifdef VSR_HAVEAUDIO
             if(haveMusic) {
                 mp_next(mpActive);
             }
+            #endif
+            break;
+        case 9:
+            #ifdef VSR_HAVEAUDIO                      // 8009: play "key9.mp3"
+            play_file("/key9.mp3", PA_INTRMUS|PA_ALLOWSD|PA_DYNVOL);
             #endif
             break;
         }

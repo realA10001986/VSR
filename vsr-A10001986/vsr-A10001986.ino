@@ -119,6 +119,10 @@
 
 /*  Changelog
  *  
+ *  2024/08/11 (A10001986)
+ *    - In addition to the custom "key3" and "key6" sounds, now also "key1", 
+ *      "key4", "key7" and "key9" are available/supported; command codes are 
+ *      8001, 8004, 8007, 8009.
  *  2024/08/05 (A10001986)
  *    - Display volume when pressing up/down key even if limit has been reached
  *    - TT: Minimize duration of P0 in stand-alone mode
