@@ -508,8 +508,8 @@ void vsrDisplay::setNumber(int num)
     } else {
         int num1, num2, num3;
         if(num > 999) {
-            char buf[4];
-            sprintf(buf, "%1.2d", (float)num/1000.0);
+            char buf[8];
+            sprintf(buf, "%.2f", (float)num/1000.0);
             setText(buf);
         } else {
             num1 = num / 100;
