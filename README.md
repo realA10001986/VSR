@@ -344,7 +344,7 @@ Preface note on SD cards: For unknown reasons, some SD cards simply do not work 
 
 The SD card, apart from being required for [installing](#audio-data-installation) of the built-in audio data, can be used for substituting built-in sound effects and for music played back by the [Music player](#the-music-player). Also, it is _strongly recommended_ to store [secondary settings](#-save-secondary-settings-on-sd) on the SD card to minimize [Flash Wear](#flash-wear).
 
-Note that the SD card must be inserted before powering up the device. It is not recognized if inserted while the VSR are running. Furthermore, do not remove the SD card while the device is powered.
+Note that the SD card must be inserted before powering up the device. It is not recognized if inserted while the VSR is running. Furthermore, do not remove the SD card while the device is powered.
 
 ### Sound substitution
 
