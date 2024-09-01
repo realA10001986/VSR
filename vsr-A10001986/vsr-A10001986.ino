@@ -119,6 +119,10 @@
 
 /*  Changelog
  *  
+ *  2024/09/01 (A10001986)
+ *    - Stop audio when fake-powered off
+ *  2024/08/31 (A10001986)
+ *    - Fix brightness change not displayed in Config Portal
  *  2024/08/28 (A10001986)
  *    - Treat TCD-speed from Remote like speed from RotEnc
  *    - Fix some typos

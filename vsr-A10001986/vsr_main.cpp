@@ -482,6 +482,12 @@ void main_loop()
         if(tcdFPO) {
             // Power off:
             FPBUnitIsOn = false;
+
+            // Stop musicplayer & audio in general
+            #ifdef VSR_HAVEAUDIO
+            mp_stop();
+            stopAudio();
+            #endif
             
             if(TTrunning) {
                 // Reset to idle
@@ -1439,6 +1445,7 @@ static void execute_remote_command()
                 vsrdisplay.setBrightness(command);
                 brichanged = true;
                 brichgnow = millis();
+                updateConfigPortalBriValues();
             }
 
         } else {
