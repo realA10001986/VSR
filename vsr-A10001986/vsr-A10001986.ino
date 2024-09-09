@@ -119,6 +119,8 @@
 
 /*  Changelog
  *  
+ *  2024/09/09 (A10001986)
+ *    - Tune BTTFN poll interval
  *  2024/09/01 (A10001986)
  *    - Stop audio when fake-powered off
  *  2024/08/31 (A10001986)

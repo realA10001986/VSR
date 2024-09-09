@@ -225,6 +225,8 @@ bool                 FPBUnitIsOn = true;
 #define BTTFN_VERSION              1
 #define BTTF_PACKET_SIZE          48
 #define BTTF_DEFAULT_LOCAL_PORT 1338
+#define BTTFN_POLL_INT          1100
+#define BTTFN_POLL_INT_FAST      700
 #define BTTFN_NOT_PREPARE  1
 #define BTTFN_NOT_TT       2
 #define BTTFN_NOT_REENTRY  3
@@ -251,6 +253,7 @@ static WiFiUDP       bttfUDP;
 static UDP*          vsrUDP;
 static byte          BTTFUDPBuf[BTTF_PACKET_SIZE];
 static unsigned long BTTFNUpdateNow = 0;
+static unsigned long bttfnVSRPollInt = BTTFN_POLL_INT;
 static unsigned long BTFNTSAge = 0;
 static unsigned long BTTFNTSRQAge = 0;
 static bool          BTTFNPacketDue = false;
@@ -306,7 +309,7 @@ void main_boot2()
     int temp = 0;
     
     #ifdef HAVE_DISPSELECTION
-    int temp = atoi(settings.dispType);
+    temp = atoi(settings.dispType);
     if(temp < VSR_DISP_MIN_TYPE || temp >= VSR_DISP_NUM_TYPES) {
         Serial.println("Bad display type");
     } else {
@@ -476,6 +479,9 @@ void main_loop()
     unsigned long now = millis();
     bool forceDispUpd = false;
     bool wheelsChanged = false;
+
+    // Reset polling interval; will be overruled below if applicable
+    bttfnVSRPollInt = BTTFN_POLL_INT;
 
     // Follow TCD fake power
     if(useFPO && (tcdFPO != fpoOld)) {
@@ -931,6 +937,7 @@ void main_loop()
                         vsrdisplay.show();
                         prevGPSSpeed = gpsSpeed;
                     }
+                    bttfnVSRPollInt = BTTFN_POLL_INT_FAST;
                     break;
                 case LDM_TEMP:
                     #ifdef VSR_HAVETEMP
@@ -1685,7 +1692,7 @@ void bttfn_loop()
         if(!BTTFNWiFiUp && (WiFi.status() == WL_CONNECTED)) {
             BTTFNUpdateNow = 0;
         }
-        if((!BTTFNUpdateNow) || (millis() - BTTFNUpdateNow > 1100)) {
+        if((!BTTFNUpdateNow) || (millis() - BTTFNUpdateNow > bttfnVSRPollInt)) {
             BTTFNTriggerUpdate();
         }
     }
