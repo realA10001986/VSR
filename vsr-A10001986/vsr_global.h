@@ -20,8 +20,8 @@
  ***                          Version Strings                          ***
  *************************************************************************/
 
-#define VSR_VERSION "V0.16"
-#define VSR_VERSION_EXTRA "SEP112024"
+#define VSR_VERSION "V0.18"
+#define VSR_VERSION_EXTRA "OCT022024"
 
 //#define VSR_DBG              // debug output on Serial
 
@@ -73,8 +73,6 @@
 // Uncomment to include BTTFN discover support (multicast)
 #define BTTFN_MC
 
-// Uncomment for using the prototype board
-//#define TW_PROTO_BOARD
 // Uncomment if hardware has a volume knob
 //#define VSR_HAVEVOLKNOB
 
@@ -106,7 +104,7 @@
 #define SPI_MISO_PIN      19
 #define SPI_SCK_PIN       18
 
-#ifndef TW_PROTO_BOARD    // -------- Buttons and LEDs
+// -------- Buttons and LEDs
 
 #define TT_IN_PIN         13      // Time Travel button (or TCD tt trigger input) (has internal PU/PD) (PD on CB)
 #define YET_UNUSED_PIN    14      // Accessible GPIO, yet unused                  (has internal PU/PD)
@@ -120,21 +118,5 @@
 #define BUTTON3_PWM_PIN   17
 
 #define VOLUME_PIN        39      // (unused on OEM board)
-
-#else                     // ------------------------- (Prototype board below)
-
-#define TT_IN_PIN         16      // Time Travel button (or TCD tt trigger input)
-
-#define BUTTON1_IO_PIN    27      // Button GPIO pins (if not via I2C)
-#define BUTTON2_IO_PIN    14
-#define BUTTON3_IO_PIN    13
-
-#define BUTTON1_PWM_PIN   17      // Button LEDs (for PWM option)
-#define BUTTON2_PWM_PIN   2
-#define BUTTON3_PWM_PIN   12
-
-#define VOLUME_PIN        32      // (unused on OEM board)
-    
-#endif                    // -------------------------
 
 #endif

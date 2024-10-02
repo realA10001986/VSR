@@ -253,17 +253,16 @@ static const uint16_t font7segGeneric[47] = {
 };
 
 static const struct dispConf {
-    uint8_t  num_digs;       //   total number of digits/letters
-    uint8_t  buf_packed;     //   2 digits in one buffer pos? (0=no, 1=yes)
+    uint8_t  num_digs;       //   total number of digits/letters (max 4)
     uint8_t  loffset;        //   Offset from left (0 or 1) if display has more than 3 digits
     uint8_t  bufPosArr[4];   //   The buffer positions of each of the digits from left to right
     uint8_t  bufShftArr[4];  //   Shift-value for each digit from left to right
     const uint16_t *fontSeg; //   Pointer to font
 } displays[VSR_DISP_NUM_TYPES] = {
-  { 3, 0, 0, { 0, 1, 3 }, { 0, 0, 0 }, font7segGeneric },  // Native
+  { 3, 0, { 0, 1, 3 }, { 0, 0, 0 }, font7segGeneric },  // Native
 #ifdef HAVE_DISPSELECTION  
-  { 3, 0, 0, { 0, 1, 3 }, { 0, 0, 0 }, font7segGeneric },  // SP_ADAF_7x4L (right) (ADA-878/877/5599;879/880/881/1002/5601/5602/5603/5604/1270/1271;1269)
-  { 3, 0, 0, { 1, 3, 4 }, { 0, 0, 0 }, font7segGeneric },  // SP_ADAF_7x4R (left)  (ADA-878/877/5599;879/880/881/1002/5601/5602/5603/5604/1270/1271;1269)
+  { 3, 0, { 0, 1, 3 }, { 0, 0, 0 }, font7segGeneric },  // SP_ADAF_7x4L (right) (ADA-878/877/5599;879/880/881/1002/5601/5602/5603/5604/1270/1271;1269)
+  { 3, 0, { 1, 3, 4 }, { 0, 0, 0 }, font7segGeneric },  // SP_ADAF_7x4R (left)  (ADA-878/877/5599;879/880/881/1002/5601/5602/5603/5604/1270/1271;1269)
 #endif
 };
 
@@ -298,7 +297,6 @@ bool vsrDisplay::begin(int dispType)
         _dispType = dispType;
         _num_digs = displays[dispType].num_digs;
         _loffs = displays[dispType].loffset;
-        _buf_packed = displays[dispType].buf_packed;
         _bufPosArr = displays[dispType].bufPosArr;
         _bufShftArr = displays[dispType].bufShftArr;
 
@@ -451,24 +449,14 @@ void vsrDisplay::setText(const char *text)
     clearBuf();
 
     if(_dispType >= 0) {
-        while(text[idx] && (pos < (_num_digs / (1<<_buf_packed)))) {
-            temp = getLEDChar(text[idx]) << (*(_bufShftArr + dgt));
+        while(text[idx] && (pos < _num_digs)) {
+            temp = getLEDChar(text[idx]) << (*(_bufShftArr + pos));
             idx++;
             if(text[idx] == '.') {
-                temp |= (getLEDChar('.') << (*(_bufShftArr + dgt)));
+                temp |= (getLEDChar('.') << (*(_bufShftArr + pos)));
                 idx++;
             }
-            dgt++;
-            if(_buf_packed && text[idx]) {
-                temp |= (getLEDChar(text[idx]) << (*(_bufShftArr + dgt)));
-                idx++;
-                if(text[idx] == '.') {
-                    temp |= (getLEDChar('.') << (*(_bufShftArr + dgt)));
-                    idx++;
-                }
-                dgt++;
-            }
-            _displayBuffer[*(_bufPosArr + pos)] = temp;
+            _displayBuffer[*(_bufPosArr + pos)] |= temp;
             pos++;
         }
     }
@@ -561,52 +549,6 @@ void vsrDisplay::getNumbers(int& num1, int& num2, int& num3)
     num2 = _curNums[1];
     num3 = _curNums[2];
 }
-
-
-// Special purpose -------------------------------------------------------------
-
-#if 0 // Currently unused
-
-// Clears the display RAM and only shows the given text
-// does not use the buffer, writes directly to display
-// (clears colon; dots work like the buffer version.)
-void vsrDisplay::showTextDirect(const char *text)
-{
-    int idx = 0, pos = 0, dgt = 0;
-    int temp = 0;
-    uint16_t tt = 0, spec = 0;
-    bool commaAdded = false;
-
-    clearDisplay();
-
-    if(_dispType < 0) {
-        while(text[idx] && (pos < (_num_digs / (1<<_buf_packed)))) {
-            commaAdded = false;
-            temp = getLEDChar(text[idx]) << (*(_bufShftArr + dgt));
-            idx++;
-            if(text[idx] == '.') {
-                temp |= (getLEDChar('.') << (*(_bufShftArr + dgt)));
-                idx++;
-                commaAdded = true;
-            }
-            dgt++;
-            if(_buf_packed && text[idx]) {
-                temp |= (getLEDChar(text[idx]) << (*(_bufShftArr + dgt)));
-                idx++;
-                if(text[idx] == '.') {
-                    temp |= (getLEDChar('.') << (*(_bufShftArr + dgt)));
-                    idx++;
-                }
-                dgt++;
-            }
-            directCol(*(_bufPosArr + pos), temp);
-            pos++;
-        }
-    }
-    
-}
-
-#endif // if 0
 
 // Private functions ###########################################################
 

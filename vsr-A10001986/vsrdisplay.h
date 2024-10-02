@@ -162,10 +162,6 @@ class vsrDisplay {
 
         void setTemperature(float temp);
 
-        #if 0
-        void showTextDirect(const char *text);
-        #endif
-
     private:
 
         uint16_t getLEDChar(uint8_t value);
@@ -192,7 +188,6 @@ class vsrDisplay {
         int8_t   _dispType = -1;
         uint8_t  _num_digs;         //      total number of digits/letters (max 4)
         uint8_t  _loffs = 0;        //      offset
-        uint8_t  _buf_packed;       //      2 digits in one buffer pos? (0=no, 1=yes)
         const uint8_t *_bufPosArr;  //      Array of buffer positions for digits left->right
         const uint8_t *_bufShftArr; //      Array of shift values for each digit
 

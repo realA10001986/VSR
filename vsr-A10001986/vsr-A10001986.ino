@@ -119,6 +119,10 @@
 
 /*  Changelog
  *  
+ *  2024/10/02 (A10001986)
+ *    - Minor (cosmetic) fix to display code
+ *  2024/09/30 (A10001986)
+ *    - Minor temperature-related fix
  *  2024/09/11 (A10001986)
  *    - Fix C99-compliance
  *  2024/09/09 (A10001986)
