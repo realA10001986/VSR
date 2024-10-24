@@ -705,4 +705,4 @@ If you want copy settings from one SD card to another, do as follows:
 This procedure ensures that all your settings are copied from the old to the new SD card.
 
 
-_Text & images: (C) Thomas Winischhofer ("A10001986"). See LICENSE._ https://vsr.out-a-ti.me
+_Text & images: (C) Thomas Winischhofer ("A10001986"). See LICENSE._ Source: https://vsr.out-a-ti.me
