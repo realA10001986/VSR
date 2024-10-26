@@ -12,16 +12,11 @@
 #define _VSR_GLOBAL_H
 
 /*************************************************************************
- ***                           Miscellaneous                           ***
- *************************************************************************/
-
-
-/*************************************************************************
  ***                          Version Strings                          ***
  *************************************************************************/
 
-#define VSR_VERSION "V0.18"
-#define VSR_VERSION_EXTRA "OCT022024"
+#define VSR_VERSION "V1.10"
+#define VSR_VERSION_EXTRA "OCT262024"
 
 //#define VSR_DBG              // debug output on Serial
 
@@ -41,18 +36,18 @@
  ***             Configuration for hardware/peripherals                ***
  *************************************************************************/
 
-// Uncomment to drive buttons via I2C port expander (pins 13-15; com on 0)
-// Comment for using direct port pins BUTTONx_IO_PIN
-//#define VSR_BUTTONS_I2C
-
 // Uncomment for audio support
 #define VSR_HAVEAUDIO
 
 // Uncomment for support of a temperature/humidity sensor (MCP9808, BMx280, 
-// SI7021, SHT4x, TMP117, AHT20, HTU31D, MS8607) connected via i2c. Will be used 
-// to display ambient temperature on display when idle.
+// SI7021, SHT4x, TMP117, AHT20, HTU31D, MS8607) connected via i2c. Will be
+// used to display ambient temperature on display when idle.
 // See sensors.cpp for supported i2c slave addresses
 #define VSR_HAVETEMP
+
+// Uncomment to drive buttons via I2C port expander (pins 13-15; com on 0)
+// Comment for using direct port pins BUTTONx_IO_PIN
+//#define VSR_BUTTONS_I2C
 
 /*************************************************************************
  ***                           Miscellaneous                           ***
@@ -61,13 +56,10 @@
 // Uncomment for HomeAssistant MQTT protocol support
 #define VSR_HAVEMQTT
 
-// Use SPIFFS (if defined) or LittleFS (if undefined; esp32-arduino >= 2.x)
-//#define USE_SPIFFS
-
 // External time travel lead time, as defined by TCD firmware
-// If DG are connected by wire, and the option "Signal Time Travel without 5s 
-// lead" is set on the TCD, the DG option "TCD signals without lead" must
-// be set, too.
+// If VSR is connected to TCD by wire, and the option "Signal Time Travel 
+// without 5s lead" is set on the TCD, the VSR option "TCD signals without 
+// lead" must be set, too.
 #define ETTO_LEAD 5000
 
 // Uncomment to include BTTFN discover support (multicast)
@@ -75,6 +67,9 @@
 
 // Uncomment if hardware has a volume knob
 //#define VSR_HAVEVOLKNOB
+
+// Use SPIFFS (if defined) or LittleFS (if undefined; esp32-arduino >= 2.x)
+//#define USE_SPIFFS
 
 /*************************************************************************
  ***                  esp32-arduino version detection                  ***
@@ -113,7 +108,7 @@
 #define BUTTON2_IO_PIN    27      //                                              (has internal PU)
 #define BUTTON3_IO_PIN    32      //                                              (has no internal PU?; PU on CB)
 
-#define BUTTON1_PWM_PIN   12      // Button LEDs (for PWM option)
+#define BUTTON1_PWM_PIN   12      // Button LEDs
 #define BUTTON2_PWM_PIN   16
 #define BUTTON3_PWM_PIN   17
 
