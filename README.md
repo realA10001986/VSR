@@ -386,6 +386,30 @@ While the music player is playing music, other sound effects are disabled/muted.
 
 ## Connecting a Time Circuits Display
 
+### BTTF-Network ("BTTFN")
+
+The TCD can communicate with the VSR wirelessly, via the built-in "**B**asic-**T**elematics-**T**ransmission-**F**ramework" over WiFi. It can send out information about a time travel and an alarm, and the VSR queries the TCD for speed, temperature and some other data. Furthermore, the TCD's keypad can be used to remote-control the VSR.
+
+| [![Watch the video](https://img.youtube.com/vi/u9oTVXUIOXA/0.jpg)](https://youtu.be/u9oTVXUIOXA) |
+|:--:|
+| Click to watch the video |
+
+Note that the TCD's firmware must be up to date for BTTFN. You can use [this](http://tcd.out-a-ti.me) one or CircuitSetup's release 2.9 or later.
+
+![BTTFN connection](img/family-wifi-bttfn.png)
+
+In order to connect your VSR to the TCD using BTTFN, just enter the TCD's IP address or hostname in the **_IP address or hostname of TCD_** field in the VSR's Config Portal. On the TCD, no special configuration is required. 
+  
+Afterwards, the VSR and the TCD can communicate wirelessly and 
+- play time travel sequences in sync,
+- both play an alarm-sequence when the TCD's alarm occurs,
+- the VSR can be remote controlled through the TCD's keypad (command codes 8xxx),
+- the VSR queries the TCD for temperature and GPS speed for display,
+- the VSR queries the TCD for fake power and night mode, in order to react accordingly if so configured,
+- the VSR's Time Travel button can trigger a synchronized Time Travel on all BTTFN-connected devices, just like if that Time Travel was triggered through the TCD.
+
+You can use BTTF-Network and MQTT at the same time, see [below](#home-assistant--mqtt).
+
 ### Connecting a TCD by wire
 
 >Note that a wired connection only allows for synchronized time travel sequences, no other communication takes place. A wireless connection over BTTFN/WiFi is much more powerful and therefore recommended over a wired connection.
@@ -415,30 +439,6 @@ _Do not connect 3V3 to the TCD!_
 Next, head to the Config Portal and set the option **_TCD connected by wire_**. On the TCD, the option "Control props connected by wire" must be set.
 
 >You can connect both the TCD and a button to the TT connector. However, the button should not be pressed when the option **_TCD connected by wire_** is set, as it might yield unwanted results. Also, note that the button connects to IO13 and 3_3V (not GND!).
-
-### BTTF-Network ("BTTFN")
-
-The TCD can communicate with the VSR wirelessly, via the built-in "**B**asic-**T**elematics-**T**ransmission-**F**ramework" over WiFi. It can send out information about a time travel and an alarm, and the VSR queries the TCD for speed, temperature and some other data. Furthermore, the TCD's keypad can be used to remote-control the VSR.
-
-| [![Watch the video](https://img.youtube.com/vi/u9oTVXUIOXA/0.jpg)](https://youtu.be/u9oTVXUIOXA) |
-|:--:|
-| Click to watch the video |
-
-Note that the TCD's firmware must be up to date for BTTFN. You can use [this](http://tcd.out-a-ti.me) one or CircuitSetup's release 2.9 or later.
-
-![BTTFN connection](img/family-wifi-bttfn.png)
-
-In order to connect your VSR to the TCD using BTTFN, just enter the TCD's IP address or hostname in the **_IP address or hostname of TCD_** field in the VSR's Config Portal. On the TCD, no special configuration is required. Note that you need TCD firmware 2.9.1 or later for using a hostname; previous versions only work with an IP address.
-  
-Afterwards, the VSR and the TCD can communicate wirelessly and 
-- play time travel sequences in sync,
-- both play an alarm-sequence when the TCD's alarm occurs,
-- the VSR can be remote controlled through the TCD's keypad (command codes 8xxx),
-- the VSR queries the TCD for temperature and GPS speed for display,
-- the VSR queries the TCD for fake power and night mode, in order to react accordingly if so configured,
-- the VSR's Time Travel button can trigger a synchronized Time Travel on all BTTFN-connected devices, just like if that Time Travel was triggered through the TCD.
-
-You can use BTTF-Network and MQTT at the same time, see immediately below.
 
 ## Home Assistant / MQTT
 
