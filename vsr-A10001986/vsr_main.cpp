@@ -282,6 +282,7 @@ static uint8_t       bttfnReqStatus = 0x56; // Request capabilities, status, tem
 static uint32_t      tcdHostNameHash = 0;
 static byte          BTTFMCBuf[BTTF_PACKET_SIZE];
 static uint8_t       bttfnMcMarker = 0;
+static IPAddress     bttfnMcIP(224, 0, 0, 224);
 #endif  
 
 static int      iCmdIdx = 0;
@@ -320,6 +321,7 @@ static void updateTemperature(bool force = false);
 static void myloop();
 
 static void bttfn_setup();
+static void bttfn_loop_quick();
 #ifdef BTTFN_MC
 static bool bttfn_checkmc();
 #endif
@@ -334,10 +336,10 @@ void main_boot()
 }
 
 void main_boot2()
-{   
+{
     // Init LED segment display
     int temp = 0;
-    
+
     #ifdef HAVE_DISPSELECTION
     temp = atoi(settings.dispType);
     if(temp < VSR_DISP_MIN_TYPE || temp >= VSR_DISP_NUM_TYPES) {
@@ -588,12 +590,12 @@ void main_loop()
     // Need to call scan every time due to buttons
     if((wheelsChanged = scanControls())) {
         ssRestartTimer();
+        // Not ssEnd(), ss will only end if display in pw mode
     }
 
     // Handle pushwheel values
     if(wheelsChanged) {
         vsrControls.getValues(curra, currb, currc);
-        //Serial.printf("%d %d %d\n", curra, currb, currc);
         if(curra >= 0 && currb >= 0 && currc >= 0) {
             targetNum = (curra * 100) + (currb * 10) + currc;
             lastSmooth = now - 250;
@@ -831,7 +833,7 @@ void main_loop()
 
     } else {    // No TT currently
 
-        if(networkAlarm && !TTrunning) {
+        if(networkAlarm) {
 
             networkAlarm = false;
             
@@ -842,6 +844,12 @@ void main_loop()
                 play_file("/alarm.mp3", PA_INTRMUS|PA_ALLOWSD|PA_DYNVOL, 1.0);
             }
             #endif
+
+            if(!FPBUnitIsOn) {
+                vsrdisplay.clearBuf();
+                vsrdisplay.show();
+                vsrdisplay.on();
+            }
 
             // play alarm sequence
             for(int i = 0; i < 40; i++) {
@@ -855,6 +863,10 @@ void main_loop()
             vsrdisplay.clearBuf();
             vsrdisplay.show();
             doForceDispUpd = true;
+            
+            if(!FPBUnitIsOn) {
+                vsrdisplay.off();
+            }
         
         } else {
 
@@ -1076,26 +1088,23 @@ void main_loop()
 
     if(!TTrunning) {
         // Save secondary settings 10 seconds after last change
-        if(brichanged && (now - brichgnow > 10000)) {
-            brichanged = false;
-            saveBrightness();
-        }
         #ifdef VSR_HAVEAUDIO
         if(volchanged && (now - volchgnow > 10000)) {
             volchanged = false;
             saveCurVolume();
-        }
+        } else
         #endif
-        if(butchanged && (now - butchgnow > 10000)) {
+        if(brichanged && (now - brichgnow > 10000)) {
+            brichanged = false;
+            saveBrightness();
+        } else if(butchanged && (now - butchgnow > 10000)) {
             butchanged = false;
             saveButtonMode();
-        }
-        if(udispchanged && (now - udispchgnow > 10000)) {
+        } else if(udispchanged && (now - udispchgnow > 10000)) {
             udispchanged = false;
             saveUDispMode();
         }
     }
-
 }
 
 void flushDelayedSave()
@@ -1431,18 +1440,22 @@ static void execute_remote_command()
             switch(command - 10) {
             case 0:
                 userDispMode = LDM_WHEELS;
+                ssEnd();
                 break;
             case 1:
                 userDispMode = LDM_TEMP;
+                ssEnd();
                 break;
             case 2:
                 userDispMode = LDM_GPS;
+                ssEnd();
                 break;
             }
 
         } else if(command == 90) {                    // 8090: Display IP address
 
             flushDelayedSave();
+            ssEnd();
             display_ip();
             ssRestartTimer();
           
@@ -1481,6 +1494,7 @@ static void execute_remote_command()
 
             command -= 400;                       // 8400-8415: Set brightness
             if(!TTrunning) {
+                ssEnd();
                 vsrdisplay.setBrightness(command);
                 brichanged = true;
                 brichgnow = millis();
@@ -1611,16 +1625,6 @@ void waitAudioDone()
 #endif
 
 /*
- *  Do this whenever we are caught in a while() loop
- *  This allows other stuff to proceed
- */
-static void myloop()
-{
-    wifi_loop();
-    audio_loop();
-}
-
-/*
  * Delay function for external modules
  * (controls, ...). 
  * Do not call wifi_loop() here!
@@ -1656,6 +1660,17 @@ static void updateTemperature(bool force)
     }
 }
 #endif
+
+/*
+ *  Do this whenever we are caught in a while() loop
+ *  This allows other stuff to proceed
+ */
+static void myloop()
+{
+    wifi_loop();
+    audio_loop();
+    bttfn_loop_quick();
+}
 
 /*
  * MyDelay:
@@ -1711,7 +1726,7 @@ static void bttfn_setup()
 
     #ifdef BTTFN_MC
     vsrMcUDP = &bttfMcUDP;
-    vsrMcUDP->beginMulticast(IPAddress(224, 0, 0, 224), BTTF_DEFAULT_LOCAL_PORT + 2);
+    vsrMcUDP->beginMulticast(bttfnMcIP, BTTF_DEFAULT_LOCAL_PORT + 2);
     #endif
     
     BTTFNfailCount = 0;
@@ -1742,6 +1757,20 @@ void bttfn_loop()
             BTTFNTriggerUpdate();
         }
     }
+}
+
+static void bttfn_loop_quick()
+{
+    #ifdef BTTFN_MC
+    int t = 10;
+    #endif
+    
+    if(!useBTTFN)
+        return;
+
+    #ifdef BTTFN_MC
+    while(bttfn_checkmc() && t--) {}
+    #endif
 }
 
 static bool check_packet(uint8_t *buf)
@@ -1806,8 +1835,7 @@ static void handle_tcd_notification(uint8_t *buf)
         // Eval this at our convenience
         break;
     case BTTFN_NOT_VSR_CMD:
-        addCmdQueue( buf[6] | (buf[7] << 8) |
-                    (buf[8] | (buf[9] << 8)) << 16);
+        addCmdQueue(GET32(buf, 6));
         break;
     case BTTFN_NOT_WAKEUP:
         if(!TTrunning) {
@@ -2050,7 +2078,7 @@ static void BTTFNSendPacket()
         #ifdef VSR_DBG
         //Serial.printf("Sending multicast (hostname hash %x)\n", tcdHostNameHash);
         #endif
-        vsrUDP->beginPacket("224.0.0.224", BTTF_DEFAULT_LOCAL_PORT + 1);
+        vsrUDP->beginPacket(bttfnMcIP, BTTF_DEFAULT_LOCAL_PORT + 1);
     }
     #endif
     vsrUDP->write(BTTFUDPBuf, BTTF_PACKET_SIZE);
