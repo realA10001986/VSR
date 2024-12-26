@@ -12,7 +12,7 @@ It has connectors for
 - power (5V or 12V, back side; if you choose to mount the board in another way than intended, the connectors can also be put on the front)
 - time travel button (back side; if you choose to mount the board in another way than intended, the connector can also be put on the front)
 - temperature sensor (back side)
-- Buttons & lights: Those JST XH four-pin connectors have two wires for the button (BUT, BUT) and two for the lights inside the buttons (L+, L+). BUT and BUT are supposed to be connected when the button is pressed, and open when it is released. The voltage for the lights inside the buttons can be selected from 3.3V, 5V, and 12V. There is a "T" shaped solder jumper on the Control Board. Connect "3V3" and "LVcc" for 3.3V, for instance. If you go for 12V, the Control Board must be powered with 12V through the respective connector on the back of the PCB. On the pictures above, 5V is selected.
+- Buttons & lights: Those JST XH four-pin connectors have two wires for the button (BUT, BUT) and two for the lights inside the buttons (L+, L-). BUT and BUT are supposed to be connected when the button is pressed, and open when it is released. The voltage for the lights inside the buttons can be selected from 3.3V, 5V, and 12V. There is a "T" shaped solder jumper on the Control Board. Connect "3V3" and "LVcc" for 3.3V, for instance. If you go for 12V, the Control Board must be powered with 12V through the respective connector on the back of the PCB. On the pictures above, 5V is selected.
 - Pushwheels and LED display: Pushwheels and LED display are daisy-chained.
 - speaker for audio (PH 2pin).
 
