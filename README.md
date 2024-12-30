@@ -1,6 +1,6 @@
 # VSR (Delorean Time Machine)
 
-This [repository](https://vsr.out-a-ti.me) holds the most current firmware for a replica of the Voltage Systems Regulator ("VSR") known from the Delorean Time Machine. There is no kit available yet; however, the electronics are done and you can make your own circuit boards using the files in the [Electronics](https://github.com/realA10001986/VSR/tree/main/Electronics) folder. Below are some pictures of a fully functional prototype, still with minor optical imperfections (such as the buttons being located to far up and an early display bezel):
+This [repository](https://vsr.out-a-ti.me) holds the most current firmware for a replica of the Voltage Systems Regulator ("VSR") known from the Delorean Time Machine. There is no kit available yet; however, the electronics are done and you can make your own circuit boards using the files in the [Electronics](https://github.com/realA10001986/VSR/tree/main/Electronics) folder. Below are some pictures of a fully functional prototype, still with minor optical imperfections:
 
 [<img src="img/vsrpt_4s.jpg">](img/vsrpt_4.jpg)
 [<img src="img/vsrpt_2s.jpg">](img/vsrpt_2.jpg)
