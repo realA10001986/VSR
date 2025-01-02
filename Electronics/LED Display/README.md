@@ -5,11 +5,11 @@
 
 The LED display consists of two PCBs stacked on each other.
 
-1) The tube carrier: Gerber_TC-0.36-1.0; there is no BOM, the only components are three single-digit 0.36" (9mm) LED segment displays, and the pin header/socket.
+1) The tube carrier ("Carrier" folder). There is no BOM, the only components are three single-digit 0.36" (9mm) LED segment displays, and the pin header/socket.
 
 <img src="img/tc2.jpg">
 
-2) The i2c backpack: Gerber_I2CBP-0.36-1.0, BOM_I2CBP-0.36-1.0, PickAndPlace_I2CBP-0.36-1.0
+2) The i2c backpack ("I2CBP" folder):
 
 <img src="img/i2cbp1.jpg">
 
@@ -20,14 +20,14 @@ The PCBs are connected by a pin header/socket (11 pins, 1 row, 2mm pitch). Alter
 To have [JCLPCB](https://jlcpcb.com) make your LED display:
 1) Create an account at jlcpcb.com
 2) Click "Upload Gerber file" or "order now"
-3) Upload the "Gerber_I2CBP" file (.zip, do not decompress!); leave all options at their defaults. You can choose a PCB color though...
+3) Upload the "Gerber" file from the I2CBP folder (.zip, do not decompress!); leave all options at their defaults. You can choose a PCB color though...
 4) Activate "PCB assembly", click "NEXT"
 5) Enjoy a view of the PCB, click "NEXT"
-6) Upload the BOM and "PickAndPlace" (CPL) files, click "Process BOM & CPL"
+6) Upload the BOM and "PickAndPlace" (CPL) files from the I2CBP, click "Process BOM & CPL"
 8) Enjoy a nice 2D or 3D view of your future board, click "NEXT". (If the display stalls at "Processing files", click "NEXT" regardless).
 9) Select a "product description" (eg. "Movie prop") and click "Save to cart".
 10) Click "Order now" (top right on screen) to add the Tube holder PCB
-11) Upload the "Gerber_TC" file; select PCB color, leave all other options at their defaults
+11) Upload the "Gerber" file from the "Carrier" folder; select PCB color, leave all other options at their defaults
 12) Do NOT activate "PCB assembly"; click on "Save to Cart"
 13) Finalize your order
 
