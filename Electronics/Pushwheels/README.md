@@ -33,3 +33,16 @@ To have [JCLPCB](https://jlcpcb.com) make your Pushwheels Board:
 - 3x [1x11](https://www.mouser.com/ProductDetail/NorComp/25631101RP2?qs=TaIhzdgpGpUc9hecPJ8SJg%3D%3D) or [1x12 pin 2mm pitch female](https://www.mouser.com/ProductDetail/Harwin/M22-7131242?qs=%252Bk6%2F5FB6qrmdMF9FvJ5n1g%3D%3D) pin headers; solder them to left pad row (12 holes); if 11 pin header is used, align to top, leave bottom hole empty.
 - the ability to solder through-the-hole parts, and the required tools.
 
+#### Pushwheels font
+
+If you want to the digits inside the pushwheels to look like in the movie, you can use the "PW.png" file in the Labels folder. Print this on thin (!!!) self-adhesive label paper or, better yet, a foil sticker. It needs to be very thin, the pushwheel mechanics don't allow for anything thick.
+
+You need to take apart the pushwheels by cutting off the heads of the four plastic pins (which are melted to hold the PCB down), lift and slide out the PCB, and take out the wheel. 
+
+Then carefully apply the label; the digits are slightly taller than the originals. In order to avoid neighboring digits to be visible in the window, align the top line of the "7" slightly (0.5mm) above the top line of the original "7" (ie slightly towards "8"). I might take a few attempts to get this right. Avoid an overlap between "0" and "1", otherwise the mechanics of the pushwheel will scrub off your label.
+
+Then reassemble the wheel, and glue the PCB to the housing in the corners.
+
+This is no perfect solution, and unless you are the hardcore accuracy type, I do not recommend to do this.
+
+
