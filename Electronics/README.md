@@ -16,3 +16,6 @@ The folders contain each
 - BOMs for the PCB's (.csv)
 - PickAndPlace (CPL) files for production
 
+The buttons on the original were alledgedly "Compulite 65", but I could not find anything about those.
+
+Suitable alternatives are [Eaton 861K11810](https://www.onlinecomponents.com/en/productdetail/cutler-hammer--eaton/861k11810-11067671.html) with [Easton 849PM04A](https://www.onlinecomponents.com/en/productdetail/cutler-hammer--eaton/849pm04a-39549100.html) caps.
