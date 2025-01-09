@@ -4,7 +4,7 @@ This [repository](https://vsr.out-a-ti.me) holds the most current firmware for a
 
 [<img src="img/vsrpt_6s.jpg">](img/vsrpt_6.jpg)
 [<img src="img/vsrpt_7s.jpg">](img/vsrpt_7.jpg)
-[<img src="img/vsrpt_9s.jpg">](img/vsrpt_8.jpg)
+[<img src="img/vsrpt_8s.jpg">](img/vsrpt_8.jpg)
 
 Features include:
 
