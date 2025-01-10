@@ -1,7 +1,7 @@
 /*
  * -------------------------------------------------------------------
  * Voltage Systems Regulator
- * (C) 2024 Thomas Winischhofer (A10001986)
+ * (C) 2024-2025 Thomas Winischhofer (A10001986)
  * https://github.com/realA10001986/VSR
  * https://vsr.out-a-ti.me
  *
@@ -81,6 +81,7 @@
 #define AHT20_ADDR     0x38 //
 #define HTU31_ADDR     0x41 // [non-default]
 #define MS8607_ADDR    0x76 // +0x40
+#define HDC302X_ADDR   0x45 // [non-default]
 
 unsigned long powerupMillis = 0;
 
@@ -96,15 +97,16 @@ vsrBLEDs vsrLEDs(1,
 static VSRButton TTKey = VSRButton();
 
 #ifdef VSR_HAVETEMP
-tempSensor tempSens(8, 
-            (uint8_t[8*2]){ MCP9808_ADDR, MCP9808,
+tempSensor tempSens(9, 
+            (uint8_t[9*2]){ MCP9808_ADDR, MCP9808,
                             BMx280_ADDR,  BMx280,
                             SHT40_ADDR,   SHT40,
                             MS8607_ADDR,  MS8607,   // before Si7021
                             SI7021_ADDR,  SI7021,
                             TMP117_ADDR,  TMP117,
                             AHT20_ADDR,   AHT20,
-                            HTU31_ADDR,   HTU31
+                            HTU31_ADDR,   HTU31,
+                            HDC302X_ADDR, HDC302X
                           });
 #endif
 
@@ -182,6 +184,8 @@ static bool tcdNM = false;
 bool        vsrNM = false;
 static bool useFPO = false;
 static bool tcdFPO = false;
+static bool diNmOff = false;
+static bool nmOverruled = false;
 
 bool        bttfnTT = false;
 
@@ -355,6 +359,11 @@ void main_boot2()
     }
     #endif
 
+    #ifdef VSR_DIAG
+    vsrdisplay.lampTest();
+    delay(10*1000);
+    #endif
+
     showWaitSequence();
 }
 
@@ -393,7 +402,8 @@ void main_setup()
     displayBM = (atoi(settings.displayBM) > 0);
     ssDelay = ssOrigDelay = atoi(settings.ssTimer) * 60 * 1000;
 
-    vsrdisplay.setNMOff((atoi(settings.diNmOff) > 0));
+    diNmOff = (atoi(settings.diNmOff) > 0);
+    vsrdisplay.setNMOff(diNmOff);
 
     #ifdef VSR_HAVEAUDIO
     playTTsounds = (atoi(settings.playTTsnds) > 0);
@@ -538,6 +548,8 @@ void main_loop()
             vsrdisplay.off();
             vsrLEDs.off();
 
+            nmOverruled = false;
+
             flushDelayedSave();
             
             // FIXME - anything else?
@@ -547,6 +559,7 @@ void main_loop()
             FPBUnitIsOn = true;
             
             // Display ON, idle
+            vsrdisplay.clearDisplay();
             vsrdisplay.setBrightness(255);
             vsrdisplay.on();
 
@@ -893,7 +906,11 @@ void main_loop()
 
                 if(!showBM) {
 
-                    forceDispUpd = (dispMode == LDM_BM);
+                    if((forceDispUpd = (dispMode == LDM_BM))) {
+                        if(useNM && diNmOff) {
+                            nmOverruled = false;
+                        }
+                    }
 
                     if(sysMsg && (now - sysMsgNow < sysMsgTimeout)) {
 
@@ -946,7 +963,13 @@ void main_loop()
 
                 } else {
                   
-                    forceDispUpd = (dispMode != LDM_BM);
+                    if((forceDispUpd = (dispMode != LDM_BM))) {
+                        if(useNM && diNmOff && vsrdisplay.getNightMode()) {
+                            vsrdisplay.setNightMode(false);
+                            nmOld = !tcdNM;  // Trigger update as soon as Overruled = false
+                            nmOverruled = true;
+                        }
+                    }
                     dispMode = LDM_BM;
                     
                 }
@@ -1065,7 +1088,7 @@ void main_loop()
     }
 
     // Follow TCD night mode
-    if(useNM && (tcdNM != nmOld)) {
+    if(useNM && !nmOverruled && (tcdNM != nmOld)) {
         setNightMode(tcdNM);
         nmOld = tcdNM;
     }
@@ -1176,6 +1199,8 @@ void timeTravel(bool TCDtriggered, uint16_t P0Dur)
         return;
 
     flushDelayedSave();
+
+    nmOverruled = false;
         
     TTrunning = true;
     TTstart = TTfUpdNow = millis();
@@ -1651,9 +1676,15 @@ static void myCustomDelay_Sens(unsigned long mydel)
 
 static void updateTemperature(bool force)
 {
+    unsigned long tui = tempUpdInt;
+    
     if(!haveTempSens)
         return;
-        
+
+    if(tempSens.lastTempNan() && (millis() - powerupMillis < 15*1000)) {
+        tui = 5 * 1000;
+    }
+    
     if(force || (millis() - tempReadNow >= tempUpdInt)) {
         tempSens.readTemp(tempUnit);
         tempReadNow = millis();

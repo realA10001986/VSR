@@ -1,7 +1,7 @@
 /*
  * -------------------------------------------------------------------
  * Voltage Systems Regulator
- * (C) 2024 Thomas Winischhofer (A10001986)
+ * (C) 2024-2025 Thomas Winischhofer (A10001986)
  * https://github.com/realA10001986/VSR
  * https://vsr.out-a-ti.me
  *
@@ -15,8 +15,8 @@
  ***                          Version Strings                          ***
  *************************************************************************/
 
-#define VSR_VERSION "V1.11"
-#define VSR_VERSION_EXTRA "OCT272024"
+#define VSR_VERSION "V1.12"
+#define VSR_VERSION_EXTRA "JAN102025"
 
 //#define VSR_DBG              // debug output on Serial
 
@@ -40,14 +40,10 @@
 #define VSR_HAVEAUDIO
 
 // Uncomment for support of a temperature/humidity sensor (MCP9808, BMx280, 
-// SI7021, SHT4x, TMP117, AHT20, HTU31D, MS8607) connected via i2c. Will be
-// used to display ambient temperature on display when idle.
+// SI7021, SHT4x, TMP117, AHT20, HTU31D, MS8607, HDC302X) connected via i2c.
+// Will be used to display ambient temperature on display when idle.
 // See sensors.cpp for supported i2c slave addresses
 #define VSR_HAVETEMP
-
-// Uncomment to drive buttons via I2C port expander (pins 13-15; com on 0)
-// Comment for using direct port pins BUTTONx_IO_PIN
-//#define VSR_BUTTONS_I2C
 
 /*************************************************************************
  ***                           Miscellaneous                           ***
@@ -70,6 +66,9 @@
 
 // Use SPIFFS (if defined) or LittleFS (if undefined; esp32-arduino >= 2.x)
 //#define USE_SPIFFS
+
+// Enable LED display test at boot
+//#define VSR_DIAG
 
 /*************************************************************************
  ***                  esp32-arduino version detection                  ***

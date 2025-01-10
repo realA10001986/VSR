@@ -1,7 +1,7 @@
 /*
  * -------------------------------------------------------------------
  * Voltage Systems Regulator
- * (C) 2024 Thomas Winischhofer (A10001986)
+ * (C) 2024-2025 Thomas Winischhofer (A10001986)
  * https://github.com/realA10001986/VSR
  * https://vsr.out-a-ti.me
  *
@@ -77,7 +77,7 @@ class VSRButton {
     public:
         VSRButton();
 
-        void begin(const int pin, const boolean activeLow = true, const bool pullupActive = true, const bool pulldownActive = false);
+        void begin(const int pin, const bool activeLow = true, const bool pullupActive = true, const bool pulldownActive = false);
       
         void setTiming(const int debounceTs, const int lPressTs);
       
@@ -141,11 +141,8 @@ class Pushwheel_I2C {
         bool     doScan();
 
         int8_t   getPinWheelVal(int idx, uint16_t pins);
-        
-        void     advanceState(int idx, bool kstate);
-        void     transitionTo(int idx, ButState nextState);
 
-        void     (*_butEventListener)(int, ButState);
+        //void     (*_butEventListener)(int, ButState);
 
         void     prepareRead(uint16_t regno);
         uint16_t read16(uint16_t regno);
@@ -173,9 +170,7 @@ class Pushwheel_I2C {
         // Ptr to custom delay function
         void (*_customDelayFunc)(unsigned long) = NULL;
 
-        #ifndef VSR_BUTTONS_I2C
         VSRButton     _vsrbutton[3];
-        #endif
 };
 
 #endif

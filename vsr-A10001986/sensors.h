@@ -1,15 +1,16 @@
 /*
  * -------------------------------------------------------------------
  * Voltage Systems Regulator
- * (C) 2024 Thomas Winischhofer (A10001986)
+ * (C) 2024-2025 Thomas Winischhofer (A10001986)
  * https://github.com/realA10001986/VSR
  * https://vsr.out-a-ti.me
  *
  * Sensor Class: Temperature sensor handling
  *
- * This is designed for 
- * - MCP9808, TMP117, BMx280, SHT4x-Ax, SI7012, AHT20/AM2315C, HTU31D, 
- *   MS8607 temperature/humidity sensors. Only temperature is used.
+ * This is designed for MCP9808, TMP117, BMx280, SHT4x-Ax, SI7012, 
+ * AHT20/AM2315C, HTU31D, MS8607, HDC302X temperature/humidity sensors. 
+ * Only temperature is used.
+ * 
  * -------------------------------------------------------------------
  * License: MIT NON-AI
  * 
@@ -88,7 +89,8 @@ enum {
     TMP117,           // 0x49 [non-default] (unsupported: 0x48)
     AHT20,            // 0x38
     HTU31,            // 0x41 [non-default] (unsupported: 0x40)
-    MS8607            // 0x76+0x40
+    MS8607,           // 0x76+0x40
+    HDC302X           // 0x45 [non-default] (unsupported: 0x44, 0x46, 0x47)
 };
 
 class tempSensor : tcSensor {
@@ -100,6 +102,8 @@ class tempSensor : tcSensor {
 
         float readTemp(bool celsius = true);
         float readLastTemp() { return _lastTemp; };
+        bool lastTempNan() { return _lastTempNan; };
+
 
         void setOffset(float myOffs);
 
@@ -109,13 +113,14 @@ class tempSensor : tcSensor {
     private:
 
         int     _numTypes = 0;
-        uint8_t _addrArr[8*2];    // up to 8 sensor types fit here
+        uint8_t _addrArr[9*2];    // up to 9 sensor types fit here
         int8_t  _st = -1;
         int8_t  _hum = -1;
         bool    _haveHum = false;
         unsigned long _delayNeeded = 0;
 
         float  _lastTemp = NAN;
+        bool   _lastTempNan = true;
 
         float  _userOffset = 0.0;
 
@@ -138,6 +143,8 @@ class tempSensor : tcSensor {
         unsigned long _tempReadNow = 0;
 
         float BMx280_CalcTemp(uint32_t ival, uint32_t hval);
+        void  HDC302x_setDefault(uint16_t reg, uint8_t val1, uint8_t val2);
+        bool  readAndCheck6(uint8_t *buf, uint16_t& t, uint16_t& h, uint8_t crcinit, uint8_t crcpoly);
 };
 #endif
 

@@ -1,7 +1,7 @@
 /*
  * -------------------------------------------------------------------
  * Voltage Systems Regulator
- * (C) 2024 Thomas Winischhofer (A10001986)
+ * (C) 2024-2025 Thomas Winischhofer (A10001986)
  * https://github.com/realA10001986/VSR
  * https://vsr.out-a-ti.me
  *
@@ -162,13 +162,18 @@ class vsrDisplay {
 
         void setTemperature(float temp);
 
+        #ifdef VSR_DIAG
+        void lampTest();
+        #endif
+
+        void clearDisplay();                    // clears display RAM
+        
     private:
 
         uint16_t getLEDChar(uint8_t value);
         #if 0
         void directCol(int col, int segments);  // directly writes column RAM
         #endif
-        void clearDisplay();                    // clears display RAM
         void directCmd(uint8_t val);
 
         uint8_t _address;

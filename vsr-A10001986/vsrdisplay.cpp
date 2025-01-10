@@ -1,7 +1,7 @@
 /*
  * -------------------------------------------------------------------
  * Voltage Systems Regulator
- * (C) 2024 Thomas Winischhofer (A10001986)
+ * (C) 2024-2025 Thomas Winischhofer (A10001986)
  * https://github.com/realA10001986/VSR
  * https://vsr.out-a-ti.me
  *
@@ -393,6 +393,20 @@ void vsrDisplay::setNMOff(bool NMOff)
     _nmOff = NMOff;
 }
 
+#ifdef VSR_DIAG
+void vsrDisplay::lampTest()
+{
+    if(_dispType >= 0) {
+        Wire.beginTransmission(_address);
+        Wire.write(0x00);  // start address
+        for(int i = 0; i < 8; i++) {
+            Wire.write(0xff);
+            Wire.write(0xff);
+        }
+        Wire.endTransmission();
+    }
+}
+#endif
 
 // Show data in display --------------------------------------------------------
 

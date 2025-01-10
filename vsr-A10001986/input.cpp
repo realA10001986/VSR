@@ -1,7 +1,7 @@
 /*
  * -------------------------------------------------------------------
  * Voltage Systems Regulator
- * (C) 2024 Thomas Winischhofer (A10001986)
+ * (C) 2024-2025 Thomas Winischhofer (A10001986)
  * https://github.com/realA10001986/VSR
  * https://vsr.out-a-ti.me
  *
@@ -137,9 +137,8 @@ void Pushwheel_I2C::begin(unsigned int scanInterval, unsigned int holdTime, void
     case PW_MCP23017:
 
         // Hardware config:
-        // A0-A2: [out] pushwheel coms; the three buttons's COM on A0 (ifdef VSR_BUTTONS_I2C)
+        // A0-A2: [out] pushwheel coms
         // A3-B4: [in]  pushwheels positions 0-9
-        // B5-B7: [out] buttons (from top) (ifdef VSR_BUTTONS_I2C)
 
         // _pinMask: 1 = input, 0 = output
         _pinMask = 0b1111100011111111;
@@ -164,7 +163,6 @@ void Pushwheel_I2C::begin(unsigned int scanInterval, unsigned int holdTime, void
         break;
     }
 
-    #ifndef VSR_BUTTONS_I2C
     #ifdef VSR_DBG
     Serial.println("Initializing direct GPIO buttons");
     #endif
@@ -176,23 +174,18 @@ void Pushwheel_I2C::begin(unsigned int scanInterval, unsigned int holdTime, void
     _vsrbutton[0].setTiming(50, _holdTime);
     _vsrbutton[1].setTiming(50, _holdTime);
     _vsrbutton[2].setTiming(50, _holdTime);
-    #endif
         
     _customDelayFunc = myDelay;
 }
 
 void Pushwheel_I2C::addEventListener(void (*listener)(int, ButState))
 {
-    #ifdef  VSR_BUTTONS_I2C
-    _butEventListener = listener;
-    #else
     for(int i = 0; i < 3; i++) {
         _vsrbutton[i].attachPressDown(listener);
         _vsrbutton[i].attachPressEnd(listener);
         _vsrbutton[i].attachLongPressStart(listener);
         _vsrbutton[i].attachLongPressStop(listener);
     }
-    #endif
 }
 
 // Scan controls and update all states
@@ -291,19 +284,9 @@ bool Pushwheel_I2C::doScan()
     ret |= (i8 != _pushWheel[2]);
 
     // Now for the buttons:
-    #ifdef VSR_BUTTONS_I2C
-    switch(_st) {
-    case PW_MCP23017:
-        for(i = 0; i < 3; i++) {
-            advanceState(i, !!(pinVals[0][0] & (32 << i)));
-        }
-        break;
-    }
-    #else
     for(i = 0; i < 3; i++) {
         _vsrbutton[i].scan(i);
     }
-    #endif
 
     return ret;
 }
@@ -324,51 +307,6 @@ int8_t Pushwheel_I2C::getPinWheelVal(int idx, uint16_t pins)
         if(temp & j) return i;
     }
     return -1;
-}
-
-// State machine. 
-// Unlike VSRButton, we do not need to debounce here.
-void Pushwheel_I2C::advanceState(int idx, bool newstate)
-{
-    #ifdef VSR_BUTTONS_I2C
-    switch(_but[idx].bState) {
-    case VSRBUS_IDLE:
-        if(newstate == CLOSED) {
-            transitionTo(idx, VSRBUS_PRESSED);
-            _but[idx].startTime = millis();
-        }
-        break;
-
-    case VSRBUS_PRESSED:
-        if(newstate == CLOSED) {
-            if((millis() - _but[idx].startTime) > _holdTime)
-                transitionTo(idx, VSRBUS_HOLD);
-        } else
-            transitionTo(idx, VSRBUS_RELEASED);
-        break;
-
-    case VSRBUS_HOLD:
-        if(newstate == OPEN)
-            transitionTo(idx, VSRBUS_HOLDEND);
-        break;
-
-    case VSRBUS_RELEASED:
-    case VSRBUS_HOLDEND:
-        _but[idx].bState = VSRBUS_IDLE;
-        break;
-    }
-    #endif
-}
-
-void Pushwheel_I2C::transitionTo(int idx, ButState nextState)
-{
-    #ifdef VSR_BUTTONS_I2C
-    _but[idx].bState = nextState;
-
-    if(_butEventListener) {
-        _butEventListener(idx, _but[idx].bState);
-    }
-    #endif
 }
 
 void Pushwheel_I2C::prepareRead(uint16_t regno)
@@ -438,7 +376,7 @@ VSRButton::VSRButton()
  * activeLow: Set to true when the input level is LOW when the button is pressed, Default is true.
  * pullupActive: Activate the internal pullup when available. Default is true.
  */
-void VSRButton::begin(const int pin, const boolean activeLow, const bool pullupActive, const bool pulldownActive)
+void VSRButton::begin(const int pin, const bool activeLow, const bool pullupActive, const bool pulldownActive)
 {
     _pin = pin;
 

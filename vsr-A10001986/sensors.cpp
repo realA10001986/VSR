@@ -1,15 +1,15 @@
 /*
  * -------------------------------------------------------------------
  * Voltage Systems Regulator
- * (C) 2024 Thomas Winischhofer (A10001986)
+ * (C) 2024-2025 Thomas Winischhofer (A10001986)
  * https://github.com/realA10001986/VSR
  * https://vsr.out-a-ti.me
  *
  * Sensor Class: Temperature sensor handling
  *
- * This is designed for 
- * - MCP9808, TMP117, BMx280, SHT4x-Ax, SI7012, AHT20/AM2315C, HTU31D, 
- *   MS8607 temperature/humidity sensors. Only temperature is used.
+ * This is designed for MCP9808, TMP117, BMx280, SHT4x-Ax, SI7012, 
+ * AHT20/AM2315C, HTU31D, MS8607, HDC302X temperature/humidity sensors. 
+ * Only temperature is used.
  *                             
  * The i2c slave addresses need to be:
  * MCP9808:       0x18                [temperature only]
@@ -20,6 +20,7 @@
  * AHT20/AM2315C: 0x38                [temperature, humidity]
  * HTU31D:        0x41 [non-default]  [temperature, humidity]
  * MS8607:        0x76+0x40           [temperature, humidity]
+ * HDC302x:       0x45 [non-default]  [temperature, humidity]
  *
  * -------------------------------------------------------------------
  * License: MIT NON-AI
@@ -276,10 +277,21 @@ uint8_t tcSensor::crc8(uint8_t initVal, uint8_t poly, uint8_t len, uint8_t *buf)
 #define MS8607_ADDR_RH    0x40
 #define MS8607_DUMMY      0x100
 
+#define HDC302x_DUMMY     0x100
+#define HDC302x_TRIGGER   0x2400  // 00 = longest conversion time (12.5ms)
+#define HDC302x_HEAT_OFF  0x3066
+#define HDC302x_AUTO_OFF  0x3093
+#define HDC302x_OFFSETS   0xa004
+#define HDC302x_PUMS      0x61bb
+#define HDC302x_RESET     0x30a2
+#define HDC302x_READID    0x3781
+#define HDC302x_CRC_INIT  0xff
+#define HDC302x_CRC_POLY  0x31
+
 // Store i2c address
 tempSensor::tempSensor(int numTypes, uint8_t addrArr[])
 {
-    _numTypes = min(8, numTypes);
+    _numTypes = min(9, numTypes);
 
     for(int i = 0; i < _numTypes * 2; i++) {
         _addrArr[i] = addrArr[i];
@@ -293,7 +305,7 @@ bool tempSensor::begin(unsigned long powerupTime, void (*myDelay)(unsigned long)
     uint8_t temp, timeOut = 20;
     uint16_t t16 = 0;
     size_t i2clen;
-    uint8_t buf[6];
+    uint8_t buf[8];
     unsigned long millisNow = millis();
     
     _customDelayFunc = defaultDelay;
@@ -355,6 +367,16 @@ bool tempSensor::begin(unsigned long powerupTime, void (*myDelay)(unsigned long)
                     foundSt = true;
                 }
                 break;
+            case HDC302X:
+                write16(HDC302x_DUMMY, HDC302x_READID);
+                if(Wire.requestFrom(_address, (uint8_t)3) == 3) {
+                    t16 = Wire.read() << 8;
+                    t16 |= Wire.read();
+                    if(t16 == 0x3000) {
+                        foundSt = true;
+                    }
+                }
+                break;
             case AHT20:
             case HTU31:
                 foundSt = true;
@@ -365,7 +387,7 @@ bool tempSensor::begin(unsigned long powerupTime, void (*myDelay)(unsigned long)
                 _st = _addrArr[i+1];
     
                 #ifdef VSR_DBG
-                const char *tpArr[8] = { "MCP9808", "BMx280", "SHT4x", "SI7021", "TMP117", "AHT20/AM2315C", "HTU31D", "MS8607" };
+                const char *tpArr[9] = { "MCP9808", "BMx280", "SHT4x", "SI7021", "TMP117", "AHT20/AM2315C", "HTU31D", "MS8607", "HDC302X" };
                 Serial.printf("Temperature sensor: Detected %s\n", tpArr[_st]);
                 #endif
     
@@ -517,6 +539,24 @@ bool tempSensor::begin(unsigned long powerupTime, void (*myDelay)(unsigned long)
         _haveHum = true;
         _delayNeeded = 20;
         break;
+
+    case HDC302X:
+        write16(HDC302x_DUMMY, HDC302x_RESET);
+        (*_customDelayFunc)(10);
+        // Heater off
+        write16(HDC302x_DUMMY, HDC302x_HEAT_OFF);
+        // Exit auto mode, put into sleep
+        write16(HDC302x_DUMMY, HDC302x_AUTO_OFF);
+        (*_customDelayFunc)(2);
+        // Check (and reset) power-up measurement mode
+        HDC302x_setDefault(HDC302x_PUMS, 0x00, 0x00);
+        // Check (and reset) offsets
+        HDC302x_setDefault(HDC302x_OFFSETS, 0, 0);
+        // Trigger new conversion
+        write16(HDC302x_DUMMY, HDC302x_TRIGGER);
+        _haveHum = true;
+        _delayNeeded = 20;
+        break;
         
     default:
         return false;
@@ -533,7 +573,8 @@ bool tempSensor::begin(unsigned long powerupTime, void (*myDelay)(unsigned long)
 float tempSensor::readTemp(bool celsius)
 {
     float temp = NAN;
-    uint16_t t = 0;
+    uint16_t t = 0, h = 0;
+    uint8_t buf[8];
     
     if(_delayNeeded > 0) {
         unsigned long elapsed = millis() - _tempReadNow;
@@ -554,7 +595,6 @@ float tempSensor::readTemp(bool celsius)
         write8(BMx280_DUMMY, BMx280_REG_TEMP);
         t = _haveHum ? 5 : 3;
         if(Wire.requestFrom(_address, (uint8_t)t) == t) {
-            uint8_t buf[5];
             uint32_t t1; 
             uint16_t t2 = 0;
             for(uint8_t i = 0; i < t; i++) buf[i] = Wire.read();
@@ -565,25 +605,16 @@ float tempSensor::readTemp(bool celsius)
         break;
 
     case SHT40:
-        if(Wire.requestFrom(_address, (uint8_t)6) == 6) {
-            uint8_t buf[6];
-            for(uint8_t i = 0; i < 6; i++) buf[i] = Wire.read();
-            if(crc8(SHT40_CRC_INIT, SHT40_CRC_POLY, 2, buf) == buf[2]) {
-                t = (buf[0] << 8) | buf[1];
-                temp = ((175.0 * (float)t) / 65535.0) - 45.0;
-            }
-            if(crc8(SHT40_CRC_INIT, SHT40_CRC_POLY, 2, buf+3) == buf[5]) {
-                t = (buf[3] << 8) | buf[4];
-                _hum = (int8_t)(((125.0 * (float)t) / 65535.0) - 6.0);
-                if(_hum < 0) _hum = 0;
-            }
+        if(readAndCheck6(buf, t, h, SHT40_CRC_INIT, SHT40_CRC_POLY)) {
+            temp = ((175.0 * (float)t) / 65535.0) - 45.0;
+            _hum = (int8_t)(((125.0 * (float)h) / 65535.0) - 6.0);
+           if(_hum < 0) _hum = 0;
         }
         write8(SHT40_DUMMY, SHT40_CMD_RTEMPM);    // Trigger new measurement
         break;
 
     case SI7021:
         if(Wire.requestFrom(_address, (uint8_t)3) == 3) {
-            uint8_t buf[3];
             for(uint8_t i = 0; i < 3; i++) buf[i] = Wire.read();
             if(crc8(SI7021_CRC_INIT, SI7021_CRC_POLY, 2, buf) == buf[2]) {
                 t = (buf[0] << 8) | buf[1];
@@ -593,7 +624,6 @@ float tempSensor::readTemp(bool celsius)
         }
         write8(SI7021_DUMMY, SI7021_CMD_RTEMPQ);
         if(Wire.requestFrom(_address, (uint8_t)2) == 2) {
-            uint8_t buf[2];
             for(uint8_t i = 0; i < 2; i++) buf[i] = Wire.read();
             t = (buf[0] << 8) | buf[1];
             temp = ((175.72 * (float)t) / 65536.0) - 46.85;
@@ -610,7 +640,6 @@ float tempSensor::readTemp(bool celsius)
 
     case AHT20:
         if(Wire.requestFrom(_address, (uint8_t)7) == 7) {
-            uint8_t buf[7];
             for(uint8_t i = 0; i < 7; i++) buf[i] = Wire.read();
             if(crc8(AHT20_CRC_INIT, AHT20_CRC_POLY, 6, buf) == buf[6]) {
                 _hum = ((uint32_t)((buf[1] << 12) | (buf[2] << 4) | (buf[3] >> 4))) * 100 >> 20; // / 1048576;
@@ -622,18 +651,10 @@ float tempSensor::readTemp(bool celsius)
 
     case HTU31:
         write8(HTU31_DUMMY, HTU31_READTRH);  // Read t+rh
-        if(Wire.requestFrom(_address, (uint8_t)6) == 6) {
-            uint8_t buf[6];
-            for(uint8_t i = 0; i < 6; i++) buf[i] = Wire.read();
-            if(crc8(HTU31_CRC_INIT, HTU31_CRC_POLY, 2, buf) == buf[2]) {
-                t = (buf[0] << 8) | buf[1];
-                temp = ((165.0 * (float)t) / 65535.0) - 40.0;
-            }
-            if(crc8(HTU31_CRC_INIT, HTU31_CRC_POLY, 2, buf+3) == buf[5]) {
-                t = (buf[3] << 8) | buf[4];
-                _hum = (int8_t)((100.0 * (float)t) / 65535.0);
-                if(_hum < 0) _hum = 0;
-            }
+        if(readAndCheck6(buf, t, h, HTU31_CRC_INIT, HTU31_CRC_POLY)) {
+            temp = ((165.0 * (float)t) / 65535.0) - 40.0;
+            _hum = (int8_t)((100.0 * (float)h) / 65535.0);
+            if(_hum < 0) _hum = 0;
         }
         write8(HTU31_DUMMY, HTU31_CONV);  // Trigger new conversion
         break;
@@ -664,6 +685,15 @@ float tempSensor::readTemp(bool celsius)
         // Trigger new conversion rH
         write8(MS8607_DUMMY, 0xf5);
         break;
+
+    case HDC302X:
+        if(readAndCheck6(buf, t, h, HDC302x_CRC_INIT, HDC302x_CRC_POLY)) {
+            temp = ((175.0 * (float)t) / 65535.0) - 45.0;
+            _hum = (int8_t)((100.0 * (float)h) / 65535.0);
+            if(_hum < 0) _hum = 0;
+        }
+        write16(HDC302x_DUMMY, HDC302x_TRIGGER);  // Trigger new conversion
+        break;
     }
 
     _tempReadNow = millis();
@@ -671,6 +701,9 @@ float tempSensor::readTemp(bool celsius)
     if(!isnan(temp)) {
         if(!celsius) temp = temp * 9.0 / 5.0 + 32.0;
         temp += _userOffset;
+        _lastTempNan = false;
+    } else {
+        _lastTempNan = true;
     }
 
     // We use only 2 digits, so truncate
@@ -722,6 +755,64 @@ float tempSensor::BMx280_CalcTemp(uint32_t ival, uint32_t hval)
     }
     
     return (float)((fine_t * 5 + 128) / 256) / 100.0;
+}
+
+void tempSensor::HDC302x_setDefault(uint16_t reg, uint8_t val1, uint8_t val2)
+{
+    uint8_t buf[8];
+    
+    write16(HDC302x_DUMMY, reg);
+    (*_customDelayFunc)(5);
+    if(Wire.requestFrom(_address, (uint8_t)3) == 3) {
+        for(uint8_t i = 0; i < 3; i++) buf[i] = Wire.read();
+        if(crc8(HDC302x_CRC_INIT, HDC302x_CRC_POLY, 2, buf) == buf[2]) {
+            #ifdef TC_DBG
+            Serial.printf("HDC302x: Read 0x%x\n", reg);
+            #endif
+            if(buf[0] != val1 || buf[1] != val2) {
+                #ifdef TC_DBG
+                Serial.printf("HDC302x: EEPROM mismatch: 0x%x <> 0x%x, 0x%x <> 0x%x\n", buf[0], val1, buf[1], val2);
+                #endif
+                buf[0] = reg >> 8; buf[1] = reg & 0xff;
+                buf[2] = val1; buf[3] = val2;
+                buf[4] = crc8(HDC302x_CRC_INIT, HDC302x_CRC_POLY, 2, &buf[2]);
+                Wire.beginTransmission(_address);
+                for(int i=0; i < 5; i++) {
+                    Wire.write(buf[i]);
+                }
+                Wire.endTransmission();
+                (*_customDelayFunc)(80);
+            } else {
+                #ifdef TC_DBG
+                Serial.printf("HDC302x: EEPROM match: 0x%x, 0x%x\n", buf[0], buf[1]);
+                #endif
+            }
+        } else {
+            #ifdef TC_DBG
+            Serial.printf("HDC302x: EEPROM reading 0x%x failed CRC check\n", reg);
+            #endif
+        }
+    } else {
+        #ifdef TC_DBG
+        Serial.printf("HDC302x: EEPROM reading 0x%x failed on i2c level\n", reg);
+        #endif
+    }
+}
+
+bool tempSensor::readAndCheck6(uint8_t *buf, uint16_t& t, uint16_t& h, uint8_t crcinit, uint8_t crcpoly)
+{
+    if(Wire.requestFrom(_address, (uint8_t)6) == 6) {
+        for(int i = 0; i < 6; i++) buf[i] = Wire.read();
+        if(crc8(crcinit, crcpoly, 2, buf) == buf[2]) {
+            t = (buf[0] << 8) | buf[1];
+            if(crc8(crcinit, crcpoly, 2, buf+3) == buf[5]) {
+                h = (buf[3] << 8) | buf[4];
+                return true;
+            }
+        }
+    }
+
+    return false;
 }
 
 #endif // VSR_HAVETEMP

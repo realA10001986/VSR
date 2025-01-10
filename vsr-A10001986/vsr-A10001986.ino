@@ -1,7 +1,7 @@
 /*
  * -------------------------------------------------------------------
  * Voltage Systems Regulator
- * (C) 2024 Thomas Winischhofer (A10001986)
+ * (C) 2024-2025 Thomas Winischhofer (A10001986)
  * https://github.com/realA10001986/VSR
  * https://vsr.out-a-ti.me
  *
@@ -119,7 +119,13 @@
 
 /*  Changelog
  *  
- *  2024/10/27 (A10001986)
+ *  2025/01/10 (A10001986) [1.12]
+ *    - Add support for HDC302x temperature sensor
+ *    - Interrupt night mode for button mode changes if display is configured to
+ *      be off in night mode.
+ *  2024/10/28 (A10001986)
+ *    - Increase i2c speed to 400kHz
+ *  2024/10/27 (A10001986) [1.11]
  *    - Minor changes (bttfn_loop in delay-loops; fix alarm when fp is off; etc)
  *  2024/10/26 (A10001986) [1.10]
  *    - Add support for TCD multicast notifications: This brings more immediate speed 
@@ -192,7 +198,7 @@ void setup()
     Serial.println();
 
     // I2C init
-    Wire.begin(-1, -1, 100000);
+    Wire.begin(-1, -1, 400000);
 
     main_boot();
     settings_setup();
