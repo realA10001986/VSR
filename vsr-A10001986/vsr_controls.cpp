@@ -186,7 +186,7 @@ static void controlsEvent(int idx, ButState bstate)
                 case VBM_OP:
                     switch(idx) {
                     case 0:
-                        if(!bttfnTT || !BTTFNTriggerTT()) {
+                        if(!bttfnTT || !bttfn_trigger_tt()) {
                             timeTravel(false);
                         }
                         break;
@@ -240,7 +240,7 @@ static void controlsEvent(int idx, ButState bstate)
                         #ifdef VSR_HAVEAUDIO
                         increaseVolume();
                         if(!mpActive) {
-                            play_button_sound();  // TODO better sample sound
+                            play_volchg_sound();
                         }
                         #endif
                         break;
@@ -248,7 +248,7 @@ static void controlsEvent(int idx, ButState bstate)
                         #ifdef VSR_HAVEAUDIO
                         decreaseVolume();
                         if(!mpActive) {
-                            play_button_sound();  // TODO better sample sound
+                            play_volchg_sound();
                         }
                         #endif
                         break;

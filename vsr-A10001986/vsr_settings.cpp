@@ -88,10 +88,10 @@
 #endif 
 
 #ifdef VSR_HAVEAUDIO
-#define NUM_AUDIOFILES 10
-#define SND_REQ_VERSION "VR01"
+#define NUM_AUDIOFILES 11
+#define SND_REQ_VERSION "VR02"
 #define AC_FMTV 2
-#define AC_TS   475563
+#define AC_TS   493116
 #define AC_OHSZ (14 + ((NUM_AUDIOFILES+1)*(32+4)))
 static const char *CONFN  = "/VSRA.bin";
 static const char *CONFND = "/VSRA.old";
@@ -410,7 +410,8 @@ static bool read_settings(File configFile)
         wd |= CopyCheckValidNumParm(json["useNM"], settings.useNM, sizeof(settings.useNM), 0, 1, DEF_USE_NM);
         wd |= CopyCheckValidNumParm(json["useFPO"], settings.useFPO, sizeof(settings.useFPO), 0, 1, DEF_USE_FPO);
         wd |= CopyCheckValidNumParm(json["bttfnTT"], settings.bttfnTT, sizeof(settings.bttfnTT), 0, 1, DEF_BTTFN_TT);
-
+        
+        wd |= CopyCheckValidNumParm(json["ignTT"], settings.ignTT, sizeof(settings.ignTT), 0, 1, DEF_IGN_TT);
         #ifdef VSR_HAVEAUDIO
         wd |= CopyCheckValidNumParm(json["playTTsnds"], settings.playTTsnds, sizeof(settings.playTTsnds), 0, 1, DEF_PLAY_TT_SND);
         wd |= CopyCheckValidNumParm(json["playALsnd"], settings.playALsnd, sizeof(settings.playALsnd), 0, 1, DEF_PLAY_ALM_SND);
@@ -492,7 +493,8 @@ void write_settings()
     json["useNM"] = (const char *)settings.useNM;
     json["useFPO"] = (const char *)settings.useFPO;
     json["bttfnTT"] = (const char *)settings.bttfnTT;
-
+    
+    json["ignTT"] = (const char *)settings.ignTT;
     #ifdef VSR_HAVEAUDIO
     json["playTTsnds"] = (const char *)settings.playTTsnds;
     json["playALsnd"] = (const char *)settings.playALsnd;

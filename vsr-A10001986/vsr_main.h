@@ -91,6 +91,7 @@ extern bool vsrNM;
 extern bool TTrunning;
 
 extern bool bttfnTT;
+extern bool ignTT;
 
 extern bool networkTimeTravel;
 extern bool networkTCDTT;
@@ -139,6 +140,6 @@ void myCustomDelay_KP(unsigned long mydel);
 void mydelay(unsigned long mydel);
 
 void bttfn_loop();
-bool BTTFNTriggerTT();
+bool bttfn_trigger_tt();
 
 #endif

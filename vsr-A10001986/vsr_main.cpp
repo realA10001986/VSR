@@ -188,6 +188,7 @@ static bool diNmOff = false;
 static bool nmOverruled = false;
 
 bool        bttfnTT = false;
+bool        ignTT = false;
 
 // Time travel status flags etc.
 #define RELAY_AHEAD  1000                // Relay-click ahead of reaching 88 (in ms) (used for sync'd tts only)
@@ -333,7 +334,6 @@ static void BTTFNCheckPacket();
 static bool BTTFNTriggerUpdate();
 static void BTTFNSendPacket();
 
-
 void main_boot()
 {
     
@@ -405,6 +405,7 @@ void main_setup()
     diNmOff = (atoi(settings.diNmOff) > 0);
     vsrdisplay.setNMOff(diNmOff);
 
+    ignTT = (atoi(settings.ignTT) > 0);
     #ifdef VSR_HAVEAUDIO
     playTTsounds = (atoi(settings.playTTsnds) > 0);
     #endif
@@ -643,7 +644,7 @@ void main_loop()
                 if(TCDconnected) {
                     ssEnd();
                 }
-                if(TCDconnected || !bttfnTT || !BTTFNTriggerTT()) {
+                if(TCDconnected || !bttfnTT || !bttfn_trigger_tt()) {
                     timeTravel(TCDconnected, noETTOLead ? 0 : ETTO_LEAD);
                 }
             }
@@ -883,7 +884,7 @@ void main_loop()
         
         } else {
 
-            // Wake up on GPS/RotEnc speed changes
+            // Wake up on RotEnc speed changes
             if(gpsSpeed != oldGpsSpeed) {
                 if(FPBUnitIsOn && spdIsRotEnc && gpsSpeed >= 0) {
                     wakeup();
@@ -907,14 +908,12 @@ void main_loop()
                 if(!showBM) {
 
                     if((forceDispUpd = (dispMode == LDM_BM))) {
-                        if(useNM && diNmOff) {
-                            nmOverruled = false;
-                        }
+                        nmOverruled = false;
                     }
 
                     if(sysMsg && (now - sysMsgNow < sysMsgTimeout)) {
 
-                        forceDispUpd = (dispMode != LDM_SYS);
+                        forceDispUpd |= (dispMode != LDM_SYS);
                         dispMode = LDM_SYS;
                       
                     } else {
@@ -1404,7 +1403,7 @@ static void execute_remote_command()
         switch(command) {
         case 1:
             #ifdef VSR_HAVEAUDIO                      // 8001: play "key1.mp3"
-            play_file("/key1.mp3", PA_INTRMUS|PA_ALLOWSD|PA_DYNVOL);
+            play_key(1);
             #endif
             break;
         case 2:
@@ -1416,12 +1415,12 @@ static void execute_remote_command()
             break;
         case 3:
             #ifdef VSR_HAVEAUDIO                      // 8003: play "key3.mp3"
-            play_file("/key3.mp3", PA_INTRMUS|PA_ALLOWSD|PA_DYNVOL);
+            play_key(3);
             #endif
             break;
         case 4:
             #ifdef VSR_HAVEAUDIO                      // 8004: play "key4.mp3"
-            play_file("/key4.mp3", PA_INTRMUS|PA_ALLOWSD|PA_DYNVOL);
+            play_key(4);
             #endif
             break;
         case 5:                                       // 8005: Play/stop
@@ -1437,12 +1436,12 @@ static void execute_remote_command()
             break;
         case 6:                                       // 8006: Play "key6.mp3"
             #ifdef VSR_HAVEAUDIO
-            play_file("/key6.mp3", PA_INTRMUS|PA_ALLOWSD|PA_DYNVOL);
+            play_key(6);
             #endif
             break;
         case 7:
             #ifdef VSR_HAVEAUDIO                      // 8007: play "key7.mp3"
-            play_file("/key7.mp3", PA_INTRMUS|PA_ALLOWSD|PA_DYNVOL);
+            play_key(7);
             #endif
             break;
         case 8:                                       // 8008: Next song
@@ -1454,7 +1453,7 @@ static void execute_remote_command()
             break;
         case 9:
             #ifdef VSR_HAVEAUDIO                      // 8009: play "key9.mp3"
-            play_file("/key9.mp3", PA_INTRMUS|PA_ALLOWSD|PA_DYNVOL);
+            play_key(9);
             #endif
             break;
         }
@@ -1832,14 +1831,14 @@ static void handle_tcd_notification(uint8_t *buf)
         // We disable our Screen Saver.
         // We don't ignore this if TCD is connected by wire,
         // because this signal does not come via wire.
-        if(!TTrunning) {
+        if(!ignTT && !TTrunning) {
             prepareTT();
         }
         break;
     case BTTFN_NOT_TT:
         // Trigger Time Travel (if not running already)
         // Ignore command if TCD is connected by wire
-        if(!TCDconnected && !TTrunning) {
+        if(!ignTT && !TCDconnected && !TTrunning) {
             networkTimeTravel = true;
             networkTCDTT = true;
             networkReentry = false;
@@ -1850,14 +1849,14 @@ static void handle_tcd_notification(uint8_t *buf)
     case BTTFN_NOT_REENTRY:
         // Start re-entry (if TT currently running)
         // Ignore command if TCD is connected by wire
-        if(!TCDconnected && TTrunning && networkTCDTT) {
+        if(!ignTT && !TCDconnected && TTrunning && networkTCDTT) {
             networkReentry = true;
         }
         break;
     case BTTFN_NOT_ABORT_TT:
         // Abort TT (if TT currently running)
         // Ignore command if TCD is connected by wire
-        if(!TCDconnected && TTrunning && networkTCDTT) {
+        if(!ignTT && !TCDconnected && TTrunning && networkTCDTT) {
             networkAbort = true;
         }
         break;
@@ -2063,16 +2062,12 @@ static bool BTTFNTriggerUpdate()
     return true;
 }
 
-static void BTTFNSendPacket()
+static void BTTFNPreparePacket()
 {
     memset(BTTFUDPBuf, 0, BTTF_PACKET_SIZE);
 
     // ID
     memcpy(BTTFUDPBuf, BTTFUDPHD, 4);
-
-    // Serial
-    BTTFUDPID = (uint32_t)millis();
-    SET32(BTTFUDPBuf, 6, BTTFUDPID);
 
     // Tell the TCD about our hostname (0-term., 13 bytes total)
     strncpy((char *)BTTFUDPBuf + 10, settings.hostName, 12);
@@ -2080,20 +2075,16 @@ static void BTTFNSendPacket()
 
     BTTFUDPBuf[10+13] = BTTFN_TYPE_VSR;
 
+    // Version, MC-marker
     #ifdef BTTFN_MC
-    BTTFUDPBuf[4] = BTTFN_VERSION | bttfnMcMarker; // Version, MC-marker
+    BTTFUDPBuf[4] = BTTFN_VERSION | bttfnMcMarker;  
     #else
     BTTFUDPBuf[4] = BTTFN_VERSION;
-    #endif
-    BTTFUDPBuf[5] = bttfnReqStatus;                // Request status, temperature, speed
+    #endif               
+}
 
-    #ifdef BTTFN_MC
-    if(!haveTCDIP) {
-        BTTFUDPBuf[5] |= 0x80;
-        SET32(BTTFUDPBuf, 31, tcdHostNameHash);
-    }
-    #endif
-
+static void BTTFNDispatch()
+{
     uint8_t a = 0;
     for(int i = 4; i < BTTF_PACKET_SIZE - 1; i++) {
         a += BTTFUDPBuf[i] ^ 0x55;
@@ -2116,7 +2107,28 @@ static void BTTFNSendPacket()
     vsrUDP->endPacket();
 }
 
-bool BTTFNTriggerTT()
+static void BTTFNSendPacket()
+{
+    BTTFNPreparePacket();
+    
+    // Serial
+    BTTFUDPID = (uint32_t)millis();
+    SET32(BTTFUDPBuf, 6, BTTFUDPID);
+
+    // Request status, temperature, speed
+    BTTFUDPBuf[5] = bttfnReqStatus;
+
+    #ifdef BTTFN_MC
+    if(!haveTCDIP) {
+        BTTFUDPBuf[5] |= 0x80;
+        SET32(BTTFUDPBuf, 31, tcdHostNameHash);
+    }
+    #endif
+
+    BTTFNDispatch();
+}
+
+bool bttfn_trigger_tt()
 {
     if(!useBTTFN)
         return false;
@@ -2135,33 +2147,12 @@ bool BTTFNTriggerTT()
     if(TTrunning)
         return false;
 
-    memset(BTTFUDPBuf, 0, BTTF_PACKET_SIZE);
+    BTTFNPreparePacket();
 
-    // ID
-    memcpy(BTTFUDPBuf, BTTFUDPHD, 4);
+    // Trigger BTTFN-wide TT
+    BTTFUDPBuf[5] = 0x80;
 
-    // Tell the TCD about our hostname (0-term., 13 bytes total)
-    strncpy((char *)BTTFUDPBuf + 10, settings.hostName, 12);
-    BTTFUDPBuf[10+12] = 0;
-
-    BTTFUDPBuf[10+13] = BTTFN_TYPE_VSR;
-
-    #ifdef BTTFN_MC
-    BTTFUDPBuf[4] = BTTFN_VERSION | bttfnMcMarker; // Version, MC-marker
-    #else
-    BTTFUDPBuf[4] = BTTFN_VERSION;
-    #endif
-    BTTFUDPBuf[5] = 0x80;           // Trigger BTTFN-wide TT
-
-    uint8_t a = 0;
-    for(int i = 4; i < BTTF_PACKET_SIZE - 1; i++) {
-        a += BTTFUDPBuf[i] ^ 0x55;
-    }
-    BTTFUDPBuf[BTTF_PACKET_SIZE - 1] = a;
-        
-    vsrUDP->beginPacket(bttfnTcdIP, BTTF_DEFAULT_LOCAL_PORT);
-    vsrUDP->write(BTTFUDPBuf, BTTF_PACKET_SIZE);
-    vsrUDP->endPacket();
+    BTTFNDispatch();
 
     #ifdef VSR_DBG
     Serial.println("Triggered BTTFN-wide TT");

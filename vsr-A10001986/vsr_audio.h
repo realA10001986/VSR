@@ -65,6 +65,7 @@
 #define PA_DYNVOL  0x0008
 #define PA_IGNNM   0x0010
 #define PA_WAV     0x0020
+// upper 8 bits all taken
 #define PA_MASKA   (PA_LOOP|PA_INTRMUS|PA_ALLOWSD|PA_DYNVOL|PA_IGNNM)
 
 void audio_setup();
@@ -77,7 +78,9 @@ void play_button_sound();
 void play_buttonl_sound();
 void play_button_bad();
 void play_key(int k);
+void play_volchg_sound();
 
+bool check_file_SD(const char *audio_file);
 bool checkAudioDone();
 void stopAudio();
 void stopAudioAtLoopEnd();

@@ -214,6 +214,11 @@ WiFiManagerParameter custom_bttfnTT("bttfnTT", "TT buttons trigger BTTFN-wide TT
 WiFiManagerParameter custom_bttfnTT("bttfnTT", "TT buttons trigger BTTFN-wide TT<br><span style='font-size:80%'>If checked, pressing the Time Travel buttons triggers a BTTFN-wide TT</span>", settings.bttfnTT, 1, "autocomplete='off' type='checkbox' style='margin-bottom:0px;'", WFM_LABEL_AFTER);
 #endif // -------------------------------------------------
 
+#ifdef TC_NOCHECKBOXES  // --- Standard text boxes: -------
+WiFiManagerParameter custom_ignTT("ignTT", "Ignore network-wide TTs (0=no, 1=yes)<br><span style='font-size:80%'>If enabled, the VSR will not take part in BTTFN/MQTT-wide time travels</span>", settings.ignTT, 1, "autocomplete='off'");
+#else // -------------------- Checkbox hack: --------------
+WiFiManagerParameter custom_ignTT("ignTT", "Ignore network-wide TTs<br><span style='font-size:80%'>If checked, the VSR will not take part in BTTFN/MQTT-wide time travels</span>", settings.ignTT, 1, "autocomplete='off' type='checkbox' style='margin-bottom:0px;'", WFM_LABEL_AFTER);
+#endif // -------------------------------------------------
 #ifdef VSR_HAVEAUDIO
 #ifdef TC_NOCHECKBOXES  // --- Standard text boxes: -------
 WiFiManagerParameter custom_playTTSnd("plyTTS", "Play time travel sounds (0=no, 1=yes)", settings.playTTsnds, 1, "autocomplete='off' title='Enable to have the device play time travel sounds. Disable if other props provide time travel sound.'");
@@ -466,14 +471,15 @@ void wifi_setup()
     wm.addParameter(&custom_TCDpresent);
     wm.addParameter(&custom_noETTOL);
 
-    wm.addParameter(&custom_sectstart_nw);  // 6
+    wm.addParameter(&custom_sectstart_nw);  // 5
     wm.addParameter(&custom_tcdIP);
     wm.addParameter(&custom_uNM);
     wm.addParameter(&custom_uFPO);
     wm.addParameter(&custom_bttfnTT);
-
+    
+    wm.addParameter(&custom_sectstart);     // 4
+    wm.addParameter(&custom_ignTT);
     #ifdef VSR_HAVEAUDIO
-    wm.addParameter(&custom_sectstart);     // 3
     wm.addParameter(&custom_playTTSnd);
     wm.addParameter(&custom_playALSnd);
     #endif
@@ -814,7 +820,8 @@ void wifi_loop()
             mystrcpy(settings.useNM, &custom_uNM);
             mystrcpy(settings.useFPO, &custom_uFPO);
             mystrcpy(settings.bttfnTT, &custom_bttfnTT);
-
+            
+            mystrcpy(settings.ignTT, &custom_ignTT);
             #ifdef VSR_HAVEAUDIO
             mystrcpy(settings.playTTsnds, &custom_playTTSnd);
             mystrcpy(settings.playALsnd, &custom_playALSnd);
@@ -849,7 +856,8 @@ void wifi_loop()
             strcpyCB(settings.useNM, &custom_uNM);
             strcpyCB(settings.useFPO, &custom_uFPO);
             strcpyCB(settings.bttfnTT, &custom_bttfnTT);
-
+            
+            strcpyCB(settings.ignTT, &custom_ignTT);
             #ifdef VSR_HAVEAUDIO
             strcpyCB(settings.playTTsnds, &custom_playTTSnd);
             strcpyCB(settings.playALsnd, &custom_playALSnd);
@@ -1276,7 +1284,8 @@ void updateConfigPortalValues()
     custom_uNM.setValue(settings.useNM, 1);
     custom_uFPO.setValue(settings.useFPO, 1);
     custom_bttfnTT.setValue(settings.bttfnTT, 1);
-
+    
+    custom_ignTT.setValue(settings.ignTT, 1);
     #ifdef VSR_HAVEAUDIO
     custom_playTTSnd.setValue(settings.playTTsnds, 1);
     custom_playALSnd.setValue(settings.playALsnd, 1);
@@ -1310,7 +1319,8 @@ void updateConfigPortalValues()
     setCBVal(&custom_uNM, settings.useNM);
     setCBVal(&custom_uFPO, settings.useFPO);
     setCBVal(&custom_bttfnTT, settings.bttfnTT);
-
+    
+    setCBVal(&custom_ignTT, settings.ignTT);
     #ifdef VSR_HAVEAUDIO
     setCBVal(&custom_playTTSnd, settings.playTTsnds);
     setCBVal(&custom_playALSnd, settings.playALsnd);
@@ -1702,14 +1712,14 @@ static void mqttCallback(char *topic, byte *payload, unsigned int length)
             // sound (if to be played)
             // We don't ignore this if TCD is connected by wire,
             // because this signal does not come via wire.
-            if(!TTrunning) {
+            if(!ignTT && !TTrunning) {
                 prepareTT();
             }
             break;
         case 1:
             // Trigger Time Travel (if not running already)
             // Ignore command if TCD is connected by wire
-            if(!TCDconnected && !TTrunning) {
+            if(!ignTT && !TCDconnected && !TTrunning) {
                 networkTimeTravel = true;
                 networkTCDTT = true;
                 networkReentry = false;
@@ -1720,22 +1730,22 @@ static void mqttCallback(char *topic, byte *payload, unsigned int length)
         case 2:   // Re-entry
             // Start re-entry (if TT currently running)
             // Ignore command if TCD is connected by wire
-            if(!TCDconnected && TTrunning && networkTCDTT) {
+            if(!ignTT && !TCDconnected && TTrunning && networkTCDTT) {
                 networkReentry = true;
             }
             break;
         case 3:   // Abort TT (TCD fake-powered down during TT)
             // Ignore command if TCD is connected by wire
             // (mainly because this is no network-triggered TT)
-            if(!TCDconnected && TTrunning && networkTCDTT) {
+            if(!ignTT && !TCDconnected && TTrunning && networkTCDTT) {
                 networkAbort = true;
             }
             break;
-        case 4:
+        case 4:   // Alarm
             networkAlarm = true;
             // Eval this at our convenience
             break;
-        case 5: 
+        case 5:   // Wakeup
             if(!TTrunning) {
                 wakeup();
             }

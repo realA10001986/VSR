@@ -119,6 +119,14 @@
 
 /*  Changelog
  *  
+ *  2025/01/11-15 (A10001986) [1.13]
+ *    - Add option to ignore network-wide time travels. After all, the VSR is 
+ *      never shown during time travel in the movies, so some might prefer to
+ *      skip the made-up time travel sequence.
+ *    - New "volume change" sample sound (new sound-pack)
+ *    - BTTFN: Minor code optimization
+ *    - Optimize play_key; keyX will be stopped instead of (re)started if it is 
+ *      currently played when repeatedly triggered
  *  2025/01/10 (A10001986) [1.12]
  *    - Add support for HDC302x temperature sensor
  *    - Interrupt night mode for button mode changes if display is configured to
