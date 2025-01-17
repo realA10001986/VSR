@@ -300,7 +300,8 @@ The following sensor types are supported for direct (i2c) connection to the VSR:
 - [TMP117](https://www.adafruit.com/product/4821) (0x49),
 - [AHT20/AM2315C](https://www.adafruit.com/product/4566),
 - [HTU31D](https://www.adafruit.com/product/4832) (0x41 - non-default),
-- [MS8607](https://www.adafruit.com/product/4716)
+- [MS8607](https://www.adafruit.com/product/4716),
+- [HDC302x](https://www.adafruit.com/product/5989) (0x45 - non-default)
 
 All of those are readily available on breakout boards from Adafruit or Seeed (Grove); the links in above list lead to tested example products.
 
