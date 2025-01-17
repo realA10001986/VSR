@@ -111,7 +111,8 @@ static bool     curChkNM   = false;
 static bool     dynVol     = true;
 static int      sampleCnt = 0;
 
-uint16_t        key_playing = 0;
+static uint16_t key_playing = 0;
+static uint16_t key_played = 0;
 
 static char     append_audio_file[256];
 static float    append_vol;
@@ -383,6 +384,7 @@ void play_file(const char *audio_file, uint16_t flags, float volumeFactor)
  */
 void play_button_sound()
 {
+    key_played = key_playing;
     play_file("/button.mp3", PA_ALLOWSD, 1.0);
 }
 
@@ -405,8 +407,12 @@ void play_key(int k)
 {
     uint16_t pa_key = (k == 9) ? 0x8000 : (1 << (7+k));
     
-    if(!haveKeySnd[k]) return;    
+    if(!haveKeySnd[k]) return; 
 
+    if(key_played == pa_key) {
+        key_played = 0;
+        return;
+    }
     if(pa_key == key_playing) {
         mp3->stop();
         key_playing = 0;
@@ -414,7 +420,7 @@ void play_key(int k)
     }
     
     keySnd[4] = '0' + k;
-    play_file(keySnd, PA_INTRMUS|PA_ALLOWSD|PA_DYNVOL);
+    play_file(keySnd, pa_key|PA_INTRMUS|PA_ALLOWSD|PA_DYNVOL);
 }
 
 // Returns value for volume based on the position of the pot

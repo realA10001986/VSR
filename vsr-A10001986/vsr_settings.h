@@ -83,7 +83,7 @@ extern uint8_t musFolderNum;
 #define DEF_TCD_PRES        0     // 0: No TCD connected, 1: connected via GPIO
 #define DEF_NO_ETTO_LEAD    0     // 0: TCD signals TT with ETTO_LEAD lead time; 1 without
 
-#define DEF_TCD_IP          ""    // TCD ip address for networked polling
+#define DEF_TCD_IP          ""    // TCD ip address for BTTFN connection
 #define DEF_USE_NM          0     // 0: Ignore TCD night mode; 1: Follow TCD night mode
 #define DEF_USE_FPO         0     // 0: Ignore TCD fake power; 1: Follow TCD fake power
 #define DEF_BTTFN_TT        1     // 0: "9" (in OPR-mode) and TT button trigger stand-alone TT; 1: They trigger BTTFN-wide TT

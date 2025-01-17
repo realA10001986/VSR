@@ -119,6 +119,9 @@
 
 /*  Changelog
  *  
+ *  2025/01/17 (A10001986) [1.14]
+ *    - Fix audio logic errors
+ *    - Fix sound-pack (volchg volume reduction)
  *  2025/01/11-15 (A10001986) [1.13]
  *    - Add option to ignore network-wide time travels. After all, the VSR is 
  *      never shown during time travel in the movies, so some might prefer to

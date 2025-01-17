@@ -362,6 +362,7 @@ void main_boot2()
     #ifdef VSR_DIAG
     vsrdisplay.lampTest();
     delay(10*1000);
+        while(1);
     #endif
 
     showWaitSequence();

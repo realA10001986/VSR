@@ -89,7 +89,7 @@
 
 #ifdef VSR_HAVEAUDIO
 #define NUM_AUDIOFILES 11
-#define SND_REQ_VERSION "VR02"
+#define SND_REQ_VERSION "VR03"
 #define AC_FMTV 2
 #define AC_TS   493116
 #define AC_OHSZ (14 + ((NUM_AUDIOFILES+1)*(32+4)))

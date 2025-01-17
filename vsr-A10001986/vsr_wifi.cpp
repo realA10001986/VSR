@@ -217,13 +217,13 @@ WiFiManagerParameter custom_bttfnTT("bttfnTT", "TT buttons trigger BTTFN-wide TT
 #ifdef TC_NOCHECKBOXES  // --- Standard text boxes: -------
 WiFiManagerParameter custom_ignTT("ignTT", "Ignore network-wide TTs (0=no, 1=yes)<br><span style='font-size:80%'>If enabled, the VSR will not take part in BTTFN/MQTT-wide time travels</span>", settings.ignTT, 1, "autocomplete='off'");
 #else // -------------------- Checkbox hack: --------------
-WiFiManagerParameter custom_ignTT("ignTT", "Ignore network-wide TTs<br><span style='font-size:80%'>If checked, the VSR will not take part in BTTFN/MQTT-wide time travels</span>", settings.ignTT, 1, "autocomplete='off' type='checkbox' style='margin-bottom:0px;'", WFM_LABEL_AFTER);
+WiFiManagerParameter custom_ignTT("ignTT", "Ignore network-wide TTs<br><span style='font-size:80%'>If checked, the VSR will not take part in BTTFN/MQTT-wide time travels</span>", settings.ignTT, 1, "autocomplete='off' type='checkbox' style='margin-top:5px'", WFM_LABEL_AFTER);
 #endif // -------------------------------------------------
 #ifdef VSR_HAVEAUDIO
 #ifdef TC_NOCHECKBOXES  // --- Standard text boxes: -------
 WiFiManagerParameter custom_playTTSnd("plyTTS", "Play time travel sounds (0=no, 1=yes)", settings.playTTsnds, 1, "autocomplete='off' title='Enable to have the device play time travel sounds. Disable if other props provide time travel sound.'");
 #else // -------------------- Checkbox hack: --------------
-WiFiManagerParameter custom_playTTSnd("plyTTS", "Play time travel sounds", settings.playTTsnds, 1, "autocomplete='off' title='Check to have the device play time travel sounds. Uncheck if other props provide time travel sound.' type='checkbox' style='margin-top:5px;'", WFM_LABEL_AFTER);
+WiFiManagerParameter custom_playTTSnd("plyTTS", "Play time travel sounds", settings.playTTsnds, 1, "autocomplete='off' title='Check to have the device play time travel sounds. Uncheck if other props provide time travel sound.' type='checkbox'", WFM_LABEL_AFTER);
 #endif // -------------------------------------------------
 #ifdef TC_NOCHECKBOXES  // --- Standard text boxes: -------
 WiFiManagerParameter custom_playALSnd("plyALS", "Play TCD-alarm sound (0=no, 1=yes)", settings.playALsnd, 1, "autocomplete='off' title='Enable to have the device play a sound then the TCD alarm sounds.'");
