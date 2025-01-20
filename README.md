@@ -652,9 +652,13 @@ If this option is checked, and your TCD is equipped with a fake power switch, th
 
 ##### &#9654; TT buttons trigger BTTFN-wide TT
 
-If the VSR is connected to a TCD through BTTFN, this option allows to trigger a synchronized time travel on all BTTFN-connected devices when pressing "9" in _Operation_ [button mode](#button-modes), or pressing the Time Travel button, just as if the Time Travel was triggered by the TCD. If this option is unchecked, these actions only trigger a Time Travel sequence on the VSR.
+If the VSR is connected to a TCD through BTTFN, this option allows to trigger a synchronized time travel on all BTTFN-connected devices when pressing "9" in _Operation_ [button mode](#button-modes), or pressing the Time Travel button, just as if the time travel was triggered by the TCD. If this option is unchecked, these actions only trigger a time travel sequence on the VSR.
 
 #### Audio-visual options
+
+##### &#9654; Ignore network-wide TTs
+
+If this is checked, the VSR ignores network-wide (BTTFN, MQTT) time travels. After all, the VSR is never shown in the movies during a time travel, so its behavior is uncertain. If you don't like the made-up time travel sequence, check this option.
 
 ##### &#9654; Play time travel sounds
 
