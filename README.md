@@ -58,7 +58,7 @@ It is ok to leave the VSR in this mode, especially if it run stand-alone. In a t
 
 In order to connect your VSR to a WiFi network, click on "Configure WiFi". The bare minimum is to select an SSID (WiFi network name) and a WiFi password.
 
->Note that the VSR requests an IP address via DHCP, unless you entered valid data in the fields for static IP addresses (IP, gateway, netmask, DNS). If the device is inaccessible as a result of incorrect static IPs, wait until the VSR has completed its startup sequence, then hold all three buttons until "ADM" is displayed, then _hold_ button "4C". Afterwards power-down the VSR. Upon power-up, the device is reset to DHCP.
+>Note that the VSR requests an IP address via DHCP, unless you entered valid data in the fields for static IP addresses (IP, gateway, netmask, DNS). If the device is inaccessible as a result of incorrect static IPs, wait until the VSR has completed its startup sequence, then hold all three buttons until "ADM" is displayed, then _hold_ button "4C". After "RST" has been displayed, power-down the VSR. Upon power-up, the device is reset to DHCP.
 
 After saving the WiFi network settings, the VSR reboots and tries to connect to your configured WiFi network. If that fails, it will again start in access point mode.
 
@@ -594,7 +594,7 @@ By default, if the VSR creates a WiFi network of its own ("AP-mode"), this netwo
 
 By default, and if this field is empty, the VSR's own WiFi network ("AP-mode") will be unprotected. If you want to protect your VSR access point, enter your password here. It needs to be 8 characters in length and only characters A-Z, a-z, 0-9 and - are allowed.
 
-If you forget this password and are thereby locked out of your VSR, select _Admin_ [button mode](#button-modes), and _hold_ "4C"; this deletes the WiFi password. Then power-down and power-up your VSR and the access point will start unprotected.
+If you forget this password and are thereby locked out of your VSR, select _Admin_ [button mode](#button-modes), and _hold_ "4C"; "RST" will be displayed, and your WiFi password is deleted. Then power-down and power-up your VSR and the access point will start unprotected.
 
 ##### &#9654; WiFi connection attempts
 
