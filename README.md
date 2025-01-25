@@ -353,8 +353,9 @@ The VSR's built-in sound effects can be substituted by your own sound files on a
 
 Your replacements need to be put in the root (top-most) directory of the SD card, be in mp3 format (128kbps max) and named as follows:
 - "startup.mp3". Played when the VSR is connected to power and has finished booting;
-- ...
+- "ttstart,mp3"/"ttend.mp3". Played at the beginning/the end of a time travel sequence. (The "humm" sound cannot be substituted.)
 - "alarm.mp3". Played when the alarm sounds (triggered by a Time Circuits Display via BTTFN or MQTT);
+- "button.mp3", "buttonl.mp3", "button_bad.mp3": Button click sounds.
 
 ### Additional Custom Sounds
 
