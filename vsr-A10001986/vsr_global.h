@@ -15,8 +15,8 @@
  ***                          Version Strings                          ***
  *************************************************************************/
 
-#define VSR_VERSION "V1.14"
-#define VSR_VERSION_EXTRA "JAN172025"
+#define VSR_VERSION "V1.14.1"
+#define VSR_VERSION_EXTRA "FEB112025"
 
 //#define VSR_DBG              // debug output on Serial
 
@@ -69,6 +69,7 @@
 
 // Enable LED display test at boot
 //#define VSR_DIAG
+//#define VSR_DIAG2
 
 /*************************************************************************
  ***                  esp32-arduino version detection                  ***

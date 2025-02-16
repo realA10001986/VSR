@@ -364,6 +364,25 @@ void main_boot2()
     delay(10*1000);
         while(1);
     #endif
+    #ifdef VSR_DIAG2
+    while(1) {
+        for(int i = 0; i < 10; i++) {
+            char buf[8];
+            sprintf(buf, "%d%d%d.", i, i, i);
+            vsrdisplay.setText(buf);
+            vsrdisplay.show();
+            delay(300);
+            sprintf(buf, "%d%d.%d", i, 9-i, i);
+            vsrdisplay.setText(buf);
+            vsrdisplay.show();
+            delay(300);
+            sprintf(buf, "%d.%d%d", 9-i, i, 9-i);
+            vsrdisplay.setText(buf);
+            vsrdisplay.show();
+            delay(300);
+        }
+    }
+    #endif
 
     showWaitSequence();
 }

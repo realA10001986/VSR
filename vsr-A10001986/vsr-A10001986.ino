@@ -119,6 +119,9 @@
 
 /*  Changelog
  *  
+ *  2025/02/11 (A10001986) [1.14.1]
+ *    - Change default volume to 10
+ *    - Delete temp file after audio installation
  *  2025/01/17 (A10001986) [1.14]
  *    - Fix audio logic errors
  *    - Fix sound-pack (volchg volume reduction)

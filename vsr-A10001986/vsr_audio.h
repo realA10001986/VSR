@@ -54,9 +54,9 @@
 
 // Default volume (index or 255 for knob)
 #ifdef VSR_HAVEVOLKNOB
-#define DEFAULT_VOLUME 6
+#define DEFAULT_VOLUME 10
 #else
-#define DEFAULT_VOLUME 6  // (not 255!)
+#define DEFAULT_VOLUME 10  // (not 255!)
 #endif
 
 #define PA_LOOP    0x0001
