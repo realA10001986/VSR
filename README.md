@@ -24,6 +24,8 @@ If a previous version of the VSR firmware is installed on your device, you can u
 
 If you are using a fresh ESP32 board, please see [vsr-A10001986.ino](https://github.com/realA10001986/VSR/blob/main/vsr-A10001986/vsr-A10001986.ino) for detailed build and upload information, or, if you don't want to deal with source code, compilers and all that nerd stuff, go [here](https://install.out-a-ti.me) and follow the instructions.
 
+*Important: After a firmware update, the "wait" symbol might be shown a while longer while booting. Do NOT unplug the device during this time.*
+
 ### Audio data installation
 
 The firmware comes with some audio data ("sound-pack") which needs to be installed separately. The audio data is not updated as often as the firmware itself. If you have previously installed the latest version of the sound-pack, you normally don't have to re-install the audio data when you update the firmware. Only if the VSR displays "AUD" briefly during boot, an update of the audio data is needed.
