@@ -6,6 +6,10 @@ This [repository](https://vsr.out-a-ti.me) holds the most current firmware for a
 [<img src="img/myvsr3s.jpg">](img/myvsr3b.jpg)
 [<img src="img/myvsr2.jpg">](img/myvsr2b.jpg)
 
+| [![Watch the video](https://img.youtube.com/vi/1LagpGr1U88/0.jpg)](https://youtu.be/1LagpGr1U88) |
+|:--:|
+| Click to watch the video |
+
 Features include:
 
 - Various display modes, selectable by buttons: Pushwheel values, temperature (from directly connencted sensor, or from [Time Circuits Display](https://tcd.out-a-ti.me) via BTTFN), or speed (from a [CircuitSetup](https://circuitsetup.us) [Time Circuits Display](https://tcd.out-a-ti.me) via BTTFN)
