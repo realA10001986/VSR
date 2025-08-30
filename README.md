@@ -5,8 +5,8 @@ This [repository](https://vsr.out-a-ti.me) holds the most current firmware for a
 Below are some pictures of a fully functional prototype (still with minor optical imperfections):
 
 
-[<img src="img/myvsr1.jpg">](img/myvar1b.jpg)
-[<img src="img/myvsr2.jpg">](img/myvar2b.jpg)
+[<img src="img/myvsr1.jpg">](img/myvsr1b.jpg)
+[<img src="img/myvsr2.jpg">](img/myvsr2b.jpg)
 
 [<img src="img/vsrpt_6s.jpg">](img/vsrpt_6.jpg)
 [<img src="img/vsrpt_7s.jpg">](img/vsrpt_7.jpg)
