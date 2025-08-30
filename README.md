@@ -2,8 +2,6 @@
 
 This [repository](https://vsr.out-a-ti.me) holds the most current firmware for a replica of the Voltage Systems Regulator ("VSR") known from the Delorean Time Machine, fully compatible with the [CircuitSetup](https://circuitsetup.us) line of props. A kit is in the works and will possibly be available [here](https://movieprops.blog/shop/); you can, however, make your own circuit boards using the files in the [Electronics](https://github.com/realA10001986/VSR/tree/main/Electronics) folder.
 
-Below are some pictures of a fully functional prototype (still with minor optical imperfections):
-
 [<img src="img/myvsr1s.jpg">](img/myvsr1b.jpg)
 [<img src="img/myvsr3s.jpg">](img/myvsr3b.jpg)
 [<img src="img/myvsr2.jpg">](img/myvsr2b.jpg)
