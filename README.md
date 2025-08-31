@@ -191,6 +191,8 @@ In this mode, the buttons light up when briefly pressed, and stay lit after _hol
     </tr>
 </table>
 
+[Here](CheatSheet.pdf) is a cheat sheet for printing or screen-use. (Note that MacOS' preview application has a bug that scrambles the links in the document. Acrobat Reader does it correctly.)
+
 ### TCD remote command reference
 
 <table>
