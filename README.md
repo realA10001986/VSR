@@ -567,7 +567,7 @@ If this is checked, the VSR briefly shows the current [button mode](#button-mode
 
 ##### &#9654; Lights indicate button mode
 
-If this is checked, the buttons lights permanently reflect the current [button mode](#button-modes), except for _light mode_.
+If this is checked, the button lights permanently reflect the current [button mode](#button-modes), except for _light mode_.
 
 ##### &#9654; Brightness level
 
