@@ -12,13 +12,14 @@ This [repository](https://vsr.out-a-ti.me) holds the most current firmware for a
 
 Features include:
 
-- Various display modes, selectable by buttons: Pushwheel values, temperature (from directly connencted sensor, or from [Time Circuits Display](https://tcd.out-a-ti.me) via BTTFN), or speed (from a [CircuitSetup](https://circuitsetup.us) [Time Circuits Display](https://tcd.out-a-ti.me) via BTTFN)
+- various display modes, selectable by buttons: Pushwheel values, temperature (from directly connencted sensor, or from [Time Circuits Display](https://tcd.out-a-ti.me) via BTTFN), or speed (from a [CircuitSetup](https://circuitsetup.us) [Time Circuits Display](https://tcd.out-a-ti.me) via BTTFN)
 - [Time Travel](#time-travel) sequence, triggered by button, [Time Circuits Display](https://tcd.out-a-ti.me) or via [MQTT](#home-assistant--mqtt)
-- [Music player](#the-music-player): Play mp3 files located on an SD card, controlled by buttons or [Time Circuits Display](https://tcd.out-a-ti.me) keypad via BTTFN
+- [music player](#the-music-player): Play mp3 files located on an SD card, controlled by buttons or [Time Circuits Display](https://tcd.out-a-ti.me) keypad via BTTFN
 - [SD card](#sd-card) support for custom audio files for effects, and music for the Music Player
-- Advanced network-accessible [Config Portal](#the-config-portal) for setup (http://vsr.local, hostname configurable)
-- [Wireless communication](#bttf-network-bttfn) with [Time Circuits Display](https://tcd.out-a-ti.me); used for synchronized time travels, alarm, night mode, fake power, temperature display and remote control through keypad
+- advanced network-accessible [Config Portal](#the-config-portal) for setup (http://vsr.local, hostname configurable)
+- [wireless communication](#bttf-network-bttfn) with [Time Circuits Display](https://tcd.out-a-ti.me); used for synchronized time travels, alarm, night mode, fake power, temperature display and remote control through keypad
 - [Home Assistant](#home-assistant--mqtt) (MQTT 3.1.1) support
+- built-in OTA installer for firmware updates and audio files
 
 ## Firmware Installation
 
