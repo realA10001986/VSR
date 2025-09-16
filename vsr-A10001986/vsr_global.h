@@ -15,8 +15,8 @@
  ***                          Version Strings                          ***
  *************************************************************************/
 
-#define VSR_VERSION "V1.14.1"
-#define VSR_VERSION_EXTRA "FEB112025"
+#define VSR_VERSION "V1.15"
+#define VSR_VERSION_EXTRA "SEP152025"
 
 //#define VSR_DBG              // debug output on Serial
 
@@ -57,7 +57,7 @@
 // without 5s lead" is set on the TCD, the VSR option "TCD signals without 
 // lead" must be set, too.
 #define ETTO_LEAD 5000
-
+ 
 // Uncomment to include BTTFN discover support (multicast)
 #define BTTFN_MC
 

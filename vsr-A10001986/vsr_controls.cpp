@@ -455,22 +455,3 @@ const char *getBMString()
     if(i < 0 || i >= NUM_BM) i = VBM_UNKNOWN;
     return bmodesText[i];
 }
-
-/*
- * controls_loop()
- */
-void controls_loop()
-{
-
-}
-
-void prepareReboot()
-{
-    mp_stop();
-    stopAudio();
-    vsrdisplay.off();
-    vsrLEDs.off();
-    flushDelayedSave();
-    delay(500);
-    unmount_fs();
-}

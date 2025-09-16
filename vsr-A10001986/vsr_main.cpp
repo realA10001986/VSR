@@ -1314,6 +1314,28 @@ void toggleNightMode()
     setNightMode(!vsrNM);
 }
 
+void allOff()
+{
+    vsrdisplay.off();
+    vsrLEDs.off();
+}
+
+void prepareReboot()
+{
+    #ifdef VSR_HAVEAUDIO
+    mp_stop();
+    stopAudio();
+    #endif
+    
+    allOff();
+    
+    flushDelayedSave();
+    
+    delay(500);
+    unmount_fs();
+    delay(100);
+}
+
 static void ttkeyScan()
 {
     TTKey.scan();
@@ -1570,11 +1592,7 @@ static void execute_remote_command()
       
         switch(command) {
         case 64738:                               // 8064738: reboot
-            vsrdisplay.off();
-            mp_stop();
-            stopAudio();
-            flushDelayedSave();
-            unmount_fs();
+            prepareReboot();
             delay(500);
             esp_restart();
             break;

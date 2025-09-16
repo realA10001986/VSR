@@ -72,8 +72,6 @@ void resetBLEDandBState();
 
 bool scanControls();
 
-void controls_loop();
-
 const char *getBMString();
 
 void prepareReboot();
