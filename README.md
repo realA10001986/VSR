@@ -59,17 +59,35 @@ The first step is to establish access to the VSR's configuration web site ("Conf
 
 #### Connecting to a WiFi network
 
-As long as the device is unconfigured, it creates a WiFi network of its own named "VSR-AP". This is called "Access point mode", or "AP-mode". In this mode, other WiFi devices can connect to the VSR.
+Your VSR knows two ways of WiFi operation: Either it creates its own WiFi network, or it connects to a pre-existing WiFi network.
 
-It is ok to leave the VSR in this mode, especially if it run stand-alone. In a typical home setup and/or if you also have a [Time Circuits Display](https://tcd.out-a-ti.me), however, you might want to connect the VSR to a WiFi network (in case of using it together with a TCD: to the same WiFi network the TCD is connected to). If you have your VSR, along with a Time Circuits Display, mounted in a car, you might want to connect the VSR to the TCD's very own WiFi network "TCD-AP"; see [here](#car-setup).
+As long as the VSR is unconfigured, it creates its own WiFi network named "VSR-AP". This mode of operation is called "Access point mode", or "AP-mode". 
 
-In order to connect your VSR to a WiFi network, click on "Configure WiFi". The bare minimum is to select an SSID (WiFi network name) and a WiFi password.
+It is ok to leave it in AP-mode, predominantly if used stand-alone.
 
->Note that the VSR requests an IP address via DHCP, unless you entered valid data in the fields for static IP addresses (IP, gateway, netmask, DNS). If the device is inaccessible as a result of incorrect static IPs, wait until the VSR has completed its startup sequence, then hold all three buttons until "ADM" is displayed, then _hold_ button "4C". After "RST" has been displayed, power-down the VSR. Upon power-up, the device is reset to DHCP.
+>For experts: In the following, the term "WiFi network" is used for both "WiFi network" and "ip network" for simplicity reasons. However, for BTTFN/MQTT communication, the devices must (only) be on the same ip network, regardless of how they take part in it: They can be can be connected to different WiFi networks, if those WiFi networks are part of the same ip network, or, in case of the MQTT broker, by wire. If the TCD operates as access point for other props, connecting a prop to the TCD's WiFi network also takes care of suitable ip network configuration through DHCP.
 
-After saving the WiFi network settings, the VSR reboots and tries to connect to your configured WiFi network. If that fails, it will again start in access point mode.
+##### &#9654; Home setup with a pre-existing local WiFi network
 
-After completing this step, your VSR is basically ready for use; you can also continue configuring it to your personal preferences through the Config Portal.
+In this case, you can connect your VSR to your home WiFi network: Click on "Connect to WiFi" and either select a network from the top of the page or enter a WiFi network name (SSID), and enter your WiFi password.
+
+>If you have a [Time Circuits Display](https://tcd.out-a-ti.me) note that in order to have both VSR and TCD communicate with each other, your VSR must be connected to the same network your TCD is connected to. In order to use MQTT, your VSR must be connected to the same network your broker is connected to.
+
+>Your VSR requests an IP address via DHCP, unless you entered valid data in the fields for static IP addresses (IP, gateway, netmask, DNS). If the device is inaccessible as a result of incorrect static IPs, wait until the VSR has completed its startup sequence, then hold all three buttons until "ADM" is displayed, then _hold_ button "4C". After "RST" has been displayed, power-down the VSR. Upon power-up, the device is reset to DHCP.
+
+After saving the WiFi network settings, your FC reboots and tries to connect to your selected WiFi network. If that fails, it will again start in access point mode.
+
+##### &#9654; Places without a WiFi network
+
+If no TCD is present, keep your VSR operating in AP-mode.
+
+If you have a [Time Circuits Display](https://tcd.out-a-ti.me), you can connect your VSR to the TCD's own WiFi network. 
+
+Click on "Connect to WiFi" and either select "TCD-AP" from the top of the page or enter "TCD-AP" under *WiFi network name (SSID)*. If you password-proteced your TCD-AP, enter this password below.
+
+See [here](#car-setup) for more details.
+
+After completing WiFi setup, your VSR is ready for use; you can also continue configuring it to your personal preferences through the Config Portal.
 
 ## The Config Portal
 
@@ -88,12 +106,12 @@ It can be accessed as follows:
 
 #### If VSR is connected to WiFi network
 
-- Connect your hand-held/computer to the same WiFi network to which the VSR is connected, and
+- Connect your hand-held/computer to the same WiFi network to which your VSR is connected, and
 - navigate your browser to http://vsr.local
 
   Accessing the Config Portal through this address requires the operating system of your hand-held/computer to support Bonjour/mDNS: Windows 10 version TH2     (1511) [other sources say 1703] and later, Android 13 and later; MacOS and iOS since the dawn of time.
 
-  If connecting to http://vsr.local fails due to a name resolution error, you need to find out the VSR's IP address: Hold all three buttons until "ADM" is displayed, release all buttons and afterwards _hold_ button "9". The VSR will display its current IP address (a. - b. - c. - d). Then, on your handheld or computer, navigate to http://a.b.c.d (a.b.c.d being the IP address as displayed on the VSR) in order to enter the Config Portal.
+  If connecting to http://vsr.local fails due to a name resolution error, you need to find out your VSR's IP address: Hold all three buttons until "ADM" is displayed, release all buttons and afterwards _hold_ button "9". Your VSR will display its current IP address (a. - b. - c. - d). Then, on your handheld or computer, navigate to http://a.b.c.d (a.b.c.d being the IP address as displayed on your VSR) in order to enter the Config Portal.
 
 In the main menu, click on "Setup" to configure your VSR. 
 
@@ -111,11 +129,11 @@ By default, the display shows the value selected by the pushwheels, with slight 
 
 The three-digit display can be used for the pushwheel number, temperature or speed.
 
-In order to display temperature, a temperature sensor needs to be connected to either the VSR or your Time Circuits Display (TCD), and in the latter case the VSR needs to be connected to the TCD via BTTFN.
+In order to display temperature, a temperature sensor needs to be connected to either your VSR or your Time Circuits Display (TCD), and in the latter case your VSR needs to be connected to the TCD via BTTFN.
 
-In order to display speed, a TCD with either a GPS receiver or a rotary encoder for speed is required, and the VSR needs to be connected to the TCD via BTTFN.
+In order to display speed, a TCD with either a GPS receiver or a rotary encoder for speed is required, and your VSR needs to be connected to the TCD via BTTFN.
 
-Display modes are chosen by selecting the _Operation_ button mode, and then _holding_ a single button until two beeps are emitted from the VSR, as described below.
+Display modes are chosen by selecting the _Operation_ button mode, and then _holding_ a single button until two beeps are emitted from your VSR, as described below.
 
 ### Button modes
 
@@ -300,9 +318,9 @@ Other ways of triggering a time travel are available if a [Time Circuits Display
 
 ## Temperature display
 
-As mentioned above, the VSR can display temperature. The temperature value can come from either a connected temperature sensor, or from the TCD - if the latter has a sensor connected and is connected to the VSR via [BTTFN](#bttf-network-bttfn).
+As mentioned above, your VSR can display temperature. The temperature value can come from either a connected temperature sensor, or from the TCD - if the latter has a sensor connected and is connected to your VSR via [BTTFN](#bttf-network-bttfn).
 
-The following sensor types are supported for direct (i2c) connection to the VSR: 
+The following sensor types are supported for direct (i2c) connection to your VSR: 
 - [MCP9808](https://www.adafruit.com/product/1782) (address 0x18 - non-default),
 - [BMx280](https://www.adafruit.com/product/2652) (0x77),
 - [SI7021](https://www.adafruit.com/product/3251),
@@ -348,7 +366,7 @@ For longer cables, ie >50cm (>20in), I recommend using a twisted pair cable, and
 
 ## Speed display
 
-The VSR can also display speed, provided a TCD is connected through [BTTFN](#bttf-network-bttfn), and the TCD has either a GPS receiver, or a rotary encoder configured for speed. Please see [here](https://tcd.out-a-ti.me) for more information.
+Your VSR can also display speed, provided a TCD is connected through [BTTFN](#bttf-network-bttfn), and the TCD has either a GPS receiver, or a rotary encoder configured for speed. Please see [here](https://tcd.out-a-ti.me) for more information.
 
 ## SD card
 
