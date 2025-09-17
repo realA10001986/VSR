@@ -512,18 +512,18 @@ If your VSR, along with a [Time Circuits Display](https://tcd.out-a-ti.me/), is 
 #### VSR
 
 Enter the Config Portal on the VSR, click on *Setup* and
-  - enter *192.168.4.1* into the field **_IP address or hostname of TCD_**
+  - enter *192.168.4.1* into the field **_IP address or hostname of TCD_** under BTTFN settings;
   - check the option **_Follow TCD fake power_** if you have a fake power switch for the TCD (like eg a TFC switch)
   - click on *Save*.
 
 After the VSR has restarted, re-enter the VSR's Config Portal (while the TCD is powered and in *car mode*) and
-  - click on *Configure WiFi*,
-  - select the TCD's access point name in the list at the top or enter *TCD-AP* into the *SSID* field; if you password-protected your TCD's AP, enter this password in the *password* field. Leave all other fields empty,
+  - click on *Connect to WiFi*,
+  - select the TCD's access point name in the list at the top ("TCD-AP") or enter *TCD-AP* into the *WiFi network name (SSID)* field; if you password-protected your TCD's AP, enter this password in the *password* field. Leave all other fields empty,
   - click on *Save*.
 
-Using this setup enables the VSR to receive notifications about time travel and alarm wirelessly, and to query the TCD for data. Also, the TCD keypad can be used to remote-control the VSR.
-
 In order to access the VSR's Config Portal in your car, connect your hand held or computer to the TCD's WiFi access point ("TCD-AP"), and direct your browser to http://vsr.local ; if that does not work, go to the TCD's keypad menu, press ENTER until "BTTFN CLIENTS" is shown, hold ENTER, and look for the VSR's IP address there; then direct your browser to that IP by using the URL http://a.b.c.d (a-d being the IP address displayed on the TCD display).
+
+This "car setup" can also be used in a home setup with no local WiFi network present.
 
 ## Flash Wear
 
@@ -535,11 +535,13 @@ In order to reduce the number of write operations and thereby prolong the life o
 
 ### Main page
 
-##### &#9654; Configure WiFi
+##### &#9654; Connect to WiFi
 
-Clicking this leads to the WiFi configuration page. On that page, you can connect your VSR to your WiFi network by selecting/entering the SSID (WiFi network name) as well as a password (WPA2). By default, the VSR requests an IP address via DHCP. However, you can also configure a static IP for the VSR by entering the IP, netmask, gateway and DNS server. All four fields must be filled for a valid static IP configuration. If you want to stick to DHCP, leave those four fields empty.
+Click this to connect your VSR to your local WiFi network (which can also be provided by your [Time Circuits Display](https://tcd.out-a-ti.me) operating in AP mode/car mode). All you need to do is either to click on one of the networks listed at the top or to enter a WiFi network name (SSID), and optionally a passwort (WPAx).
 
-Note that this page has nothing to do with Access Point mode; it is strictly for connecting your VSR to an existing WiFi network as a client.
+>By default, the VSR requests an IP address via DHCP. However, you can also configure a static IP for the VSR by entering the IP, netmask, gateway and DNS server. All four fields must be filled for a valid static IP configuration. If you want to stick to DHCP, leave those four fields empty. If you connect your VSR to your Time Circuits Display acting as access point ("TCD-AP"), leave these all empty.
+
+Note that this page is strictly for connecting your VSR to an existing WiFi network. If your VSR is supposed to operate stand-alone, it runs in "access point mode" (AP-Mode). Settings for AP mode are on the *Setup* page.
 
 ##### &#9654; Setup
 
@@ -559,7 +561,7 @@ Finally, this page is also for uploading [custom or replacement sound files](#in
 
 ##### &#9654; Erase WiFi Config
 
-Clicking this (and saying "yes" in the confirmation dialog) erases the WiFi configuration (WiFi network and password) and reboots the device; it will restart in "access point" mode. See [here](#short-summary-of-first-steps).
+Clicking this (and saying "yes" in the confirmation dialog) erases the WiFi connection configuration (as set up through the *Connect to WiFi* page) and reboots the device; it will restart in "access point" (AP) mode. See [here](#short-summary-of-first-steps).
 
 ---
 
