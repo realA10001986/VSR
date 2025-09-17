@@ -75,11 +75,11 @@ In this case, you can connect your VSR to your home WiFi network: Click on "Conn
 
 >Your VSR requests an IP address via DHCP, unless you entered valid data in the fields for static IP addresses (IP, gateway, netmask, DNS). If the device is inaccessible as a result of incorrect static IPs, wait until the VSR has completed its startup sequence, then hold all three buttons until "ADM" is displayed, then _hold_ button "4C". After "RST" has been displayed, power-down the VSR. Upon power-up, the device is reset to DHCP.
 
-After saving the WiFi network settings, your FC reboots and tries to connect to your selected WiFi network. If that fails, it will again start in access point mode.
+After saving the WiFi network settings, your VSR reboots and tries to connect to your selected WiFi network. If that fails, it will again start in access point mode.
 
 ##### &#9654; Places without a WiFi network
 
-If no TCD is present, keep your VSR operating in AP-mode.
+If no TCD is present, keep your VSR operating in AP-mode: Leave *WiFi network name* and *password* empty.
 
 If you have a [Time Circuits Display](https://tcd.out-a-ti.me), you can connect your VSR to the TCD's own WiFi network. 
 
@@ -106,7 +106,7 @@ It can be accessed as follows:
 
 #### If VSR is connected to WiFi network
 
-- Connect your hand-held/computer to the same WiFi network to which your VSR is connected, and
+- Connect your hand-held/computer to the same (WiFi) network to which your VSR is connected, and
 - navigate your browser to http://vsr.local
 
   Accessing the Config Portal through this address requires the operating system of your hand-held/computer to support Bonjour/mDNS: Windows 10 version TH2     (1511) [other sources say 1703] and later, Android 13 and later; MacOS and iOS since the dawn of time.
