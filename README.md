@@ -69,23 +69,17 @@ It is ok to leave it in AP-mode, predominantly if used stand-alone.
 
 ##### &#9654; Home setup with a pre-existing local WiFi network
 
-In this case, you can connect your VSR to your home WiFi network: Click on "Connect to WiFi" and either select a network from the top of the page or enter a WiFi network name (SSID), and enter your WiFi password.
+In this case, you can connect your VSR to your home WiFi network: Click on "Connect to WiFi" and either select a network from the top of the page or enter a WiFi network name (SSID), and enter your WiFi password. After saving the WiFi network settings, your VSR reboots and tries to connect to your selected WiFi network. If that fails, it will again start in access point mode.
 
 >If you have a [Time Circuits Display](https://tcd.out-a-ti.me) note that in order to have both VSR and TCD communicate with each other, your VSR must be connected to the same network your TCD is connected to. In order to use MQTT, your VSR must be connected to the same network your broker is connected to.
 
 >Your VSR requests an IP address via DHCP, unless you entered valid data in the fields for static IP addresses (IP, gateway, netmask, DNS). If the device is inaccessible as a result of incorrect static IPs, wait until the VSR has completed its startup sequence, then hold all three buttons until "ADM" is displayed, then _hold_ button "4C". After "RST" has been displayed, power-down the VSR. Upon power-up, the device is reset to DHCP.
 
-After saving the WiFi network settings, your VSR reboots and tries to connect to your selected WiFi network. If that fails, it will again start in access point mode.
-
 ##### &#9654; Places without a WiFi network
 
-If no TCD is present, keep your VSR operating in AP-mode: Leave *WiFi network name* and *password* empty.
+If no TCD is present, keep your VSR operating in AP-mode.
 
-If you have a [Time Circuits Display](https://tcd.out-a-ti.me), you can connect your VSR to the TCD's own WiFi network. 
-
-Click on "Connect to WiFi" and either select "TCD-AP" from the top of the page or enter "TCD-AP" under *WiFi network name (SSID)*. If you password-proteced your TCD-AP, enter this password below.
-
-See [here](#car-setup) for more details.
+If you have a [Time Circuits Display](https://tcd.out-a-ti.me), you can connect your VSR to the TCD's own WiFi network. Click on "Connect to WiFi" and either select "TCD-AP" from the top of the page or enter "TCD-AP" under *WiFi network name (SSID)*. If you password-proteced your TCD-AP, enter this password below. See [here](#car-setup) for more details.
 
 After completing WiFi setup, your VSR is ready for use; you can also continue configuring it to your personal preferences through the Config Portal.
 
