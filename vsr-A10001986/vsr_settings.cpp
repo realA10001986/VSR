@@ -87,7 +87,6 @@
 #define DECLARE_D_JSON(x,n) DynamicJsonDocument n(x);
 #endif 
 
-#ifdef VSR_HAVEAUDIO
 #define NUM_AUDIOFILES 11
 #define SND_REQ_VERSION "VR03"
 #define AC_FMTV 2
@@ -99,18 +98,16 @@ static const char *CONID  = "VSRA";
 static uint32_t   soa = AC_TS;
 static bool       ic = false;
 static uint8_t*   f(uint8_t *d, uint32_t m, int y) { return d; }
-static char       *uploadFileName = NULL;
-#endif
+static char       *uploadFileNames[MAX_SIM_UPLOADS] = { NULL };
+static char       *uploadRealFileNames[MAX_SIM_UPLOADS] = { NULL };
 
 static const char *cfgName    = "/vsrconfig.json";   // Main config (flash)
 static const char *ipCfgName  = "/vsripcfg.json";    // IP config (flash)
 static const char *briCfgName = "/vsrbricfg.json";   // Brightness config (flash/SD)
 static const char *butCfgName = "/vsrbutcfg.json";   // Buttonmode config (SD only)
 static const char *disCfgName = "/vsrdiscfg.json";   // User's display mode (SD only)
-#ifdef VSR_HAVEAUDIO
 static const char *volCfgName = "/vsrvolcfg.json";   // Volume config (flash/SD)
 static const char *musCfgName = "/vsrmcfg.json";     // Music config (SD only)
-#endif
 
 static const char *fsNoAvail = "Filesystem not available";
 static const char *failFileWrite = "Failed to open file for writing";
@@ -141,10 +138,8 @@ uint8_t musFolderNum = 0;
 static uint8_t   prevSavedBri = 12;
 static uint8_t   prevButtonMode = 0;
 static int       prevUDispMode = 0;
-#ifdef VSR_HAVEAUDIO
 static uint8_t   prevSavedVol = 255;
 static uint8_t*  (*r)(uint8_t *, uint32_t, int);
-#endif
 
 static bool read_settings(File configFile);
 
@@ -153,13 +148,11 @@ static bool CopyCheckValidNumParmF(const char *json, char *text, uint8_t psize, 
 static bool checkValidNumParm(char *text, int lowerLim, int upperLim, int setDefault);
 static bool checkValidNumParmF(char *text, float lowerLim, float upperLim, float setDefault);
 
-#ifdef VSR_HAVEAUDIO
 static bool copy_audio_files(bool& delIDfile);
 static void open_and_copy(const char *fn, int& haveErr, int& haveWriteErr);
 static bool filecopy(File source, File dest, int& haveWriteErr);
 static void cfc(File& sfile, bool doCopy, int& haveErr, int& haveWriteErr);
 static bool audio_files_present();
-#endif
 
 static void formatFlashFS();
 static void rewriteSecondarySettings();
@@ -313,7 +306,6 @@ void settings_setup()
     // Determine if secondary settings are to be stored on SD
     configOnSD = (haveSD && ((settings.CfgOnSD[0] != '0') || FlashROMode)); 
 
-    #ifdef VSR_HAVEAUDIO
     // Check if (current) audio data is installed
     haveAudioFiles = audio_files_present();
 
@@ -321,7 +313,10 @@ void settings_setup()
     if((r = m) && haveSD && (haveFS || FlashROMode)) {
         allowCPA = check_if_default_audio_present();
     }
-    #endif
+
+    for(int i = 0; i < MAX_SIM_UPLOADS; i++) {
+        uploadFileNames[i] = uploadRealFileNames[i] = NULL;
+    }
 }
 
 void unmount_fs()
@@ -413,10 +408,8 @@ static bool read_settings(File configFile)
         wd |= CopyCheckValidNumParm(json["bttfnTT"], settings.bttfnTT, sizeof(settings.bttfnTT), 0, 1, DEF_BTTFN_TT);
         
         wd |= CopyCheckValidNumParm(json["ignTT"], settings.ignTT, sizeof(settings.ignTT), 0, 1, DEF_IGN_TT);
-        #ifdef VSR_HAVEAUDIO
         wd |= CopyCheckValidNumParm(json["playTTsnds"], settings.playTTsnds, sizeof(settings.playTTsnds), 0, 1, DEF_PLAY_TT_SND);
         wd |= CopyCheckValidNumParm(json["playALsnd"], settings.playALsnd, sizeof(settings.playALsnd), 0, 1, DEF_PLAY_ALM_SND);
-        #endif
 
         #ifdef VSR_HAVEMQTT
         wd |= CopyCheckValidNumParm(json["useMQTT"], settings.useMQTT, sizeof(settings.useMQTT), 0, 1, 0);
@@ -430,9 +423,7 @@ static bool read_settings(File configFile)
         } else wd = true;
         #endif
 
-        #ifdef VSR_HAVEAUDIO
         wd |= CopyCheckValidNumParm(json["shuffle"], settings.shuffle, sizeof(settings.shuffle), 0, 1, DEF_SHUFFLE);
-        #endif
         
         wd |= CopyCheckValidNumParm(json["CfgOnSD"], settings.CfgOnSD, sizeof(settings.CfgOnSD), 0, 1, DEF_CFG_ON_SD);
         //wd |= CopyCheckValidNumParm(json["sdFreq"], settings.sdFreq, sizeof(settings.sdFreq), 0, 1, DEF_SD_FREQ);
@@ -496,10 +487,8 @@ void write_settings()
     json["bttfnTT"] = (const char *)settings.bttfnTT;
     
     json["ignTT"] = (const char *)settings.ignTT;
-    #ifdef VSR_HAVEAUDIO
     json["playTTsnds"] = (const char *)settings.playTTsnds;
     json["playALsnd"] = (const char *)settings.playALsnd;
-    #endif
 
     #ifdef VSR_HAVEMQTT
     json["useMQTT"] = (const char *)settings.useMQTT;
@@ -507,9 +496,7 @@ void write_settings()
     json["mqttUser"] = (const char *)settings.mqttUser;
     #endif
 
-    #ifdef VSR_HAVEAUDIO
     json["shuffle"] = (const char *)settings.shuffle;
-    #endif
     
     json["CfgOnSD"] = (const char *)settings.CfgOnSD;
     //json["sdFreq"] = (const char *)settings.sdFreq;
@@ -698,7 +685,6 @@ void saveBrightness(bool useCache)
 /*
  *  Load/save the Volume
  */
-#ifdef VSR_HAVEAUDIO
 
 #ifdef VSR_HAVEVOLKNOB
 #define T_V_MAX 255
@@ -772,8 +758,6 @@ void saveCurVolume(bool useCache)
 }
 
 #undef T_V_MAX
-
-#endif
 
 /*
  *  Load/save the button mode
@@ -903,7 +887,6 @@ void saveUDispMode(bool useCache)
 /*
  * Load/save Music Folder Number (SD only)
  */
-#ifdef VSR_HAVEAUDIO
 bool loadMusFoldNum()
 {
     bool writedefault = true;
@@ -952,7 +935,6 @@ void saveMusFoldNum()
 
     writeJSONCfgFile(json, musCfgName, true, funcName);
 }
-#endif
 
 /*
  * Load/save/delete settings for static IP configuration
@@ -1070,7 +1052,7 @@ void deleteIpSettings()
  * customize your sounds, put them on a FAT32 formatted
  * SD card and leave this SD card in the slot.
  */
-#ifdef VSR_HAVEAUDIO
+
 bool check_allow_CPA()
 {
     return allowCPA;
@@ -1297,7 +1279,6 @@ void delete_ID_file()
         SD.rename(CONFN, CONFND);
     }
 }
-#endif // VSR_HAVEAUDIO
 
 /*
  * Various helpers
@@ -1326,9 +1307,7 @@ void copySettings()
         Serial.println(F("copySettings: Copying secondary settings to other medium"));
         #endif
         saveBrightness(false);
-        #ifdef VSR_HAVEAUDIO
         saveCurVolume(false);
-        #endif
     }
 
     configOnSD = !configOnSD;
@@ -1353,9 +1332,7 @@ static void rewriteSecondarySettings()
     configOnSD = false;
 
     saveBrightness(false);
-    #ifdef VSR_HAVEAUDIO
     saveCurVolume(false);
-    #endif
     
     configOnSD = oldconfigOnSD;
 }
@@ -1458,16 +1435,99 @@ static bool writeFileToFS(const char *fn, uint8_t *buf, int len)
         return false;
 }
 
-#ifdef VSR_HAVEAUDIO
-bool openACFile(File& file)
+static char *allocateUploadFileName(const char *fn, int idx)
 {
-    if(haveSD) {
-        if(file = SD.open(CONFN, FILE_WRITE)) {
-            return true;
-        }
+    char *t = NULL;
+
+    if(uploadFileNames[idx]) {
+        free(uploadFileNames[idx]);
+    }
+    if(uploadRealFileNames[idx]) {
+        free(uploadRealFileNames[idx]);
+    }
+    uploadFileNames[idx] = uploadRealFileNames[idx] = NULL;
+
+    if(!strlen(fn))
+        return NULL;
+  
+    if(!(uploadFileNames[idx] = (char *)malloc(strlen(fn)+4)))
+        return NULL;
+
+    if(!(uploadRealFileNames[idx] = (char *)malloc(strlen(fn)+4))) {
+        free(uploadFileNames[idx]);
+        uploadFileNames[idx] = NULL;
+        return NULL;
     }
 
-    return false;
+    return uploadRealFileNames[idx];
+}
+
+bool openUploadFile(String& fn, File& file, int idx, bool haveAC, int& opType, int& errNo)
+{
+    char *uploadFileName = NULL;
+    bool ret = false;
+    
+    if(haveSD) {
+
+        errNo = 0;
+        opType = 0;  // 0=normal, 1=AC, -1=deletion
+
+        if(!(uploadFileName = allocateUploadFileName(fn.c_str(), idx))) {
+            errNo = UPL_MEMERR;
+            return false;
+        }
+        strcpy(uploadFileNames[idx], fn.c_str());
+        
+        uploadFileName[0] = '/';
+        uploadFileName[1] = '-';
+        uploadFileName[2] = 0;
+
+        if(fn.length() > 4 && fn.endsWith(".mp3")) {
+
+            strcat(uploadFileName, fn.c_str());
+
+            if((strlen(uploadFileName) > 9) &&
+               (strstr(uploadFileName, "/-delete-") == uploadFileName)) {
+
+                uploadFileName[8] = '/';
+                SD.remove(uploadFileName+8);
+                opType = -1;
+                
+            }
+
+        } else if(fn.endsWith(".bin")) {
+
+            if(!haveAC) {
+                strcat(uploadFileName, CONFN+1);  // Skip '/', already there
+                opType = 1;
+            } else {
+                errNo = UPL_DPLBIN;
+                opType = -1;
+            }
+
+        } else {
+
+            errNo = UPL_UNKNOWN;
+            opType = -1;
+            // ret must be false!
+
+        }
+
+        if(opType >= 0) {
+            if((file = SD.open(uploadFileName, FILE_WRITE))) {
+                ret = true;
+            } else {
+                errNo = UPL_OPENERR;
+            }
+        }
+
+    } else {
+      
+        errNo = UPL_NOSDERR;
+        
+    }
+
+    return ret;
 }
 
 size_t writeACFile(File& file, uint8_t *buf, size_t len)
@@ -1480,59 +1540,46 @@ void closeACFile(File& file)
     file.close();
 }
 
-void removeACFile(bool isUPLFile)
+void removeACFile(int idx)
 {
     if(haveSD) {
-        if(!isUPLFile) {
-            SD.remove(CONFN);
-        } else if(uploadFileName) {
-            SD.remove(uploadFileName);
+        if(uploadRealFileNames[idx]) {
+            SD.remove(uploadRealFileNames[idx]);
         }
     }
 }
 
-bool openUploadFile(const char *fn, File& file, bool& isDel)
+int getUploadFileNameLen(int idx)
 {
-    if(haveSD) {
+    if(idx >= MAX_SIM_UPLOADS) return 0; 
+    if(!uploadFileNames[idx]) return 0;
+    return strlen(uploadFileNames[idx]);
+}
 
-        isDel = false;
+char *getUploadFileName(int idx)
+{
+    if(idx >= MAX_SIM_UPLOADS) return NULL; 
+    return uploadFileNames[idx];
+}
 
-        if(!strlen(fn))
-            return false;
-      
-        if(!(uploadFileName = (char *)malloc(strlen(fn)+4)))
-            return false;
+void freeUploadFileNames()
+{
+    for(int i = 0; i < MAX_SIM_UPLOADS; i++) {
+        if(uploadFileNames[i]) {
+            free(uploadFileNames[i]);
+            uploadFileNames[i] = NULL;
+        }
+        if(uploadRealFileNames[i]) {
+            free(uploadRealFileNames[i]);
+            uploadRealFileNames[i] = NULL;
+        }
+    }
+}
 
-        uploadFileName[0] = '/';
-        uploadFileName[1] = '-';
-        uploadFileName[2] = 0;
-        strcat(uploadFileName, fn);
-
-        if((strlen(uploadFileName) <= 9) ||
-           (strstr(uploadFileName, "/-delete-") != uploadFileName)) {
+void renameUploadFile(int idx)
+{
+    char *uploadFileName = uploadRealFileNames[idx];
     
-            if((file = SD.open(uploadFileName, FILE_WRITE))) {
-                isDel = false;
-                return true;
-            }
-
-        } else {
-
-            uploadFileName[8] = '/';
-            SD.remove(uploadFileName+8);
-            isDel = true;
-          
-        }
-
-        free(uploadFileName);
-        uploadFileName = NULL;
-    }
-
-    return false;
-}
-
-void renameUploadFile()
-{
     if(haveSD && uploadFileName) {
 
         char *t = (char *)malloc(strlen(uploadFileName)+4);
@@ -1541,12 +1588,9 @@ void renameUploadFile()
         strcat(t, uploadFileName+2);
         
         SD.remove(t);
+        
         SD.rename(uploadFileName, t);
         
         free(t);
-
-        free(uploadFileName);
-        uploadFileName = NULL;
     }
 }
-#endif

@@ -15,8 +15,8 @@
  ***                          Version Strings                          ***
  *************************************************************************/
 
-#define VSR_VERSION "V1.15"
-#define VSR_VERSION_EXTRA "SEP152025"
+#define VSR_VERSION "V1.16"
+#define VSR_VERSION_EXTRA "SEP192025"
 
 //#define VSR_DBG              // debug output on Serial
 
@@ -35,9 +35,6 @@
 /*************************************************************************
  ***             Configuration for hardware/peripherals                ***
  *************************************************************************/
-
-// Uncomment for audio support
-#define VSR_HAVEAUDIO
 
 // Uncomment for support of a temperature/humidity sensor (MCP9808, BMx280, 
 // SI7021, SHT4x, TMP117, AHT20, HTU31D, MS8607, HDC302X) connected via i2c.

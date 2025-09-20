@@ -108,10 +108,9 @@ void main_setup();
 void main_loop();
 
 void flushDelayedSave();
-#ifdef VSR_HAVEAUDIO
+
 void increaseVolume();
 void decreaseVolume();
-#endif
 
 void timeTravel(bool TCDtriggered, uint16_t P0Dur = P0_DUR);
 
@@ -134,10 +133,8 @@ void wakeup();
 
 void display_ip();
 
-#ifdef VSR_HAVEAUDIO
 void switchMusicFolder(uint8_t nmf);
 void waitAudioDone();
-#endif
 
 void myCustomDelay_KP(unsigned long mydel);
 void mydelay(unsigned long mydel);

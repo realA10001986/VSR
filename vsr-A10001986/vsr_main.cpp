@@ -402,7 +402,6 @@ void main_setup()
     vsrLEDs.begin(3);
 
     // Invoke audio file installer if SD content qualifies
-    #ifdef VSR_HAVEAUDIO
     #ifdef VSR_DBG
     Serial.println(F("Probing for audio data on SD"));
     #endif
@@ -415,7 +414,6 @@ void main_setup()
         doCopyAudioFiles();
         // We never return here. The ESP is rebooted.
     }
-    #endif
 
     smoothChg = (atoi(settings.smoothpw) > 0);
     doFluct = (atoi(settings.fluct) > 0);
@@ -426,9 +424,7 @@ void main_setup()
     vsrdisplay.setNMOff(diNmOff);
 
     ignTT = (atoi(settings.ignTT) > 0);
-    #ifdef VSR_HAVEAUDIO
     playTTsounds = (atoi(settings.playTTsnds) > 0);
-    #endif
 
     // Determine if Time Circuits Display is connected
     // via wire, and is source of GPIO tt trigger
@@ -475,7 +471,6 @@ void main_setup()
         // Long press ignored when TCD is connected
     }
 
-    #ifdef VSR_HAVEAUDIO
     if(!haveAudioFiles) {
         #ifdef VSR_DBG
         Serial.println(F("Current audio data not installed"));
@@ -487,7 +482,6 @@ void main_setup()
         vsrdisplay.clearBuf();
         vsrdisplay.show();
     }
-    #endif
 
     // Initialize BTTF network
     bttfn_setup();
@@ -553,10 +547,8 @@ void main_loop()
             FPBUnitIsOn = false;
 
             // Stop musicplayer & audio in general
-            #ifdef VSR_HAVEAUDIO
             mp_stop();
             stopAudio();
-            #endif
             
             if(TTrunning) {
                 // Reset to idle
@@ -701,12 +693,10 @@ void main_loop()
                         TTFDelay = 0;
                         if(TTFInt) {
                             TTFInt = 0;
-                            #ifdef VSR_HAVEAUDIO
                             if(playTTsounds) {
                                 play_file("/ttstart.mp3", PA_INTRMUS|PA_ALLOWSD, TT_V_LEV);
                                 append_file("/humm.wav", PA_LOOP|PA_WAV|PA_INTRMUS|PA_ALLOWSD, TT_V_LEV);
                             }
-                            #endif
 
                         }
                         TTfUpdNow = now;
@@ -727,13 +717,11 @@ void main_loop()
                 } else {
 
                     if(TTstart == TTfUpdNow) {
-                        #ifdef VSR_HAVEAUDIO
                         if(playTTsounds) {
                             // If we have skipped P0, play it now
                             play_file("/ttstart.mp3", PA_INTRMUS|PA_ALLOWSD, TT_V_LEV);
                             append_file("/humm.wav", PA_LOOP|PA_WAV|PA_INTRMUS|PA_ALLOWSD, TT_V_LEV);
                         }
-                        #endif
                     }
 
                     TTP0 = false;
@@ -760,13 +748,11 @@ void main_loop()
                     TTP1 = false;
                     TTP2 = true; 
 
-                    #ifdef VSR_HAVEAUDIO
                     if(playTTsounds) {
                         //append_file("/ttend.mp3", PA_INTRMUS|PA_ALLOWSD, TT_V_LEV);
                         //stopAudioAtLoopEnd();
                         play_file("/ttend.mp3", PA_INTRMUS|PA_ALLOWSD, TT_V_LEV);
                     }
-                    #endif
 
                     TTstart = now;
                     
@@ -800,12 +786,10 @@ void main_loop()
 
                         TTFDelay = 0;
                         if(TTFInt) {
-                            #ifdef VSR_HAVEAUDIO
                             if(playTTsounds) {
                                 play_file("/ttstart.mp3", PA_INTRMUS|PA_ALLOWSD, TT_V_LEV);
                                 append_file("/humm.wav", PA_LOOP|PA_WAV|PA_INTRMUS|PA_ALLOWSD, TT_V_LEV);
                             }
-                            #endif
                             TTfUpdNow = now;
                             TTFInt = 0;
                         }
@@ -838,13 +822,11 @@ void main_loop()
                     TTP1 = false;
                     TTP2 = true; 
 
-                    #ifdef VSR_HAVEAUDIO
                     if(playTTsounds) {
                         //append_file("/ttend.mp3", PA_INTRMUS|PA_ALLOWSD, TT_V_LEV);
                         //stopAudioAtLoopEnd();
                         play_file("/ttend.mp3", PA_INTRMUS|PA_ALLOWSD, TT_V_LEV);
                     }
-                    #endif
 
                     TTstart = now;
                     
@@ -873,11 +855,9 @@ void main_loop()
             
             ssEnd();
 
-            #ifdef VSR_HAVEAUDIO
             if(atoi(settings.playALsnd) > 0) {
                 play_file("/alarm.mp3", PA_INTRMUS|PA_ALLOWSD|PA_DYNVOL, 1.0);
             }
-            #endif
 
             if(!FPBUnitIsOn) {
                 vsrdisplay.clearBuf();
@@ -1130,13 +1110,10 @@ void main_loop()
 
     if(!TTrunning) {
         // Save secondary settings 10 seconds after last change
-        #ifdef VSR_HAVEAUDIO
         if(volchanged && (now - volchgnow > 10000)) {
             volchanged = false;
             saveCurVolume();
-        } else
-        #endif
-        if(brichanged && (now - brichgnow > 10000)) {
+        } else if(brichanged && (now - brichgnow > 10000)) {
             brichanged = false;
             saveBrightness();
         } else if(butchanged && (now - butchgnow > 10000)) {
@@ -1155,12 +1132,10 @@ void flushDelayedSave()
         brichanged = false;
         saveBrightness();
     }
-    #ifdef VSR_HAVEAUDIO
     if(volchanged) {
         volchanged = false;
         saveCurVolume();
     }
-    #endif
     if(butchanged) {
         butchanged = false;
         saveButtonMode();
@@ -1171,7 +1146,6 @@ void flushDelayedSave()
     }
 }
 
-#ifdef VSR_HAVEAUDIO
 static void chgVolume(int d)
 {
     char buf[8];
@@ -1205,7 +1179,6 @@ void decreaseVolume()
 {
     chgVolume(-1);
 }
-#endif
 
 /*
  * Time travel
@@ -1322,10 +1295,8 @@ void allOff()
 
 void prepareReboot()
 {
-    #ifdef VSR_HAVEAUDIO
     mp_stop();
     stopAudio();
-    #endif
     
     allOff();
     
@@ -1443,30 +1414,21 @@ static void execute_remote_command()
 
     if(command < 10) {                                // 800x
         switch(command) {
-        case 1:
-            #ifdef VSR_HAVEAUDIO                      // 8001: play "key1.mp3"
+        case 1:                                       // 8001: play "key1.mp3"
             play_key(1);
-            #endif
             break;
-        case 2:
-            #ifdef VSR_HAVEAUDIO
+        case 2:                                       // 8002: Prev song
             if(haveMusic) {
-                mp_prev(mpActive);                    // 8002: Prev song
+                mp_prev(mpActive);
             }
-            #endif
             break;
-        case 3:
-            #ifdef VSR_HAVEAUDIO                      // 8003: play "key3.mp3"
+        case 3:                                       // 8003: play "key3.mp3"
             play_key(3);
-            #endif
             break;
-        case 4:
-            #ifdef VSR_HAVEAUDIO                      // 8004: play "key4.mp3"
+        case 4:                                       // 8004: play "key4.mp3"
             play_key(4);
-            #endif
             break;
         case 5:                                       // 8005: Play/stop
-            #ifdef VSR_HAVEAUDIO
             if(haveMusic) {
                 if(mpActive) {
                     mp_stop();
@@ -1474,29 +1436,20 @@ static void execute_remote_command()
                     mp_play();
                 }
             }
-            #endif
             break;
         case 6:                                       // 8006: Play "key6.mp3"
-            #ifdef VSR_HAVEAUDIO
             play_key(6);
-            #endif
             break;
-        case 7:
-            #ifdef VSR_HAVEAUDIO                      // 8007: play "key7.mp3"
+        case 7:                                       // 8007: play "key7.mp3"
             play_key(7);
-            #endif
             break;
         case 8:                                       // 8008: Next song
-            #ifdef VSR_HAVEAUDIO
             if(haveMusic) {
                 mp_next(mpActive);
             }
-            #endif
             break;
-        case 9:
-            #ifdef VSR_HAVEAUDIO                      // 8009: play "key9.mp3"
+        case 9:                                       // 8009: play "key9.mp3"                   
             play_key(9);
-            #endif
             break;
         }
       
@@ -1527,11 +1480,9 @@ static void execute_remote_command()
           
         } else if(command >= 50 && command <= 59) {   // 8050-8059: Set music folder number
             
-            #ifdef VSR_HAVEAUDIO
             if(haveSD) {
                 switchMusicFolder((uint8_t)command - 50);
             }
-            #endif
             
         }
         
@@ -1539,7 +1490,6 @@ static void execute_remote_command()
 
         if(command >= 300 && command <= 399) {
 
-            #ifdef VSR_HAVEAUDIO
             command -= 300;                       // 8300-8319/8399: Set fixed volume level / enable knob
             if(command == 99) {
                 #ifdef VSR_HAVEVOLKNOB
@@ -1554,7 +1504,6 @@ static void execute_remote_command()
                 volchgnow = millis();
                 updateConfigPortalVolValues();
             }
-            #endif
 
         } else if(command >= 400 && command <= 415) {
 
@@ -1572,18 +1521,14 @@ static void execute_remote_command()
             switch(command) {
             case 222:                             // 8222/8555 Disable/enable shuffle
             case 555:
-                #ifdef VSR_HAVEAUDIO
                 if(haveMusic) {
                     mp_makeShuffle((command == 555));
                 }
-                #endif
                 break;
             case 888:                             // 8888 go to song #0
-                #ifdef VSR_HAVEAUDIO
                 if(haveMusic) {
                     mp_gotonum(0, mpActive);
                 }
-                #endif
                 break;
             }
         }
@@ -1606,12 +1551,10 @@ static void execute_remote_command()
             ssRestartTimer();
             break;
         default:                                  // 8888xxx: goto song #xxx
-            #ifdef VSR_HAVEAUDIO
             if((command / 1000) == 888) {
                 uint16_t num = command - 888000;
                 num = mp_gotonum(num, mpActive);
             }
-            #endif
             break;
         }
 
@@ -1644,7 +1587,6 @@ void display_ip()
     doForceDispUpd = true;
 }
 
-#ifdef VSR_HAVEAUDIO
 void switchMusicFolder(uint8_t nmf)
 {
     bool waitShown = false;
@@ -1684,7 +1626,6 @@ void waitAudioDone()
         mydelay(10);
     }
 }
-#endif
 
 /*
  * Delay function for external modules

@@ -52,8 +52,6 @@
 #include "vsr_global.h"
 #include <Arduino.h>
 
-#ifdef VSR_HAVEAUDIO
-
 #include <SD.h>
 #include <FS.h>
 
@@ -1180,30 +1178,3 @@ static void mpren_quickSort(char **a, int s, int e)
         mpren_renOrder((uint8_t*)*a, s, e);
     }
 }
-
-#else
-
-void audio_setup() { }
-
-void audio_loop() { }
-
-void play_file(const char *audio_file, uint16_t flags, float volumeFactor) {}
-
-void append_file(const char *audio_file, uint16_t flags, float volumeFactor) {}
-
-void play_button_sound() {}
-void play_buttonl_sound() {}
-void play_button_bad() {}
-void play_key(int k) {}
-
-bool checkAudioDone() { return true; }
-
-void stopAudio() {}
-
-void stopAudioAtLoopEnd() {}
-
-bool append_pending() { return false; }
-
-bool mp_stop() { return false; }
-
-#endif

@@ -191,29 +191,22 @@ static void controlsEvent(int idx, ButState bstate)
                         }
                         break;
                     case 1:
-                        #ifdef VSR_HAVEAUDIO
                         play_key(3);
-                        #endif
                         break;
                     case 2:
-                        #ifdef VSR_HAVEAUDIO
                         play_key(6);
-                        #endif
                         break;
                     }
                     break;
                 case VBM_MP:
                     switch(idx) {
                     case 0:
-                        #ifdef VSR_HAVEAUDIO
                         if(haveMusic) {
                             mp_prev(mpActive);
                         } else 
                             play_button_bad();
-                        #endif
                         break;
                     case 1:
-                        #ifdef VSR_HAVEAUDIO
                         if(haveMusic) {
                             if(mpActive) {
                                 mp_stop();
@@ -222,35 +215,28 @@ static void controlsEvent(int idx, ButState bstate)
                             }
                         } else 
                             play_button_bad();
-                        #endif
                         break;
                     case 2:
-                        #ifdef VSR_HAVEAUDIO
                         if(haveMusic) {
                             mp_next(mpActive);
                         } else
                             play_button_bad();
-                        #endif
                         break;
                     }
                     break;
                 case VBM_ADMIN:
                     switch(idx) {
                     case 0:
-                        #ifdef VSR_HAVEAUDIO
                         increaseVolume();
                         if(!mpActive) {
                             play_volchg_sound();
                         }
-                        #endif
                         break;
                     case 1:
-                        #ifdef VSR_HAVEAUDIO
                         decreaseVolume();
                         if(!mpActive) {
                             play_volchg_sound();
                         }
-                        #endif
                         break;
                     case 2:
                         // TODO
@@ -353,30 +339,24 @@ static void controlsEvent(int idx, ButState bstate)
                     }
                     switch(idx) {
                     case 0:
-                        #ifdef VSR_HAVEAUDIO
                         if(haveMusic) {
                             mp_makeShuffle(false);
                             displaySysMsg("ORD", 1000);
                         } else 
                             play_button_bad();
-                        #endif
                         break;
                     case 1:
-                        #ifdef VSR_HAVEAUDIO
                         if(haveMusic) {
                             mp_makeShuffle(true);
                             displaySysMsg("SHU", 1000);
                         } else 
                             play_button_bad();
-                        #endif
                         break;
                     case 2:
-                        #ifdef VSR_HAVEAUDIO
                         if(haveMusic) {
                             mp_gotonum(0, mpActive);
                         } else 
                             play_button_bad();
-                        #endif
                         break;
                     }
                     break;
@@ -396,9 +376,7 @@ static void controlsEvent(int idx, ButState bstate)
                         break;
                     case 2:
                         Serial.println("Deleting ip config; clearing AP mode WiFi password\n");
-                        #ifdef VSR_HAVEAUDIO
                         waitAudioDone();
-                        #endif
                         flushDelayedSave();
                         deleteIpSettings();
                         if(settings.appw[0]) {

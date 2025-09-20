@@ -119,6 +119,13 @@
 
 /*  Changelog
  *  
+ *  2025/09/19 (A10001986) [1.16]
+ *    - Extend mp3 upload by allowing multiple (max 16) mp3 files to be uploaded
+ *      at once. The VSRA.bin file can be uploaded at the same time as well.
+ *    - Remove HAVE_AUDIO conditional
+ *  2025/09/17 (A10001986)
+ *    - WiFi Manager: Reduce page size by removing "quality icon" styles where
+ *      not needed.
  *  2025/09/15 (A10001986) [1.15]
  *    - Refine mp3 upload facility; allow deleting files from SD by prefixing
  *      filename with "delete-".
