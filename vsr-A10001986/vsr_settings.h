@@ -68,49 +68,49 @@ extern uint8_t musFolderNum;
 #define DEF_SMOOTHPW        1     // Smooth pushwheel changes
 #define DEF_FLUCT           0     // Voltage fluctuations 1=on, 0=off
 #define DEF_DISP_BM         1     // Show button mode upon power-up: 1=yes, 0=no
+#define DEF_PLAY_TT_SND     1     // 1: Play time travel sounds (0: Do not; for use with external equipment)
+#define DEF_PLAY_ALM_SND    0     // 1: Play TCD-alarm sound, 0: do not
 #define DEF_SIG_BM          0     // Signal button mode by permanent button lights
+#define DEF_BRI             15    // Default display brightness
 #define DEF_SS_TIMER        0     // "Screen saver" timeout in minutes; 0 = ss off
 
-#define DEF_HOSTNAME        "vsr"
-#define DEF_WIFI_RETRY      3     // 1-10; Default: 3 retries
-#define DEF_WIFI_TIMEOUT    7     // 7-25; Default: 7 seconds
+#define DEF_SHUFFLE         0     // Music Player: Do not shuffle by default
 
 #define DEF_DI_NM           0     // Night mode: display dimmed(0) or off(1)
 
 #define DEF_TEMP_UNIT       0     // Temperature unit: Fahrenheit (0=default) or Celsius (1)
 #define DEF_TEMP_OFFS       0.0   // Temperature offset: Default 0.0
 
-#define DEF_TCD_PRES        0     // 0: No TCD connected, 1: connected via GPIO
-#define DEF_NO_ETTO_LEAD    0     // 0: TCD signals TT with ETTO_LEAD lead time; 1 without
+#define DEF_HOSTNAME        "vsr"
+#define DEF_WIFI_RETRY      3     // 1-10; Default: 3 retries
+#define DEF_WIFI_TIMEOUT    7     // 7-25; Default: 7 seconds
 
 #define DEF_TCD_IP          ""    // TCD ip address for BTTFN connection
 #define DEF_USE_NM          0     // 0: Ignore TCD night mode; 1: Follow TCD night mode
 #define DEF_USE_FPO         0     // 0: Ignore TCD fake power; 1: Follow TCD fake power
 #define DEF_BTTFN_TT        1     // 0: "9" (in OPR-mode) and TT button trigger stand-alone TT; 1: They trigger BTTFN-wide TT
-
 #define DEF_IGN_TT          0     // 0: Take part in network-wide TTs, 1: Ignore network-wide TTs
-#define DEF_PLAY_TT_SND     1     // 1: Play time travel sounds (0: Do not; for use with external equipment)
-#define DEF_PLAY_ALM_SND    0     // 1: Play TCD-alarm sound, 0: do not
 
-#define DEF_SHUFFLE         0     // Music Player: Do not shuffle by default
+#define DEF_TCD_PRES        0     // 0: No TCD connected, 1: connected via GPIO
+#define DEF_NO_ETTO_LEAD    0     // 0: TCD signals TT with ETTO_LEAD lead time; 1 without
 
 #define DEF_CFG_ON_SD       1     // Save secondary settings on SD card. Default: Yes (1)
 #define DEF_SD_FREQ         0     // SD/SPI frequency: Default 16MHz
-
-#define DEF_BRI             15    // Default display brightness
 
 struct Settings {
     char smoothpw[4]        = MS(DEF_SMOOTHPW);
     char fluct[4]           = MS(DEF_FLUCT);
     char displayBM[4]       = MS(DEF_DISP_BM);
     char signalBM[4]        = MS(DEF_SIG_BM);
+    char playTTsnds[4]      = MS(DEF_PLAY_TT_SND);
+    char playALsnd[4]       = MS(DEF_PLAY_ALM_SND);
+    char Bri[6];
     char ssTimer[6]         = MS(DEF_SS_TIMER);
 
-    char hostName[32]       = DEF_HOSTNAME;
-    char systemID[8]        = "";
-    char appw[10]           = "";
-    char wifiConRetries[4]  = MS(DEF_WIFI_RETRY);
-    char wifiConTimeout[4]  = MS(DEF_WIFI_TIMEOUT);
+    char Vol[6];
+
+    char musicFolder[6];
+    char shuffle[4]         = MS(DEF_SHUFFLE);
 
     char diNmOff[4]         = MS(DEF_DI_NM);
 
@@ -118,26 +118,27 @@ struct Settings {
     #ifdef VSR_HAVETEMP
     char tempOffs[6]        = MS(DEF_TEMP_OFFS);
     #endif
-    
-    char TCDpresent[4]      = MS(DEF_TCD_PRES);
-    char noETTOLead[4]      = MS(DEF_NO_ETTO_LEAD);
 
-    char tcdIP[16]          = DEF_TCD_IP;
+    char hostName[32]       = DEF_HOSTNAME;
+    char systemID[8]        = "";
+    char appw[10]           = "";
+    char wifiConRetries[4]  = MS(DEF_WIFI_RETRY);
+    char wifiConTimeout[4]  = MS(DEF_WIFI_TIMEOUT);
+
+    char tcdIP[32]          = DEF_TCD_IP;
     char useNM[4]           = MS(DEF_USE_NM);
     char useFPO[4]          = MS(DEF_USE_FPO);
     char bttfnTT[4]         = MS(DEF_BTTFN_TT);
     char ignTT[4]           = MS(DEF_IGN_TT);
-        
-    char playTTsnds[4]      = MS(DEF_PLAY_TT_SND);
-    char playALsnd[4]       = MS(DEF_PLAY_ALM_SND);
 
 #ifdef VSR_HAVEMQTT  
     char useMQTT[4]         = "0";
     char mqttServer[80]     = "";  // ip or domain [:port]  
     char mqttUser[128]      = "";  // user[:pass] (UTF8)
-#endif     
+#endif
 
-    char shuffle[4]         = MS(DEF_SHUFFLE);
+    char TCDpresent[4]      = MS(DEF_TCD_PRES);
+    char noETTOLead[4]      = MS(DEF_NO_ETTO_LEAD);
 
     char CfgOnSD[4]         = MS(DEF_CFG_ON_SD);
     char sdFreq[4]          = MS(DEF_SD_FREQ);
@@ -145,10 +146,6 @@ struct Settings {
 #ifdef HAVE_DISPSELECTION
     char dispType[6]        = MS(VSR_DISP_MIN_TYPE);
 #endif
-   
-    char Vol[6];
-    char musicFolder[6];
-    char Bri[6];
 };
 
 struct IPSettings {
