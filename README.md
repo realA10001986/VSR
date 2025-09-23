@@ -640,6 +640,8 @@ This can also be set/changed through a TCD keypad via BTTFN (8050 - 8059). Such 
 
 When checked, songs are shuffled when the device is booted. When unchecked, songs will be played in order.
 
+Shuffle mode can be changed at any time through the VSR's buttons in _MusicPlayer_ [button mode](#music-player-mode) or via TCD (8222/8555); however, a change through buttons or TCD is not saved.
+
 #### <ins>Settings for Night Mode</ins>
 
 ##### &#9654; Display off
