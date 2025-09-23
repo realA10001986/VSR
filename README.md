@@ -573,17 +573,17 @@ Finally, this page is also for uploading [custom or replacement sound files](#in
 
 ##### &#9654; Erase WiFi Config
 
-Clicking this (and saying "yes" in the confirmation dialog) erases the WiFi connection configuration (as set up through the *Connect to WiFi* page) and reboots the device; it will restart in "access point" (AP) mode. See [here](#short-summary-of-first-steps).
+Clicking this (and saying "yes" in the confirmation dialog) erases the WiFi connection configuration (as set up through the *Connect to WiFi* page) and reboots the device; it will restart in "access point" (AP) mode. See [here](#initial-configuration).
 
 ---
 
 ### Setup page
 
-#### Basic settings
+#### <ins>Basic settings</ins>
 
 ##### &#9654; Smooth voltage changes
 
-If this option is checked, changing the pushwheels slowly and smoothly adapts the display to the new chosen value. If this is disabled, the display follows the pushwheels immediately.
+If this option is checked, the display follows pushwheel changes smoothly, ie in several steps. If this is unchecked, the display follows the pushwheels immediately.
 
 ##### &#9654; Voltage fluctuations
 
@@ -597,9 +597,17 @@ If this is checked, the VSR briefly shows the current [button mode](#button-mode
 
 If this is checked, the button lights permanently reflect the current [button mode](#button-modes), except for _light mode_.
 
+##### &#9654; Play time travel sounds
+
+If other props are connected, they might bring their own time travel sound effects. In this case, you can uncheck this to disable the VSR's own time travel sounds. Note that this only covers sounds played during time travel, not other sound effects.
+
+##### &#9654; Play TCD-alarm sounds
+
+If a TCD is connected via BTTFN or MQTT, the VSR visually signals when the TCD's alarm sounds. If you want the VSR to play an alarm sound, check this option.
+
 ##### &#9654; Brightness level
 
-This selects brightness level for the LED display.
+This selects the brightness level for the LED display.
 
 ##### &#9654; Screen saver timer
 
@@ -612,45 +620,33 @@ The Screen Saver, when active, disables all lights and the display, until
 
 The music player will continue to run.
  
-#### Hardware configuration settings
+#### <ins>Volume settings</ins>
 
 ##### Volume level (0-19)
 
-Enter a value between 0 (mute) or 19 (very loud) here. This is your starting point; you can change the volume via the VSR's buttons in _Admin_ [button mode](#button-modes) or via the TCD's keypad (83xx); the new volume will also be saved (and appear in this field when the page is reloaded in your browser).
+Enter a value between 0 (mute) or 19 (very loud) here. 
 
-#### Network settings
+This can also be set/changed via the VSR's buttons in _Admin_ [button mode](#button-modes) or through a TCD keypad via BTTFN (8300 - 8319); in both cases the change will be saved 10 seconds after it occurred.
 
-##### &#9654; Hostname
+#### <ins>Music Player settings</ins>
 
-The device's hostname in the WiFi network. Defaults to 'vsr'. This also is the domain name at which the Config Portal is accessible from a browser in the same local network. The URL of the Config Portal then is http://<i>hostname</i>.local (the default is http://vsr.local)
+##### &#9654; Music folder
 
-If you have more than one VSR in your local network, please give them unique hostnames.
+Selects the current music folder, can be 0 through 9. 
 
-##### &#9654; AP Mode: Network name appendix
+This can also be set/changed through a TCD keypad via BTTFN (8050 - 8059). Such a change will be saved immediately.
 
-By default, if the VSR creates a WiFi network of its own ("AP-mode"), this network is named "VSR-AP". In case you have multiple VSRs in your vicinity, you can have a string appended to create a unique network name. If you, for instance, enter "-ABC" here, the WiFi network name will be "VSR-AP-ABC". Characters A-Z, a-z, 0-9 and - are allowed.
+##### &#9654; Shuffle at startup
 
-##### &#9654; AP Mode: WiFi password
+When checked, songs are shuffled when the device is booted. When unchecked, songs will be played in order.
 
-By default, and if this field is empty, the VSR's own WiFi network ("AP-mode") will be unprotected. If you want to protect your VSR access point, enter your password here. It needs to be 8 characters in length and only characters A-Z, a-z, 0-9 and - are allowed.
-
-If you forget this password and are thereby locked out of your VSR, select _Admin_ [button mode](#button-modes), and _hold_ "4C"; "RST" will be displayed, and your WiFi password is deleted. Then power-down and power-up your VSR and the access point will start unprotected.
-
-##### &#9654; WiFi connection attempts
-
-Number of times the firmware tries to reconnect to a WiFi network, before falling back to AP-mode. See [here](#short-summary-of-first-steps)
-
-##### &#9654; WiFi connection timeout
-
-Number of seconds before a timeout occurs when connecting to a WiFi network. When a timeout happens, another attempt is made (see immediately above), and if all attempts fail, the device falls back to AP-mode. See [here](#short-summary-of-first-steps)
-
-#### Settings for Night Mode
+#### <ins>Settings for Night Mode</ins>
 
 ##### &#9654; Display off
 
 If this is checked, the LED display is switched off in night mode. Otherwise, it will be dimmed.
 
-#### Settings for temperature display
+#### <ins>Settings for temperature display</ins>
 
 ##### &#9654; Display in °Celsius
 
@@ -660,21 +656,35 @@ Selects between Fahrenheit and Celsius for temperature display. This settings is
 
 This offset, which can range from -3.0 to 3.0, is added to the sensor measurement, in order to compensate sensor inaccuracy or suboptimal sensor placement. This offset is only applied to a value read from a sensor connected to the VSR, and ignored when temperature is transmitted from a TCD; the TCD has its own Offset setting which is applied to the temperature reading before transmission.
 
-#### Settings for prop communication/synchronization
+#### <ins>Network settings</ins>
 
-##### &#9654; TCD connected by wire
+##### &#9654; Hostname
 
-Check this if you have a Time Circuits Display connected by wire. Note that a wired connection only allows for synchronized time travel sequences, no other communication takes place.
+The device's hostname in the WiFi network. Defaults to 'vsr'. This also is the domain name at which the Config Portal is accessible from a browser in the same local network. The URL of the Config Portal then is http://<i>hostname</i>.local (the default is http://vsr.local)
 
-While you can connect both a button and the TCD to the "time travel" connector on the VSR, the button should not be pressed when this option is set, as it might yield unwanted effects.
+This setting applies to both AP-mode and when your VSR is connected to a WiFi network. If you have more than one VSR in your local network, please give them unique hostnames.
 
-Do NOT check this option if your TCD is connected wirelessly (BTTFN, MQTT).
+##### &#9654; WiFi connection attempts
 
-##### &#9654; TCD signals Time Travel without 5s lead
+Number of times the firmware tries to reconnect to a WiFi network, before falling back to AP-mode. See [here](##initial-configuration)
 
-Usually, the TCD signals a time travel with a 5 seconds lead, in order to give a prop a chance to play an acceleration sequence before the actual time travel takes place. Since this 5 second lead is unique to CircuitSetup props, and people sometimes want to connect third party props to the TCD, the TCD has the option of skipping this 5 seconds lead. If that is the case, and your VSR is connected by wire, you need to set this option.
+##### &#9654; WiFi connection timeout
 
-If your VSR is connected wirelessly, this option has no effect.
+Number of seconds before a timeout occurs when connecting to a WiFi network. When a timeout happens, another attempt is made (see immediately above), and if all attempts fail, the device falls back to AP-mode. See [here](##initial-configuration)
+
+#### <ins>Network settings for AP-mode</ins>
+
+##### &#9654; Network name (SSID) appendix
+
+By default, when your VSR creates a WiFi network of its own ("AP-mode"), this network is named "VSR-AP". In case you have multiple VSRs in your vicinity, you can have a string appended to create a unique network name. If you, for instance, enter "-ABC" here, the WiFi network name will be "VSR-AP-ABC". Characters A-Z, a-z, 0-9 and - are allowed.
+
+##### &#9654; Password
+
+By default, and if this field is empty, the VSR's own WiFi network ("AP-mode") will be unprotected. If you want to protect your VSR access point, enter your password here. It needs to be 8 characters in length and only characters A-Z, a-z, 0-9 and - are allowed.
+
+If you forget this password and are thereby locked out of your VSR, select _Admin_ [button mode](#button-modes), and _hold_ "4C"; "RST" will be displayed, and your WiFi password is deleted. Then power-down and power-up your VSR and the access point will start unprotected.
+
+#### <ins>Settings for BTTFN communication</ins>
 
 ##### &#9654; IP address or hostname of TCD
 
@@ -694,21 +704,11 @@ If this option is checked, and your TCD is equipped with a fake power switch, th
 
 If the VSR is connected to a TCD through BTTFN, this option allows to trigger a synchronized time travel on all BTTFN-connected devices when pressing "9" in _Operation_ [button mode](#button-modes), or pressing the Time Travel button, just as if the time travel was triggered by the TCD. If this option is unchecked, these actions only trigger a time travel sequence on the VSR.
 
-#### Audio-visual options
-
 ##### &#9654; Ignore network-wide TTs
 
 If this is checked, the VSR ignores network-wide (BTTFN, MQTT) time travels. After all, the VSR is never shown in the movies during a time travel, so its behavior is uncertain. If you don't like the made-up time travel sequence, check this option.
 
-##### &#9654; Play time travel sounds
-
-If other props are connected, they might bring their own time travel sound effects. In this case, you can uncheck this to disable the VSR's own time travel sounds. Note that this only covers sounds played during time travel, not other sound effects.
-
-##### &#9654; Play TCD-alarm sounds
-
-If a TCD is connected via BTTFN or MQTT, the VSR visually signals when the TCD's alarm sounds. If you want the VSR to play an alarm sound, check this option.
-
-#### Home Assistant / MQTT settings
+#### <ins>Home Assistant / MQTT settings</ins>
 
 ##### &#9654; Use Home Assistant (MQTT 3.1.1)
 
@@ -722,17 +722,23 @@ The broker server address. Can be a domain (eg. "myhome.me") or an IP address (e
 
 The username (and optionally the password) to be used when connecting to the broker. Can be left empty if the broker accepts anonymous logins.
 
-#### Music Player settings
+#### <ins>Settings for wired connections</ins>
 
-##### &#9654; Music folder
+##### &#9654; TCD connected by wire
 
-Selects the current music folder, can be 0 through 9. This can also be set/changed through a TCD keypad via BTTFN.
+Check this if you have a Time Circuits Display connected by wire. Note that a wired connection only allows for synchronized time travel sequences, no other communication takes place.
 
-##### &#9654; Shuffle at startup
+While you can connect both a button and the TCD to the "time travel" connector on the VSR, the button should not be pressed when this option is set, as it might yield unwanted effects.
 
-When checked, songs are shuffled when the device is booted. When unchecked, songs will be played in order.
+Do NOT check this option if your TCD is connected wirelessly (BTTFN, MQTT).
 
-#### Other settings
+##### &#9654; TCD signals Time Travel without 5s lead
+
+Usually, the TCD signals a time travel with a 5 seconds lead, in order to give a prop a chance to play an acceleration sequence before the actual time travel takes place. Since this 5 second lead is unique to CircuitSetup props, and people sometimes want to connect third party props to the TCD, the TCD has the option of skipping this 5 seconds lead. If that is the case, and your VSR is connected by wire, you need to set this option.
+
+If your VSR is connected wirelessly, this option has no effect.
+
+#### <ins>Other settings</ins>
 
 ##### &#9654; Save secondary settings on SD
 
