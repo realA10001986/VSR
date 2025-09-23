@@ -10,9 +10,9 @@ If you are using a fresh ESP32 board, please see [vsr-A10001986.ino](https://git
 
 *Important: After a firmware update, the "wait" symbol might be shown a while longer while booting. Do NOT unplug the device during this time.*
 
-## Audio data installation
+## Sound-pack installation
 
-The firmware comes with some audio data ("sound-pack") which needs to be installed separately. The audio data is not updated as often as the firmware itself. If you have previously installed the latest version of the sound-pack, you normally don't have to re-install the audio data when you update the firmware. Only if the VSR displays "AUD" briefly during boot, an update of the audio data is needed.
+The firmware comes with some audio data ("sound-pack") which needs to be installed separately. The sound-pack is not updated as often as the firmware itself. If you have previously installed the latest version of the sound-pack, you normally don't have to re-install it when you update the firmware. Only if the VSR displays "AUD" briefly during boot, an update of the sound-pack is needed.
 
 The first step is to download "install/sound-pack-xxxxxxxx.zip" and extract it. It contains one file named "VSRA.bin".
 
@@ -26,4 +26,4 @@ Then there are two alternative ways to proceed. Note that both methods *require 
 - insert this SD card into the slot and 
 - power up the VSR; the audio data will be installed automatically.
 
-See also [here](https://github.com/realA10001986/VSR/blob/main/README.md#audio-data-installation).
+See also [here](https://github.com/realA10001986/VSR/blob/main/README.md#sound-pack-installation).
