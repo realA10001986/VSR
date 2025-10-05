@@ -65,6 +65,11 @@ extern uint8_t musFolderNum;
 
 // Default settings
 
+#define DEF_HOSTNAME        "vsr"
+#define DEF_WIFI_RETRY      3     // 1-10; Default: 3 retries
+#define DEF_WIFI_TIMEOUT    7     // 7-25; Default: 7 seconds
+#define DEF_AP_CHANNEL      1     // 1-13; 0 = random(1-13)
+
 #define DEF_SMOOTHPW        1     // Smooth pushwheel changes
 #define DEF_FLUCT           0     // Voltage fluctuations 1=on, 0=off
 #define DEF_DISP_BM         1     // Show button mode upon power-up: 1=yes, 0=no
@@ -81,10 +86,6 @@ extern uint8_t musFolderNum;
 #define DEF_TEMP_UNIT       0     // Temperature unit: Fahrenheit (0=default) or Celsius (1)
 #define DEF_TEMP_OFFS       0.0   // Temperature offset: Default 0.0
 
-#define DEF_HOSTNAME        "vsr"
-#define DEF_WIFI_RETRY      3     // 1-10; Default: 3 retries
-#define DEF_WIFI_TIMEOUT    7     // 7-25; Default: 7 seconds
-
 #define DEF_TCD_IP          ""    // TCD ip address for BTTFN connection
 #define DEF_USE_NM          0     // 0: Ignore TCD night mode; 1: Follow TCD night mode
 #define DEF_USE_FPO         0     // 0: Ignore TCD fake power; 1: Follow TCD fake power
@@ -98,6 +99,16 @@ extern uint8_t musFolderNum;
 #define DEF_SD_FREQ         0     // SD/SPI frequency: Default 16MHz
 
 struct Settings {
+    char ssid[34]           = "";
+    char pass[66]           = "";
+
+    char hostName[32]       = DEF_HOSTNAME;
+    char wifiConRetries[4]  = MS(DEF_WIFI_RETRY);
+    char wifiConTimeout[4]  = MS(DEF_WIFI_TIMEOUT);
+    char systemID[8]        = "";
+    char appw[10]           = "";
+    char apChnl[4]          = MS(DEF_AP_CHANNEL);
+    
     char smoothpw[4]        = MS(DEF_SMOOTHPW);
     char fluct[4]           = MS(DEF_FLUCT);
     char displayBM[4]       = MS(DEF_DISP_BM);
@@ -119,12 +130,6 @@ struct Settings {
     char tempOffs[6]        = MS(DEF_TEMP_OFFS);
     #endif
 
-    char hostName[32]       = DEF_HOSTNAME;
-    char systemID[8]        = "";
-    char appw[10]           = "";
-    char wifiConRetries[4]  = MS(DEF_WIFI_RETRY);
-    char wifiConTimeout[4]  = MS(DEF_WIFI_TIMEOUT);
-
     char tcdIP[32]          = DEF_TCD_IP;
     char useNM[4]           = MS(DEF_USE_NM);
     char useFPO[4]          = MS(DEF_USE_FPO);
@@ -142,10 +147,6 @@ struct Settings {
 
     char CfgOnSD[4]         = MS(DEF_CFG_ON_SD);
     char sdFreq[4]          = MS(DEF_SD_FREQ);
-
-#ifdef HAVE_DISPSELECTION
-    char dispType[6]        = MS(VSR_DISP_MIN_TYPE);
-#endif
 };
 
 struct IPSettings {

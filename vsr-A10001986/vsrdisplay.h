@@ -115,19 +115,11 @@ class vsrBLEDs {
 //
 // The display's i2c slave address is 0x70.
 
-#ifdef HAVE_DISPSELECTION
-#define VSR_DISP_NUM_TYPES 3
-#define VSR_DISP_MIN_TYPE  0
-#else
+
 #define VSR_DISP_NUM_TYPES 1
-#endif
-//
+
 enum dispTypes : uint8_t {
     SP_CS,             // Native
-#ifdef HAVE_DISPSELECTION    
-    SP_ADAF_7x4L,      // Adafruit 4 digits, 7-segment (7x4)
-    SP_ADAF_7x4R,      // " " " (right-aligned)
-#endif
 };
 
 class vsrDisplay {

@@ -78,6 +78,8 @@ static AudioOutputI2S *out;
 bool audioInitDone = false;
 bool audioMute = false;
 
+unsigned long audioplaystart = 0;
+
 bool haveMusic = false;
 bool mpActive = false;
 static uint16_t maxMusic = 0;
@@ -206,6 +208,7 @@ void audio_loop()
         if(!mp3->loop()) {
             mp3->stop();
             key_playing = 0;
+            audioplaystart = 0;
             if(appendFile) {
                 play_file(append_audio_file, append_flags, append_vol);
             } else if(mpActive) {
@@ -222,6 +225,7 @@ void audio_loop()
         if(!wav->loop()) {
             wav->stop();
             key_playing = 0;
+            audioplaystart = 0;
             if(appendFile) {
                 play_file(append_audio_file, append_flags, append_vol);
             } else if(mpActive) {
@@ -306,6 +310,7 @@ void play_file(const char *audio_file, uint16_t flags, float volumeFactor)
     } else if(wav->isRunning()) {
         wav->stop();
     }
+    audioplaystart = 0;
 
     curVolFact  = volumeFactor;
     curChkNM    = (flags & PA_IGNNM)  ? false : true;
@@ -329,19 +334,18 @@ void play_file(const char *audio_file, uint16_t flags, float volumeFactor)
             curSeek = findWAVdata(buf);
             mySD0L->setStartPos(curSeek);
             mySD0L->seek(0, SEEK_SET);
-    
             wav->begin(mySD0L, out);
         } else {
             mySD0L->read((void *)buf, 10);
             curSeek = skipID3(buf);
             mySD0L->setStartPos(curSeek);
             mySD0L->seek(curSeek, SEEK_SET);
-    
             mp3->begin(mySD0L, out);
+            audioplaystart = millis();
         }
         
         #ifdef VSR_DBG
-        Serial.println(F("Playing from SD"));
+        Serial.println("Playing from SD");
         #endif
     }
     #ifdef USE_SPIFFS
@@ -364,15 +368,16 @@ void play_file(const char *audio_file, uint16_t flags, float volumeFactor)
             myFS0L->setStartPos(curSeek);
             myFS0L->seek(curSeek, SEEK_SET);
             mp3->begin(myFS0L, out);
+            audioplaystart = millis();
         }
         
         #ifdef VSR_DBG
-        Serial.println(F("Playing from flash FS"));
+        Serial.println("Playing from flash FS");
         #endif
     } else {
         key_playing = 0;
         #ifdef VSR_DBG
-        Serial.println(F("Audio file not found"));
+        Serial.println("Audio file not found");
         #endif
     }
 }
@@ -414,6 +419,7 @@ void play_key(int k)
     if(pa_key == key_playing) {
         mp3->stop();
         key_playing = 0;
+        audioplaystart = 0;
         return;
     }
     
@@ -524,11 +530,16 @@ bool check_file_SD(const char *audio_file)
     return (haveSD && SD.exists(audio_file));
 }
 
-
 bool checkAudioDone()
 {
     if(mp3->isRunning()) return false;
     return true;
+}
+
+bool checkMP3Running()
+{
+    if(mp3->isRunning()) return true;
+    return false;
 }
 
 void stopAudio()
@@ -556,6 +567,18 @@ void stopAudioAtLoopEnd()
 bool append_pending()
 {
     return appendFile;
+}
+
+bool checkAudioStarted()
+{
+    if(!audioplaystart)
+        return false;
+
+    if(millis() - audioplaystart < 3000) {
+        return true;
+    }
+
+    return false;
 }
 
 /*
@@ -702,6 +725,7 @@ bool mp_stop()
     if(mpActive) {
         mp3->stop();
         mpActive = false;
+        audioplaystart = 0;
     }
     
     return ret;

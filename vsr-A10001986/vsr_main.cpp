@@ -344,20 +344,11 @@ void main_boot2()
     // Init LED segment display
     int temp = 0;
 
-    #ifdef HAVE_DISPSELECTION
-    temp = atoi(settings.dispType);
-    if(temp < VSR_DISP_MIN_TYPE || temp >= VSR_DISP_NUM_TYPES) {
-        Serial.println("Bad display type");
+    if(!vsrdisplay.begin(temp)) {
+        Serial.println("Display not found");
     } else {
-    #endif  
-        if(!vsrdisplay.begin(temp)) {
-            Serial.println("Display not found");
-        } else {
-            loadBrightness();
-        }
-    #ifdef HAVE_DISPSELECTION        
+        loadBrightness();
     }
-    #endif
 
     #ifdef VSR_DIAG
     vsrdisplay.lampTest();
@@ -391,7 +382,7 @@ void main_setup()
 {
     unsigned long now = millis();
     
-    Serial.println(F("Voltage Systems Regulator version " VSR_VERSION " " VSR_VERSION_EXTRA));
+    Serial.println("Voltage Systems Regulator version " VSR_VERSION " " VSR_VERSION_EXTRA);
 
     updateConfigPortalBriValues();
 
@@ -403,7 +394,7 @@ void main_setup()
 
     // Invoke audio file installer if SD content qualifies
     #ifdef VSR_DBG
-    Serial.println(F("Probing for audio data on SD"));
+    Serial.println("Probing for audio data on SD");
     #endif
     if(check_allow_CPA()) {
         showWaitSequence();
@@ -445,7 +436,7 @@ void main_setup()
     } else {
         haveTempSens = false;
         #ifdef VSR_DBG
-        Serial.println(F("Temperature sensor not detected"));
+        Serial.println("Temperature sensor not detected");
         #endif
     }
     #else
@@ -473,7 +464,7 @@ void main_setup()
 
     if(!haveAudioFiles) {
         #ifdef VSR_DBG
-        Serial.println(F("Current audio data not installed"));
+        Serial.println("Current audio data not installed");
         #endif
         vsrdisplay.on();
         vsrdisplay.setText("AUD");
@@ -526,7 +517,7 @@ void main_setup()
     }
 
     #ifdef VSR_DBG
-    Serial.println(F("main_setup() done"));
+    Serial.println("main_setup() done");
     #endif
 
 }
@@ -851,8 +842,6 @@ void main_loop()
 
         if(networkAlarm) {
 
-            networkAlarm = false;
-            
             ssEnd();
 
             if(atoi(settings.playALsnd) > 0) {
@@ -881,6 +870,8 @@ void main_loop()
             if(!FPBUnitIsOn) {
                 vsrdisplay.off();
             }
+
+            networkAlarm = false;
         
         } else {
 

@@ -111,7 +111,9 @@ static const char *musCfgName = "/vsrmcfg.json";     // Music config (SD only)
 
 static const char *fsNoAvail = "Filesystem not available";
 static const char *failFileWrite = "Failed to open file for writing";
+#ifdef VSR_DBG
 static const char *badConfig = "Settings bad/missing/incomplete; writing new file";
+#endif
 
 /* If SPIFFS/LittleFS is mounted */
 bool haveFS = false;
@@ -143,6 +145,7 @@ static uint8_t*  (*r)(uint8_t *, uint32_t, int);
 
 static bool read_settings(File configFile);
 
+static void CopyTextParm(char *setting, const char *json, int setSize);
 static bool CopyCheckValidNumParm(const char *json, char *text, uint8_t psize, int lowerLim, int upperLim, int setDefault);
 static bool CopyCheckValidNumParmF(const char *json, char *text, uint8_t psize, float lowerLim, float upperLim, float setDefault);
 static bool checkValidNumParm(char *text, int lowerLim, int upperLim, int setDefault);
@@ -189,7 +192,7 @@ void settings_setup()
     } else {
 
         #ifdef VSR_DBG
-        Serial.print(F("failed, formatting... "));
+        Serial.print("failed, formatting... ");
         #endif
 
         // Show the user some action
@@ -205,7 +208,7 @@ void settings_setup()
     if(haveFS) {
       
         #ifdef VSR_DBG
-        Serial.println(F("ok, loading settings"));
+        Serial.println("ok, loading settings");
         int tBytes = SPIFFS.totalBytes(); int uBytes = SPIFFS.usedBytes();
         Serial-printf("FlashFS: %d total, %d used\n", tBytes, uBytes);
         #endif
@@ -226,9 +229,8 @@ void settings_setup()
 
     } else {
 
-        Serial.println(F("failed.\nThis is very likely a hardware problem."));
-        Serial.println(F("*** Since the internal storage is unavailable, all settings/states will be stored on"));
-        Serial.println(F("*** the SD card (if available)")); 
+        Serial.println("*** Mounting flash FS failed. Using SD (if available)");
+
     }
 
     // Set up SD card
@@ -255,7 +257,7 @@ void settings_setup()
     if(SDres) {
 
         #ifdef VSR_DBG
-        Serial.println(F("ok"));
+        Serial.println("ok");
         #endif
 
         uint8_t cardType = SD.cardType();
@@ -269,7 +271,7 @@ void settings_setup()
 
     } else {
       
-        Serial.println(F("no SD card found"));
+        Serial.println("no SD card found");
         
     }
 
@@ -277,7 +279,7 @@ void settings_setup()
         if(SD.exists("/VSR_FLASH_RO") || !haveFS) {
             bool writedefault2 = false;
             FlashROMode = true;
-            Serial.println(F("Flash-RO mode: All settings/states stored on SD. Reloading settings."));
+            Serial.println("Flash-RO mode: All settings/states stored on SD. Reloading settings.");
             if(SD.exists(cfgName)) {
                 File configFile = SD.open(cfgName, "r");
                 if(configFile) {
@@ -290,7 +292,9 @@ void settings_setup()
                 writedefault2 = true;
             }
             if(writedefault2) {
+                #ifdef VSR_DBG
                 Serial.printf("%s: %s\n", funcName, badConfig);
+                #endif
                 write_settings();
             }
         }
@@ -299,7 +303,9 @@ void settings_setup()
     // Now write new config to flash FS if old one somehow bad
     // Only write this file if FlashROMode is off
     if(haveFS && writedefault && !FlashROMode) {
+        #ifdef VSR_DBG
         Serial.printf("%s: %s\n", funcName, badConfig);
+        #endif
         write_settings();
     }
 
@@ -324,14 +330,14 @@ void unmount_fs()
     if(haveFS) {
         SPIFFS.end();
         #ifdef VSR_DBG
-        Serial.println(F("Unmounted Flash FS"));
+        Serial.println("Unmounted Flash FS");
         #endif
         haveFS = false;
     }
     if(haveSD) {
         SD.end();
         #ifdef VSR_DBG
-        Serial.println(F("Unmounted SD card"));
+        Serial.println("Unmounted SD card");
         #endif
         haveSD = false;
     }
@@ -343,11 +349,7 @@ static bool read_settings(File configFile)
     bool wd = false;
     size_t jsonSize = 0;
     DECLARE_D_JSON(JSON_SIZE,json);
-    /*
-    //StaticJsonDocument<JSON_SIZE> json;
-    DynamicJsonDocument json(JSON_SIZE);
-    */
-    
+
     DeserializationError error = readJSONCfgFile(json, configFile, funcName);
 
     #if ARDUINOJSON_VERSION_MAJOR < 7
@@ -366,6 +368,33 @@ static bool read_settings(File configFile)
 
     if(!error) {
 
+        // WiFi Configuration
+
+        memset(settings.ssid, 0, sizeof(settings.ssid));
+        memset(settings.pass, 0, sizeof(settings.pass));
+        if(json["ssid"]) {
+            strncpy(settings.ssid, json["ssid"], sizeof(settings.ssid) - 1);
+            if(json["pass"]) {
+                strncpy(settings.pass, json["pass"], sizeof(settings.pass) - 1);
+            }
+        } else settings.ssid[1] = 'X';  // marker for "no ssid tag in config file", ie read from NVS
+
+        if(json["hostName"]) {
+            CopyTextParm(settings.hostName, json["hostName"], sizeof(settings.hostName));
+        } else wd = true;
+        wd |= CopyCheckValidNumParm(json["wifiConRetries"], settings.wifiConRetries, sizeof(settings.wifiConRetries), 1, 10, DEF_WIFI_RETRY);
+        wd |= CopyCheckValidNumParm(json["wifiConTimeout"], settings.wifiConTimeout, sizeof(settings.wifiConTimeout), 7, 25, DEF_WIFI_TIMEOUT);
+        
+        if(json["systemID"]) {
+            CopyTextParm(settings.systemID, json["systemID"], sizeof(settings.systemID));
+        } else wd = true;
+        if(json["appw"]) {
+            CopyTextParm(settings.appw, json["appw"], sizeof(settings.appw));
+        } else wd = true;
+        wd |= CopyCheckValidNumParm(json["apch"], settings.apChnl, sizeof(settings.apChnl), 0, 13, DEF_AP_CHANNEL);
+
+        // Settings
+
         wd |= CopyCheckValidNumParm(json["smoothpw"], settings.smoothpw, sizeof(settings.smoothpw), 0, 1, DEF_SMOOTHPW);
         wd |= CopyCheckValidNumParm(json["fluct"], settings.fluct, sizeof(settings.fluct), 0, 1, DEF_FLUCT);
         wd |= CopyCheckValidNumParm(json["displayBM"], settings.displayBM, sizeof(settings.displayBM), 0, 1, DEF_DISP_BM);
@@ -382,26 +411,9 @@ static bool read_settings(File configFile)
         #ifdef VSR_HAVETEMP
         wd |= CopyCheckValidNumParmF(json["tempOffs"], settings.tempOffs, sizeof(settings.tempOffs), -3.0, 3.0, DEF_TEMP_OFFS);
         #endif
-
-        if(json["hostName"]) {
-            memset(settings.hostName, 0, sizeof(settings.hostName));
-            strncpy(settings.hostName, json["hostName"], sizeof(settings.hostName) - 1);
-        } else wd = true;
-        wd |= CopyCheckValidNumParm(json["wifiConRetries"], settings.wifiConRetries, sizeof(settings.wifiConRetries), 1, 10, DEF_WIFI_RETRY);
-        wd |= CopyCheckValidNumParm(json["wifiConTimeout"], settings.wifiConTimeout, sizeof(settings.wifiConTimeout), 7, 25, DEF_WIFI_TIMEOUT);
-        
-        if(json["systemID"]) {
-            memset(settings.systemID, 0, sizeof(settings.systemID));
-            strncpy(settings.systemID, json["systemID"], sizeof(settings.systemID) - 1);
-        } else wd = true;
-        if(json["appw"]) {
-            memset(settings.appw, 0, sizeof(settings.appw));
-            strncpy(settings.appw, json["appw"], sizeof(settings.appw) - 1);
-        } else wd = true;
         
         if(json["tcdIP"]) {
-            memset(settings.tcdIP, 0, sizeof(settings.tcdIP));
-            strncpy(settings.tcdIP, json["tcdIP"], sizeof(settings.tcdIP) - 1);
+            CopyTextParm(settings.tcdIP, json["tcdIP"], sizeof(settings.tcdIP));
         } else wd = true;
         wd |= CopyCheckValidNumParm(json["useNM"], settings.useNM, sizeof(settings.useNM), 0, 1, DEF_USE_NM);
         wd |= CopyCheckValidNumParm(json["useFPO"], settings.useFPO, sizeof(settings.useFPO), 0, 1, DEF_USE_FPO);
@@ -411,12 +423,10 @@ static bool read_settings(File configFile)
         #ifdef VSR_HAVEMQTT
         wd |= CopyCheckValidNumParm(json["useMQTT"], settings.useMQTT, sizeof(settings.useMQTT), 0, 1, 0);
         if(json["mqttServer"]) {
-            memset(settings.mqttServer, 0, sizeof(settings.mqttServer));
-            strncpy(settings.mqttServer, json["mqttServer"], sizeof(settings.mqttServer) - 1);
+            CopyTextParm(settings.mqttServer, json["mqttServer"], sizeof(settings.mqttServer));
         } else wd = true;
         if(json["mqttUser"]) {
-            memset(settings.mqttUser, 0, sizeof(settings.mqttUser));
-            strncpy(settings.mqttUser, json["mqttUser"], sizeof(settings.mqttUser) - 1);
+            CopyTextParm(settings.mqttUser, json["mqttUser"], sizeof(settings.mqttUser));
         } else wd = true;
         #endif
 
@@ -425,10 +435,6 @@ static bool read_settings(File configFile)
         
         wd |= CopyCheckValidNumParm(json["CfgOnSD"], settings.CfgOnSD, sizeof(settings.CfgOnSD), 0, 1, DEF_CFG_ON_SD);
         //wd |= CopyCheckValidNumParm(json["sdFreq"], settings.sdFreq, sizeof(settings.sdFreq), 0, 1, DEF_SD_FREQ);
-
-        #ifdef HAVE_DISPSELECTION
-        wd |= CopyCheckValidNumParm(json["dispType"], settings.dispType, sizeof(settings.dispType), VSR_DISP_MIN_TYPE, VSR_DISP_NUM_TYPES-1, VSR_DISP_MIN_TYPE);
-        #endif
 
     } else {
 
@@ -443,10 +449,6 @@ void write_settings()
 {
     const char *funcName = "write_settings";
     DECLARE_D_JSON(JSON_SIZE,json);
-    /*
-    DynamicJsonDocument json(JSON_SIZE);
-    //StaticJsonDocument<JSON_SIZE> json;
-    */
 
     if(!haveFS && !FlashROMode) {
         Serial.printf("%s: %s\n", funcName, fsNoAvail);
@@ -456,6 +458,20 @@ void write_settings()
     #ifdef VSR_DBG
     Serial.printf("%s: Writing config file\n", funcName);
     #endif
+
+    // Write this only if either set, or also present in file read earlier
+    if(settings.ssid[0] || settings.ssid[1] != 'X') {
+        json["ssid"] = (const char *)settings.ssid;
+        json["pass"] = (const char *)settings.pass;
+    }
+
+    json["hostName"] = (const char *)settings.hostName;
+    json["wifiConRetries"] = (const char *)settings.wifiConRetries;
+    json["wifiConTimeout"] = (const char *)settings.wifiConTimeout;
+    
+    json["systemID"] = (const char *)settings.systemID;
+    json["appw"] = (const char *)settings.appw;
+    json["apch"] = (const char *)settings.apChnl;
 
     json["smoothpw"] = (const char *)settings.smoothpw;
     json["fluct"] = (const char *)settings.fluct;
@@ -473,13 +489,6 @@ void write_settings()
     #ifdef VSR_HAVETEMP
     json["tempOffs"] = (const char *)settings.tempOffs;
     #endif
-
-    json["hostName"] = (const char *)settings.hostName;
-    json["wifiConRetries"] = (const char *)settings.wifiConRetries;
-    json["wifiConTimeout"] = (const char *)settings.wifiConTimeout;
-    
-    json["systemID"] = (const char *)settings.systemID;
-    json["appw"] = (const char *)settings.appw;
     
     json["tcdIP"] = (const char *)settings.tcdIP;
     json["useNM"] = (const char *)settings.useNM;
@@ -499,10 +508,6 @@ void write_settings()
     json["CfgOnSD"] = (const char *)settings.CfgOnSD;
     //json["sdFreq"] = (const char *)settings.sdFreq;
 
-    #ifdef HAVE_DISPSELECTION
-    json["dispType"] = (const char *)settings.dispType;
-    #endif
-
     writeJSONCfgFile(json, cfgName, FlashROMode, funcName);
 }
 
@@ -514,6 +519,12 @@ bool checkConfigExists()
 /*
  *  Helpers for parm copying & checking
  */
+
+static void CopyTextParm(char *setting, const char *json, int setSize)
+{
+    memset(setting, 0, setSize);
+    strncpy(setting, json, setSize - 1);
+}
 
 static bool CopyCheckValidNumParm(const char *json, char *text, uint8_t psize, int lowerLim, int upperLim, int setDefault)
 {
@@ -637,7 +648,6 @@ bool loadBrightness()
 
     if(openCfgFileRead(briCfgName, configFile)) {
         DECLARE_S_JSON(512,json);
-        //StaticJsonDocument<512> json;
         if(!readJSONCfgFile(json, configFile, funcName)) {
             if(!CopyCheckValidNumParm(json["brightness"], temp, sizeof(temp), 0, 15, DEF_BRI)) {
                 vsrdisplay.setBrightness((uint8_t)atoi(temp), true);
@@ -658,7 +668,6 @@ void saveBrightness(bool useCache)
     const char *funcName = "saveBrightness";
     char buf[6];
     DECLARE_S_JSON(512,json);
-    //StaticJsonDocument<512> json;
 
     if(useCache && (prevSavedBri == vsrdisplay.getBrightness())) {
         #ifdef VSR_DBG
@@ -709,7 +718,6 @@ bool loadCurVolume()
 
     if(openCfgFileRead(volCfgName, configFile)) {
         DECLARE_S_JSON(512,json);
-        //StaticJsonDocument<512> json;
         if(!readJSONCfgFile(json, configFile, funcName)) {
             if(!CopyCheckValidNumParm(json["volume"], temp, sizeof(temp), 0, T_V_MAX, DEFAULT_VOLUME)) {
                 uint8_t ncv = atoi(temp);
@@ -733,7 +741,6 @@ void saveCurVolume(bool useCache)
     const char *funcName = "saveCurVolume";
     char buf[6];
     DECLARE_S_JSON(512,json);
-    //StaticJsonDocument<512> json;
 
     if(useCache && (prevSavedVol == curSoftVol)) {
         #ifdef VSR_DBG
@@ -776,7 +783,6 @@ bool loadButtonMode()
 
     if(openCfgFileRead(butCfgName, configFile)) {
         DECLARE_S_JSON(512,json);
-        //StaticJsonDocument<512> json;
         if(!readJSONCfgFile(json, configFile, funcName)) {
             if(!CopyCheckValidNumParm(json["buttonmode"], temp, sizeof(temp), 0, NUM_BM - 1, 0)) {
                 buttonMode = (uint8_t)atoi(temp);
@@ -797,7 +803,6 @@ void saveButtonMode(bool useCache)
     const char *funcName = "saveButtonMode";
     char buf[6];
     DECLARE_S_JSON(512,json);
-    //StaticJsonDocument<512> json;
 
     if(useCache && (prevButtonMode == buttonMode)) {
         #ifdef VSR_DBG
@@ -838,7 +843,6 @@ bool loadUDispMode()
 
     if(openCfgFileRead(disCfgName, configFile)) {
         DECLARE_S_JSON(512,json);
-        //StaticJsonDocument<512> json;
         if(!readJSONCfgFile(json, configFile, funcName)) {
             if(!CopyCheckValidNumParm(json["udispmode"], temp, sizeof(temp), 0, NUM_UDM - 1, 0)) {
                 userDispMode = (uint8_t)atoi(temp);
@@ -859,7 +863,6 @@ void saveUDispMode(bool useCache)
     const char *funcName = "saveUDispMode";
     char buf[6];
     DECLARE_S_JSON(512,json);
-    //StaticJsonDocument<512> json;
 
     if(useCache && (prevUDispMode == userDispMode)) {
         #ifdef VSR_DBG
@@ -898,7 +901,6 @@ bool loadMusFoldNum()
         File configFile = SD.open(musCfgName, "r");
         if(configFile) {
             DECLARE_S_JSON(512,json);
-            //StaticJsonDocument<512> json;
             if(!readJSONCfgFile(json, configFile, "loadMusFoldNum")) {
                 if(!CopyCheckValidNumParm(json["folder"], temp, sizeof(temp), 0, 9, 0)) {
                     musFolderNum = atoi(temp);
@@ -922,7 +924,6 @@ void saveMusFoldNum()
 {
     const char *funcName = "saveMusFoldNum";
     DECLARE_S_JSON(512,json);
-    //StaticJsonDocument<512> json;
     char buf[4];
 
     if(!haveSD)
@@ -954,7 +955,6 @@ bool loadIpSettings()
         if(configFile) {
 
             DECLARE_S_JSON(512,json);
-            //StaticJsonDocument<512> json;
             
             DeserializationError error = readJSONCfgFile(json, configFile, "loadIpSettings");
 
@@ -983,7 +983,7 @@ bool loadIpSettings()
 
         // config file is invalid - delete it
 
-        Serial.println(F("loadIpSettings: IP settings invalid; deleting file"));
+        Serial.println("loadIpSettings: IP settings invalid; deleting file");
 
         deleteIpSettings();
 
@@ -1012,7 +1012,6 @@ static bool CopyIPParm(const char *json, char *text, uint8_t psize)
 void writeIpSettings()
 {
     DECLARE_S_JSON(512,json);
-    //StaticJsonDocument<512> json;
 
     if(!haveFS && !FlashROMode)
         return;
@@ -1031,7 +1030,7 @@ void writeIpSettings()
 void deleteIpSettings()
 {
     #ifdef VSR_DBG
-    Serial.println(F("deleteIpSettings: Deleting ip config"));
+    Serial.println("deleteIpSettings: Deleting ip config");
     #endif
 
     if(FlashROMode) {
@@ -1285,7 +1284,7 @@ void delete_ID_file()
 static void formatFlashFS()
 {
     #ifdef VSR_DBG
-    Serial.println(F("Formatting flash FS"));
+    Serial.println("Formatting flash FS");
     #endif
     SPIFFS.format();
 }
@@ -1302,7 +1301,7 @@ void copySettings()
 
     if(configOnSD || !FlashROMode) {
         #ifdef VSR_DBG
-        Serial.println(F("copySettings: Copying secondary settings to other medium"));
+        Serial.println("copySettings: Copying secondary settings to other medium");
         #endif
         saveBrightness(false);
         saveCurVolume(false);

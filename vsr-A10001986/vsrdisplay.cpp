@@ -260,10 +260,6 @@ static const struct dispConf {
     const uint16_t *fontSeg; //   Pointer to font
 } displays[VSR_DISP_NUM_TYPES] = {
   { 3, 0, { 0, 1, 3 }, { 0, 0, 0 }, font7segGeneric },  // Native
-#ifdef HAVE_DISPSELECTION  
-  { 3, 0, { 0, 1, 3 }, { 0, 0, 0 }, font7segGeneric },  // SP_ADAF_7x4L (right) (ADA-878/877/5599;879/880/881/1002/5601/5602/5603/5604/1270/1271;1269)
-  { 3, 0, { 1, 3, 4 }, { 0, 0, 0 }, font7segGeneric },  // SP_ADAF_7x4R (left)  (ADA-878/877/5599;879/880/881/1002/5601/5602/5603/5604/1270/1271;1269)
-#endif
 };
 
 // Store i2c address
@@ -276,15 +272,6 @@ vsrDisplay::vsrDisplay(uint8_t address)
 bool vsrDisplay::begin(int dispType)
 {
     bool ret = true;
-    
-    #ifdef HAVE_DISPSELECTION
-    if(dispType < VSR_DISP_MIN_TYPE || dispType >= VSR_DISP_NUM_TYPES) {
-        #ifdef VSR_DBG
-        Serial.printf("Bad display type: %d\n", dispType);
-        #endif
-        dispType = VSR_DISP_MIN_TYPE;
-    }
-    #endif
 
     // Check for display on i2c bus
     Wire.beginTransmission(_address);
