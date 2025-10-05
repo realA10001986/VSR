@@ -63,7 +63,7 @@ Your VSR knows two ways of WiFi operation: Either it creates its own WiFi networ
 
 As long as the VSR is unconfigured, it creates its own WiFi network named "VSR-AP". This mode of operation is called "Access point mode", or "AP-mode". 
 
-It is ok to leave it in AP-mode, predominantly if used stand-alone. (To operate your VSR in AP-mode, do not configure a WiFi network as described below, or click on "Erase WiFi config" on the Config Portal's main page.)
+It is ok to leave it in AP-mode, predominantly if used stand-alone. (To operate your VSR in AP-mode, do not configure a WiFi network as described below, or click on "Forget saved WiFi network" on the Config Portal's "WiFi Configuration" page.)
 
 >Please do not leave computers/hand helds permanently connected to the VSR's AP. These devices might think they are connected to the internet and therefore hammer your VSR with DNS and HTTP requests which might lead to packet loss and disruptions.
 
@@ -71,7 +71,7 @@ It is ok to leave it in AP-mode, predominantly if used stand-alone. (To operate 
 
 ##### &#9654; Home setup with a pre-existing local WiFi network
 
-In this case, you can connect your VSR to your home WiFi network: Click on "Connect to WiFi" and either select a network from the top of the page or enter a WiFi network name (SSID), and enter your WiFi password. After saving the WiFi network settings, your VSR reboots and tries to connect to your selected WiFi network. If that fails, it will again start in access point mode.
+In this case, you can connect your VSR to your home WiFi network: Click on "WiFi Configuration" and either select a network from the top of the page or enter a WiFi network name (SSID), and enter your WiFi password. After saving the WiFi network settings, your VSR reboots and tries to connect to your selected WiFi network. If that fails, it will again start in access point mode.
 
 >If you have a [Time Circuits Display](https://tcd.out-a-ti.me) note that in order to have both VSR and TCD communicate with each other, your VSR must be connected to the same network your TCD is connected to. In order to use MQTT, your VSR must be connected to the same network your broker is connected to.
 
@@ -81,7 +81,7 @@ In this case, you can connect your VSR to your home WiFi network: Click on "Conn
 
 If no TCD is present, keep your VSR operating in AP-mode.
 
-If you have a [Time Circuits Display](https://tcd.out-a-ti.me), you can connect your VSR to the TCD's own WiFi network. Click on "Connect to WiFi" and either select "TCD-AP" from the top of the page or enter "TCD-AP" under *WiFi network name (SSID)*. If you password-proteced your TCD-AP, enter this password below. See [here](#car-setup) for more details.
+If you have a [Time Circuits Display](https://tcd.out-a-ti.me), you can connect your VSR to the TCD's own WiFi network. Click on "WiFi Configuration" and either select "TCD-AP" from the top of the page or enter "TCD-AP" under *Network name (SSID)*. If you password-proteced your TCD-AP, enter this password below. See [here](#car-setup) for more details.
 
 After completing WiFi setup, your VSR is ready for use; you can also continue configuring it to your personal preferences through the Config Portal.
 
@@ -110,7 +110,7 @@ It can be accessed as follows:
 
   If connecting to http://vsr.local fails due to a name resolution error, you need to find out your VSR's IP address: Hold all three buttons until "ADM" is displayed, release all buttons and afterwards _hold_ button "9". Your VSR will display its current IP address (a. - b. - c. - d). Then, on your handheld or computer, navigate to http://a.b.c.d (a.b.c.d being the IP address as displayed on your VSR) in order to enter the Config Portal.
 
-In the main menu, click on "Setup" to configure your VSR. 
+In the main menu, click on "Settings" to configure your VSR. 
 
 | [<img src="img/cps-frag.png">](img/cp_setup.png) |
 |:--:| 
@@ -534,8 +534,8 @@ Enter the Config Portal on the VSR, click on *Setup* and
   - click on *Save*.
 
 After the VSR has restarted, re-enter the VSR's Config Portal (while the TCD is powered and in *car mode*) and
-  - click on *Connect to WiFi*,
-  - select the TCD's access point name in the list at the top ("TCD-AP") or enter *TCD-AP* into the *WiFi network name (SSID)* field; if you password-protected your TCD's AP, enter this password in the *password* field. Leave all other fields empty,
+  - click on *WiFi Configuration*,
+  - select the TCD's access point name in the list at the top ("TCD-AP") or enter *TCD-AP* into the *Network name (SSID)* field; if you password-protected your TCD's AP, enter this password in the *password* field. Leave all other fields empty,
   - click on *Save*.
 
 In order to access the VSR's Config Portal in your car, connect your hand held or computer to the TCD's WiFi access point ("TCD-AP"), and direct your browser to http://vsr.local ; if that does not work, go to the TCD's keypad menu, press ENTER until "BTTFN CLIENTS" is shown, hold ENTER, and look for the VSR's IP address there; then direct your browser to that IP by using the URL http://a.b.c.d (a-d being the IP address displayed on the TCD display).
@@ -552,17 +552,13 @@ In order to reduce the number of write operations and thereby prolong the life o
 
 ### Main page
 
-##### &#9654; Connect to WiFi
+##### &#9654; WiFi Configuration
 
-Click this to connect your VSR to your local WiFi network (which can also be provided by your [Time Circuits Display](https://tcd.out-a-ti.me) operating in AP mode/car mode). All you need to do is either to click on one of the networks listed at the top or to enter a WiFi network name (SSID), and optionally a passwort (WPAx).
+This leads to the [WiFi configuration page](#wifi-configuration)
 
->By default, the VSR requests an IP address via DHCP. However, you can also configure a static IP for the VSR by entering the IP, netmask, gateway and DNS server. All four fields must be filled for a valid static IP configuration. If you want to stick to DHCP, leave those four fields empty. If you connect your VSR to your Time Circuits Display acting as access point ("TCD-AP"), leave these all empty.
+##### &#9654; Settings
 
-Note that this page is strictly for connecting your VSR to an existing WiFi network. If your VSR is supposed to operate stand-alone, it runs in "access point mode" (AP-Mode). Settings for AP mode are on the *Setup* page.
-
-##### &#9654; Setup
-
-This leads to the [Setup page](#setup-page).
+This leads to the [Settings page](#settings).
 
 ##### &#9654; Update
 
@@ -574,15 +570,59 @@ You can also install the VSR's audio data on this page; download the current sou
 
 Note that either a firmware or audio data can be uploaded at once, not both at the same time.
 
-Finally, this page is also for uploading [custom or replacement sound files](#installing-custom--replacement-audio-files) to the SD card. Select an mp3 file in the bottom file selector and click upload. (Requires firmware 1.15 or later.)
-
-##### &#9654; Erase WiFi Config
-
-Clicking this (and saying "yes" in the confirmation dialog) erases the WiFi connection configuration (as set up through the *Connect to WiFi* page) and reboots the device; it will restart in "access point" (AP) mode. See [here](#connecting-to-a-wifi-network).
+Finally, this page is also for uploading [custom or replacement sound files](#installing-custom--replacement-audio-files) to the SD card. Select an mp3 file in the bottom file selector and click upload. (Requires firmware 1.15 or later. Maximum 16 files at a time.)
 
 ---
 
-### Setup page
+### WiFi Configuration
+
+Through this page you can either connect your VSR to your local WiFi network, or configure AP mode. 
+
+#### <ins>Connecting to an existing WiFi network</ins>
+
+In order to connect your VSR to your WiFi network, all you need to do is either to click on one of the networks listed at the top or to enter a __WiFi network name (SSID)__, and optionally a __passwort__ (WPAx).
+
+>By default, the VSR requests an IP address via DHCP. However, you can also configure a static IP for the VSRC by entering the IP, netmask, gateway and DNS server. All four fields must be filled for a valid static IP configuration. If you want to stick to DHCP, leave those four fields empty. If you connect your VSR to your Time Circuits Display acting as access point ("TCD-AP"), leave these all empty.
+
+##### &#9654; Forget Saved WiFi Network
+
+Clicking this button (and selecting "yes" in the confirmation dialog) deletes the currently saved WiFi network (SSID and password) and reboots the device; it will restart in "access point" (AP) mode. See [here](#connecting-to-a-wifi-network).
+
+##### &#9654; Hostname
+
+The device's hostname in the WiFi network. Defaults to 'vsr'. This also is the domain name at which the Config Portal is accessible from a browser in the same local network. The URL of the Config Portal then is http://<i>hostname</i>.local (the default is http://vsr.local).
+
+If you have more than one VSR in your local network, please give them unique hostnames.
+
+_This setting applies to both AP-mode and when your FC is connected to a WiFi network._ 
+
+##### &#9654; WiFi connection attempts
+
+Number of times the firmware tries to reconnect to a WiFi network, before falling back to AP-mode. See [here](#connecting-to-a-wifi-network)
+
+##### &#9654; WiFi connection timeout
+
+Number of seconds before a timeout occurs when connecting to a WiFi network. When a timeout happens, another attempt is made (see immediately above), and if all attempts fail, the device falls back to AP-mode. See [here](#connecting-to-a-wifi-network)
+
+#### <ins>Settings for AP-mode</ins>
+
+##### &#9654; Network name(SSID) appendix
+
+By default, when your VSR creates a WiFi network of its own ("AP-mode"), this network is named "VSR-AP". In case you have multiple VSRs in your vicinity, you can have a string appended to create a unique network name. If you, for instance, enter "-ABC" here, the WiFi network name will be "VSR-AP-ABC". Characters A-Z, a-z, 0-9 and - are allowed.
+
+##### &#9654; Password
+
+By default, and if this field is empty, the VSR's own WiFi network ("VSR-AP") will be unprotected. If you want to protect your VSR access point, enter your password here. It needs to be 8 characters in length and only characters A-Z, a-z, 0-9 and - are allowed.
+
+If you forget this password and are thereby locked out of your VSR, select _Admin_ [button mode](#button-modes), and _hold_ "4C"; "RST" will be displayed, and your WiFi password is deleted. Then power-down and power-up your VSR and the access point will start unprotected.
+
+##### &#9654; WiFi channel
+
+Here you can select one out of 13 channels, or have the TCD choose a random channel for you. The default channel is 1.
+
+---
+
+### Settings
 
 #### <ins>Basic settings</ins>
 
@@ -662,34 +702,6 @@ Selects between Fahrenheit and Celsius for temperature display. This settings is
 ##### &#9654; Sensor Offset
 
 This offset, which can range from -3.0 to 3.0, is added to the sensor measurement, in order to compensate sensor inaccuracy or suboptimal sensor placement. This offset is only applied to a value read from a sensor connected to the VSR, and ignored when temperature is transmitted from a TCD; the TCD has its own Offset setting which is applied to the temperature reading before transmission.
-
-#### <ins>Network settings</ins>
-
-##### &#9654; Hostname
-
-The device's hostname in the WiFi network. Defaults to 'vsr'. This also is the domain name at which the Config Portal is accessible from a browser in the same local network. The URL of the Config Portal then is http://<i>hostname</i>.local (the default is http://vsr.local)
-
-This setting applies to both AP-mode and when your VSR is connected to a WiFi network. If you have more than one VSR in your local network, please give them unique hostnames.
-
-##### &#9654; WiFi connection attempts
-
-Number of times the firmware tries to reconnect to a WiFi network, before falling back to AP-mode. See [here](#connecting-to-a-wifi-network)
-
-##### &#9654; WiFi connection timeout
-
-Number of seconds before a timeout occurs when connecting to a WiFi network. When a timeout happens, another attempt is made (see immediately above), and if all attempts fail, the device falls back to AP-mode. See [here](#connecting-to-a-wifi-network)
-
-#### <ins>Network settings for AP-mode</ins>
-
-##### &#9654; Network name (SSID) appendix
-
-By default, when your VSR creates a WiFi network of its own ("AP-mode"), this network is named "VSR-AP". In case you have multiple VSRs in your vicinity, you can have a string appended to create a unique network name. If you, for instance, enter "-ABC" here, the WiFi network name will be "VSR-AP-ABC". Characters A-Z, a-z, 0-9 and - are allowed.
-
-##### &#9654; Password
-
-By default, and if this field is empty, the VSR's own WiFi network ("AP-mode") will be unprotected. If you want to protect your VSR access point, enter your password here. It needs to be 8 characters in length and only characters A-Z, a-z, 0-9 and - are allowed.
-
-If you forget this password and are thereby locked out of your VSR, select _Admin_ [button mode](#button-modes), and _hold_ "4C"; "RST" will be displayed, and your WiFi password is deleted. Then power-down and power-up your VSR and the access point will start unprotected.
 
 #### <ins>Settings for BTTFN communication</ins>
 
