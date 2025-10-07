@@ -15,22 +15,10 @@
  ***                          Version Strings                          ***
  *************************************************************************/
 
-#define VSR_VERSION "V1.18"
-#define VSR_VERSION_EXTRA "OCT052025"
+#define VSR_VERSION "V1.19"
+#define VSR_VERSION_EXTRA "OCT072025"
 
 //#define VSR_DBG              // debug output on Serial
-
-/*************************************************************************
- ***                     mDNS (Bonjour) support                        ***
- *************************************************************************/
-
-// Supply mDNS service
-// Allows accessing the Config Portal via http://hostname.local
-// <hostname> is configurable in the Config Portal
-// This needs to be commented if WiFiManager provides mDNS
-#define VSR_MDNS
-// Uncomment this if WiFiManager has mDNS enabled
-//#define VSR_WM_HAS_MDNS
 
 /*************************************************************************
  ***             Configuration for hardware/peripherals                ***
