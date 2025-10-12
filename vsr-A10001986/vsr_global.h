@@ -15,8 +15,8 @@
  ***                          Version Strings                          ***
  *************************************************************************/
 
-#define VSR_VERSION "V1.19"
-#define VSR_VERSION_EXTRA "OCT072025"
+#define VSR_VERSION "V1.19.1"
+#define VSR_VERSION_EXTRA "OCT122025"
 
 //#define VSR_DBG              // debug output on Serial
 

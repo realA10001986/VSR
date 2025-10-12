@@ -119,6 +119,21 @@
 
 /*  Changelog
  *  
+ *  2025/10/11 (A10001986) [1.19.1]
+ *    - More WM changes: Simplify "Forget" using a checkbox; redo signal quality
+ *      assessment; remove over-engineered WM debug stuff.
+ *  2025/10/08 (A10001986)   
+ *    - WM: Set "world safe" country info, limiting choices to 11 channels
+ *    - WM: Add "show all", add channel info (when all are shown) and
+ *      proposed AP WiFi channel on WiFi Configuration page.
+ *    - Experimental: Change bttfn_checkmc() to return true as long as 
+ *      a packet was received (as opposed to false if a packet was received
+ *      but not for us, malformed, etc). Also, change the max packet counter
+ *      in bttfn_loop(_quick)() from 10 to 100 to get more piled-up old 
+ *      packets out of the way.
+ *    - Add a delay when connecting to TCD-AP so not all props hammer the
+ *      TCD-AP at the very same time
+ *    - WM: Use events when connecting, instead of delays
  *  2025/10/07 (A10001986) [1.19]
  *    - Add emergency firmware update via SD (for dev purposes)
  *    - WM fixes (Upload, etc)
