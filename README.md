@@ -488,7 +488,7 @@ The VSR supports the MQTT protocol version 3.1.1 for the following features:
 
 ### Control the VSR via MQTT
 
-The VSR can - to some extent - be controlled through messages sent to topic **bttf/vsr/cmd**. Support commands are
+The VSR can - to some extent - be controlled through messages sent to topic **bttf/vsr/cmd**. Supported commands are
 - TIMETRAVEL: Start a [time travel](#time-travel)
 - DISPLAY_PW: Set [display mode](#display-modes) to "pushwheels"
 - DISPLAY_TEMP: Set [display mode](#display-modes) to "temperature"
