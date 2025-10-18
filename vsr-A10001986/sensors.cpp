@@ -766,11 +766,11 @@ void tempSensor::HDC302x_setDefault(uint16_t reg, uint8_t val1, uint8_t val2)
     if(Wire.requestFrom(_address, (uint8_t)3) == 3) {
         for(uint8_t i = 0; i < 3; i++) buf[i] = Wire.read();
         if(crc8(HDC302x_CRC_INIT, HDC302x_CRC_POLY, 2, buf) == buf[2]) {
-            #ifdef TC_DBG
+            #ifdef VSR_DBG
             Serial.printf("HDC302x: Read 0x%x\n", reg);
             #endif
             if(buf[0] != val1 || buf[1] != val2) {
-                #ifdef TC_DBG
+                #ifdef VSR_DBG
                 Serial.printf("HDC302x: EEPROM mismatch: 0x%x <> 0x%x, 0x%x <> 0x%x\n", buf[0], val1, buf[1], val2);
                 #endif
                 buf[0] = reg >> 8; buf[1] = reg & 0xff;
@@ -783,17 +783,17 @@ void tempSensor::HDC302x_setDefault(uint16_t reg, uint8_t val1, uint8_t val2)
                 Wire.endTransmission();
                 (*_customDelayFunc)(80);
             } else {
-                #ifdef TC_DBG
+                #ifdef VSR_DBG
                 Serial.printf("HDC302x: EEPROM match: 0x%x, 0x%x\n", buf[0], buf[1]);
                 #endif
             }
         } else {
-            #ifdef TC_DBG
+            #ifdef VSR_DBG
             Serial.printf("HDC302x: EEPROM reading 0x%x failed CRC check\n", reg);
             #endif
         }
     } else {
-        #ifdef TC_DBG
+        #ifdef VSR_DBG
         Serial.printf("HDC302x: EEPROM reading 0x%x failed on i2c level\n", reg);
         #endif
     }

@@ -119,6 +119,15 @@
 
 /*  Changelog
  *  
+ *  2025/10/17 (A10001986) [1.20]
+ *    - Wipe flash FS if alien VER found; in case no VER is present, check
+ *      available space for audio files, and wipe if not enough.
+ *  2025/10/16 (A10001986)
+ *    - Minor code optim (settings)
+ *    - WM: More event-based waiting instead of delays
+ *  2025/10/15 (A10001986)  
+ *    - Some more WM changes. Number of scanned networks listed is now restricted in 
+ *      order not to run out of memory.
  *  2025/10/14 (A10001986) [1.19.2]
  *    - WM: Do not garble UTF8 SSID; skip SSIDs with non-printable characters
  *    - Fix regression in CP ("show password")

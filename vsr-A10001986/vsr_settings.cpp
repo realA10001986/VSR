@@ -148,9 +148,9 @@ static int       prevUDispMode = 0;
 static uint8_t   prevSavedVol = 255;
 static uint8_t*  (*r)(uint8_t *, uint32_t, int);
 
-static bool read_settings(File configFile);
+static bool read_settings(File configFile, int cfgReadCount);
 
-static void CopyTextParm(char *setting, const char *json, int setSize);
+static bool CopyTextParm(const char *json, char *setting, int setSize);
 static bool CopyCheckValidNumParm(const char *json, char *text, uint8_t psize, int lowerLim, int upperLim, int setDefault);
 static bool CopyCheckValidNumParmF(const char *json, char *text, uint8_t psize, float lowerLim, float upperLim, float setDefault);
 static bool checkValidNumParm(char *text, int lowerLim, int upperLim, int setDefault);
@@ -160,9 +160,9 @@ static bool copy_audio_files(bool& delIDfile);
 static void open_and_copy(const char *fn, int& haveErr, int& haveWriteErr);
 static bool filecopy(File source, File dest, int& haveWriteErr);
 static void cfc(File& sfile, bool doCopy, int& haveErr, int& haveWriteErr);
-static bool audio_files_present();
+static bool audio_files_present(int& alienVER);
 
-static void formatFlashFS();
+static bool formatFlashFS(bool userSignal);
 static void rewriteSecondarySettings();
 
 static bool CopyIPParm(const char *json, char *text, uint8_t psize);
@@ -187,6 +187,8 @@ void settings_setup()
     const char *funcName = "settings_setup";
     bool writedefault = false;
     bool SDres = false;
+    int alienVER = -1;
+    int cfgReadCount = 0;
 
     #ifdef VSR_DBG
     Serial.printf("%s: Mounting flash FS... ", funcName);
@@ -202,13 +204,7 @@ void settings_setup()
         Serial.print("failed, formatting... ");
         #endif
 
-        // Show the user some action
-        showWaitSequence();
-
-        SPIFFS.format();
-        if(SPIFFS.begin()) haveFS = true;
-
-        endWaitSequence();
+        haveFS = formatFlashFS(true);
 
     }
 
@@ -216,14 +212,14 @@ void settings_setup()
       
         #ifdef VSR_DBG
         Serial.println("ok, loading settings");
-        int tBytes = SPIFFS.totalBytes(); int uBytes = SPIFFS.usedBytes();
-        Serial-printf("FlashFS: %d total, %d used\n", tBytes, uBytes);
+        Serial.printf("FlashFS: %d total, %d used\n", SPIFFS.totalBytes(), SPIFFS.usedBytes());
         #endif
         
         if(SPIFFS.exists(cfgName)) {
             File configFile = SPIFFS.open(cfgName, "r");
             if(configFile) {
-                writedefault = read_settings(configFile);
+                writedefault = read_settings(configFile, cfgReadCount);
+                cfgReadCount++;
                 configFile.close();
             } else {
                 writedefault = true;
@@ -236,7 +232,7 @@ void settings_setup()
 
     } else {
 
-        Serial.println("*** Mounting flash FS failed. Using SD (if available)");
+        Serial.println("failed.\n*** Mounting flash FS failed. Using SD (if available)");
 
     }
 
@@ -293,7 +289,7 @@ void settings_setup()
             if(SD.exists(cfgName)) {
                 File configFile = SD.open(cfgName, "r");
                 if(configFile) {
-                    writedefault2 = read_settings(configFile);
+                    writedefault2 = read_settings(configFile, cfgReadCount);
                     configFile.close();
                 } else {
                     writedefault2 = true;
@@ -309,6 +305,22 @@ void settings_setup()
             }
         }
     }
+
+    // Check if (current) audio data is installed
+    haveAudioFiles = audio_files_present(alienVER);
+
+    // Re-format flash FS if either alien VER found, or no VER exists
+    // and remaining storage is not enough for our audio files.
+    // (Reason: LittleFS crashes when flash FS is full.)
+    if(!haveAudioFiles && haveFS && !FlashROMode) {
+        if((alienVER > 0) || (alienVER < 0 && (SPIFFS.totalBytes() - SPIFFS.usedBytes() < soa + 16384))) {
+            #ifdef VSR_DBG
+            Serial.printf("Reformatting. Alien VER: %d, space %d", alienVER, SPIFFS.totalBytes() - SPIFFS.usedBytes());
+            #endif
+            writedefault = true;
+            formatFlashFS(true);
+        }
+    }
    
     // Now write new config to flash FS if old one somehow bad
     // Only write this file if FlashROMode is off
@@ -321,9 +333,6 @@ void settings_setup()
 
     // Determine if secondary settings are to be stored on SD
     configOnSD = (haveSD && ((settings.CfgOnSD[0] != '0') || FlashROMode)); 
-
-    // Check if (current) audio data is installed
-    haveAudioFiles = audio_files_present();
 
     // Check if SD contains the default sound files
     if((r = m) && haveSD && (haveFS || FlashROMode)) {
@@ -353,7 +362,7 @@ void unmount_fs()
     }
 }
 
-static bool read_settings(File configFile)
+static bool read_settings(File configFile, int cfgReadCount)
 {
     const char *funcName = "read_settings";
     bool wd = false;
@@ -380,27 +389,35 @@ static bool read_settings(File configFile)
 
         // WiFi Configuration
 
-        memset(settings.ssid, 0, sizeof(settings.ssid));
-        memset(settings.pass, 0, sizeof(settings.pass));
+        if(!cfgReadCount) {
+            memset(settings.ssid, 0, sizeof(settings.ssid));
+            memset(settings.pass, 0, sizeof(settings.pass));
+        }
+
         if(json["ssid"]) {
+            memset(settings.ssid, 0, sizeof(settings.ssid));
+            memset(settings.pass, 0, sizeof(settings.pass));
             strncpy(settings.ssid, json["ssid"], sizeof(settings.ssid) - 1);
             if(json["pass"]) {
                 strncpy(settings.pass, json["pass"], sizeof(settings.pass) - 1);
             }
-        } else settings.ssid[1] = 'X';  // marker for "no ssid tag in config file", ie read from NVS
+        } else {
+            if(!cfgReadCount) {
+                // Set a marker for "no ssid tag in config file", ie read from NVS.
+                settings.ssid[1] = 'X';
+            } else if(settings.ssid[0] || settings.ssid[1] != 'X') {
+                // FlashRO: If flash-config didn't set the marker, write new file 
+                // with ssid/pass from flash-config
+                wd = true;
+            }
+        }
 
-        if(json["hostName"]) {
-            CopyTextParm(settings.hostName, json["hostName"], sizeof(settings.hostName));
-        } else wd = true;
+        wd |= CopyTextParm(json["hostName"], settings.hostName, sizeof(settings.hostName));
         wd |= CopyCheckValidNumParm(json["wifiConRetries"], settings.wifiConRetries, sizeof(settings.wifiConRetries), 1, 10, DEF_WIFI_RETRY);
         wd |= CopyCheckValidNumParm(json["wifiConTimeout"], settings.wifiConTimeout, sizeof(settings.wifiConTimeout), 7, 25, DEF_WIFI_TIMEOUT);
         
-        if(json["systemID"]) {
-            CopyTextParm(settings.systemID, json["systemID"], sizeof(settings.systemID));
-        } else wd = true;
-        if(json["appw"]) {
-            CopyTextParm(settings.appw, json["appw"], sizeof(settings.appw));
-        } else wd = true;
+        wd |= CopyTextParm(json["systemID"], settings.systemID, sizeof(settings.systemID));
+        wd |= CopyTextParm(json["appw"], settings.appw, sizeof(settings.appw));
         wd |= CopyCheckValidNumParm(json["apch"], settings.apChnl, sizeof(settings.apChnl), 0, 11, DEF_AP_CHANNEL);
 
         // Settings
@@ -422,9 +439,7 @@ static bool read_settings(File configFile)
         wd |= CopyCheckValidNumParmF(json["tempOffs"], settings.tempOffs, sizeof(settings.tempOffs), -3.0, 3.0, DEF_TEMP_OFFS);
         #endif
         
-        if(json["tcdIP"]) {
-            CopyTextParm(settings.tcdIP, json["tcdIP"], sizeof(settings.tcdIP));
-        } else wd = true;
+        wd |= CopyTextParm(json["tcdIP"], settings.tcdIP, sizeof(settings.tcdIP));
         wd |= CopyCheckValidNumParm(json["useNM"], settings.useNM, sizeof(settings.useNM), 0, 1, DEF_USE_NM);
         wd |= CopyCheckValidNumParm(json["useFPO"], settings.useFPO, sizeof(settings.useFPO), 0, 1, DEF_USE_FPO);
         wd |= CopyCheckValidNumParm(json["bttfnTT"], settings.bttfnTT, sizeof(settings.bttfnTT), 0, 1, DEF_BTTFN_TT);
@@ -432,12 +447,8 @@ static bool read_settings(File configFile)
 
         #ifdef VSR_HAVEMQTT
         wd |= CopyCheckValidNumParm(json["useMQTT"], settings.useMQTT, sizeof(settings.useMQTT), 0, 1, 0);
-        if(json["mqttServer"]) {
-            CopyTextParm(settings.mqttServer, json["mqttServer"], sizeof(settings.mqttServer));
-        } else wd = true;
-        if(json["mqttUser"]) {
-            CopyTextParm(settings.mqttUser, json["mqttUser"], sizeof(settings.mqttUser));
-        } else wd = true;
+        wd |= CopyTextParm(json["mqttServer"], settings.mqttServer, sizeof(settings.mqttServer));
+        wd |= CopyTextParm(json["mqttUser"], settings.mqttUser, sizeof(settings.mqttUser));
         #endif
 
         wd |= CopyCheckValidNumParm(json["TCDpresent"], settings.TCDpresent, sizeof(settings.TCDpresent), 0, 1, DEF_TCD_PRES);
@@ -530,10 +541,13 @@ bool checkConfigExists()
  *  Helpers for parm copying & checking
  */
 
-static void CopyTextParm(char *setting, const char *json, int setSize)
+static bool CopyTextParm(const char *json, char *setting, int setSize)
 {
+    if(!json) return true;
+    
     memset(setting, 0, setSize);
     strncpy(setting, json, setSize - 1);
+    return false;
 }
 
 static bool CopyCheckValidNumParm(const char *json, char *text, uint8_t psize, int lowerLim, int upperLim, int setDefault)
@@ -785,7 +799,7 @@ bool loadButtonMode()
     File configFile;
 
     if(!haveFS && !configOnSD) {
-        #ifdef SID_DBG
+        #ifdef VSR_DBG
         Serial.printf("%s: %s\n", funcName, fsNoAvail);
         #endif
         return false;
@@ -845,7 +859,7 @@ bool loadUDispMode()
     File configFile;
 
     if(!haveFS && !configOnSD) {
-        #ifdef SID_DBG
+        #ifdef VSR_DBG
         Serial.printf("%s: %s\n", funcName, fsNoAvail);
         #endif
         return false;
@@ -1139,7 +1153,7 @@ void doCopyAudioFiles()
 
     if((!copy_audio_files(delIDfile)) && !FlashROMode) {
         // If copy fails because of a write error, re-format flash FS
-        formatFlashFS();            // Format
+        formatFlashFS(false);       // Format
         rewriteSecondarySettings(); // Re-write secondary settings
         #ifdef VSR_DBG 
         Serial.println("Re-writing general settings");
@@ -1254,11 +1268,16 @@ static void cfc(File& sfile, bool doCopy, int& haveErr, int& haveWriteErr)
     }
 }
 
-static bool audio_files_present()
+static bool audio_files_present(int& alienVER)
 {
     File file;
     uint8_t buf[4];
     const char *fn = "/VER";
+
+    // alienVER is -1 if no VER found,
+    //              0 if our VER-type found,
+    //              1 if alien VER-type found
+    alienVER = -1;
 
     if(FlashROMode) {
         if(!(file = SD.open(fn, FILE_READ)))
@@ -1276,6 +1295,10 @@ static bool audio_files_present()
     file.read(buf, 4);
     file.close();
 
+    if(!FlashROMode) {
+        alienVER = memcmp(buf, SND_REQ_VERSION, 2) ? 1 : 0;
+    }
+
     return (!memcmp(buf, SND_REQ_VERSION, 4));
 }
 
@@ -1291,12 +1314,27 @@ void delete_ID_file()
  * Various helpers
  */
 
-static void formatFlashFS()
+static bool formatFlashFS(bool userSignal)
 {
-    #ifdef VSR_DBG
-    Serial.println("Formatting flash FS");
-    #endif
+    bool ret = false;
+
+    if(userSignal) {
+        // Show the user some action
+        showWaitSequence();
+    } else {
+        #ifdef VSR_DBG
+        Serial.println("Formatting flash FS");
+        #endif
+    }
+
     SPIFFS.format();
+    if(SPIFFS.begin()) ret = true;
+
+    if(userSignal) {
+        endWaitSequence();
+    }
+
+    return ret;
 }
 
 /* Copy secondary settings from/to SD if user
@@ -1663,4 +1701,7 @@ static void firmware_update()
     delay(1000);
     fw_error_blink(0);
     esp_restart();
-}    
+}   
+
+
+ 
