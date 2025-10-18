@@ -12,7 +12,7 @@ This [repository](https://vsr.out-a-ti.me) holds the most current firmware for a
 
 Features include
 
-- various display modes, selectable by buttons: Pushwheel values, temperature (from directly connencted sensor, or from [Time Circuits Display](https://tcd.out-a-ti.me) via BTTFN), or speed (from a [CircuitSetup](https://circuitsetup.us) [Time Circuits Display](https://tcd.out-a-ti.me) via BTTFN)
+- various display modes, selectable by buttons: Pushwheel values, temperature (from directly connected sensor, or from [Time Circuits Display](https://tcd.out-a-ti.me) via BTTFN), or speed (from a [CircuitSetup](https://circuitsetup.us) [Time Circuits Display](https://tcd.out-a-ti.me) via BTTFN)
 - [Time Travel](#time-travel) sequence, triggered by button, [Time Circuits Display](https://tcd.out-a-ti.me) or via [MQTT](#home-assistant--mqtt)
 - [music player](#the-music-player): Play mp3 files located on an SD card, controlled by buttons or [Time Circuits Display](https://tcd.out-a-ti.me) keypad via BTTFN
 - [SD card](#sd-card) support for custom audio files for effects, and music for the Music Player
@@ -40,7 +40,7 @@ Then there are two alternative ways to proceed. Note that both methods *require 
 1) Through the [Config Portal](#the-config-portal). Click on *Update*, select the "VSRA.bin" file in the bottom file selector and click on *Upload*.
    
 2) Via SD card:
-- Copy "VSRA.bin" to the root directory of of a FAT32 formatted SD card;
+- Copy "VSRA.bin" to the root directory of a FAT32 formatted SD card;
 - power down the VSR,
 - insert this SD card into the slot and 
 - power up the VSR; the sound-pack will be installed automatically.
@@ -381,7 +381,7 @@ The VSR's built-in sound effects can be substituted by your own sound files on a
 
 Your replacements need to be put in the root (top-most) directory of the SD card, be in mp3 format (128kbps max) and named as follows:
 - "startup.mp3". Played when the VSR is connected to power and has finished booting;
-- "ttstart,mp3"/"ttend.mp3". Played at the beginning/the end of a time travel sequence. (The "humm" sound cannot be substituted.)
+- "ttstart.mp3"/"ttend.mp3". Played at the beginning/the end of a time travel sequence. (The "humm" sound cannot be substituted.)
 - "alarm.mp3". Played when the alarm sounds (triggered by a Time Circuits Display via BTTFN or MQTT);
 - "button.mp3", "buttonl.mp3", "button_bad.mp3": Button click sounds.
 
@@ -499,7 +499,7 @@ The VSR can - to some extent - be controlled through messages sent to topic **bt
 - MP_PREV: Jump to previous song
 - MP_SHUFFLE_ON: Enables shuffle mode in [Music Player](#the-music-player)
 - MP_SHUFFLE_OFF: Disables shuffle mode in [Music Player](#the-music-player)
-- MP_FOLDER_x: x being 0-9, set Music Folder number for [Music Player](#the-music-player)
+- MP_FOLDER_x: x being 0-9, set folder number for [Music Player](#the-music-player)
 
 ### Receive commands from Time Circuits Display
 
@@ -708,7 +708,7 @@ If this is checked, the LED display is switched off in night mode. Otherwise, it
 
 ##### &#9654; Display in °Celsius
 
-Selects between Fahrenheit and Celsius for temperature display. This settings is used for temperature both from a sensor connected to the VSR as well as temperature transmitted by a TCD.
+Selects between Fahrenheit and Celsius for temperature display. This setting is used for temperature both from a sensor connected to the VSR as well as temperature transmitted by a TCD.
 
 ##### &#9654; Sensor Offset
 
