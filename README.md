@@ -544,7 +544,6 @@ If your VSR, along with a [Time Circuits Display](https://tcd.out-a-ti.me/), is 
 
 Enter the Config Portal on the VSR, click on *Setup* and
   - enter *192.168.4.1* into the field **_IP address or hostname of TCD_** under BTTFN settings;
-  - check the option **_Follow TCD fake power_** if you have a fake power switch for the TCD (like eg a TFC switch)
   - click on *Save*.
 
 After the VSR has restarted, re-enter the VSR's Config Portal (while the TCD is powered and in *car mode*) and
