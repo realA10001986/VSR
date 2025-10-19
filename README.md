@@ -65,7 +65,7 @@ As long as the VSR is unconfigured, it creates its own WiFi network named "VSR-A
 
 ![APmode](img/apmode.png)
 
-It is ok to leave it in AP-mode, predominantly if used stand-alone. (To keep operating your VSR in AP-mode, simply _do not configure_ a WiFi network connection as described below.
+It is ok to leave it in AP-mode, predominantly if used stand-alone. To keep operating your VSR in AP-mode, simply _do not configure_ a WiFi network connection as described below.
 
 >Please do not leave computers/handhelds permanently connected to the VSR in AP-mode. These devices might think they are connected to the internet and therefore hammer your VSR with DNS and HTTP requests which might lead to disruptions.
 
