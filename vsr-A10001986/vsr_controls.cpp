@@ -372,7 +372,25 @@ static void controlsEvent(int idx, ButState bstate)
                         ssRestartTimer();
                         break;
                     case 1:
-                        
+                        {
+                            bool wasActiveM = false, waitShown = false;
+                            if(wifiOnWillBlock()) {
+                                if(haveMusic && mpActive) {
+                                    mp_stop();
+                                    wasActiveM = true;
+                                }
+                                stopAudio();
+                                showWaitSequence();
+                                waitShown = true;
+                                flushDelayedSave();
+                            }
+                            // Enable WiFi / even if in AP mode / with CP
+                            wifiOn(0, true, false);
+                            if(waitShown) endWaitSequence();
+                            // Restart mp if active before
+                            if(wasActiveM) mp_play();
+                        }
+                        ssRestartTimer();
                         break;
                     case 2:
                         Serial.println("Deleting ip config; clearing AP mode WiFi password\n");

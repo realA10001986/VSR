@@ -269,6 +269,7 @@ static WiFiUDP       bttfMcUDP;
 static UDP*          vsrMcUDP;
 #endif
 static byte          BTTFUDPBuf[BTTF_PACKET_SIZE];
+static byte          BTTFUDPTBuf[BTTF_PACKET_SIZE];
 static unsigned long BTTFNUpdateNow = 0;
 static unsigned long bttfnVSRPollInt = BTTFN_POLL_INT;
 static unsigned long BTFNTSAge = 0;
@@ -286,7 +287,6 @@ static uint8_t       bttfnReqStatus = 0x56; // Request capabilities, status, tem
 #ifdef BTTFN_MC
 static uint32_t      tcdHostNameHash = 0;
 static byte          BTTFMCBuf[BTTF_PACKET_SIZE];
-static uint8_t       bttfnMcMarker = 0;
 static IPAddress     bttfnMcIP(224, 0, 0, 224);
 #endif  
 
@@ -332,6 +332,7 @@ static bool bttfn_checkmc();
 #endif
 static void BTTFNCheckPacket();
 static bool BTTFNTriggerUpdate();
+static void BTTFNPreparePacketTemplate();
 static void BTTFNSendPacket();
 
 void main_boot()
@@ -875,9 +876,9 @@ void main_loop()
         
         } else {
 
-            // Wake up on RotEnc speed changes
+            // Wake up on RotEnc/Remote speed changes; on GPS only if old speed was <=0
             if(gpsSpeed != oldGpsSpeed) {
-                if(FPBUnitIsOn && spdIsRotEnc && gpsSpeed >= 0) {
+                if(FPBUnitIsOn && (spdIsRotEnc || oldGpsSpeed <= 0) && gpsSpeed >= 0) {
                     wakeup();
                 }
                 oldGpsSpeed = gpsSpeed;
@@ -1728,6 +1729,8 @@ static void bttfn_setup()
     vsrMcUDP = &bttfMcUDP;
     vsrMcUDP->beginMulticast(bttfnMcIP, BTTF_DEFAULT_LOCAL_PORT + 2);
     #endif
+
+    BTTFNPreparePacketTemplate();
     
     BTTFNfailCount = 0;
     useBTTFN = true;
@@ -1794,6 +1797,28 @@ static void handle_tcd_notification(uint8_t *buf)
     uint32_t seqCnt;
     
     switch(buf[5]) {
+    case BTTFN_NOT_SPD:
+        seqCnt = GET32(buf, 12);
+        if(seqCnt == 1 || seqCnt > bttfnTCDSeqCnt) {
+            gpsSpeed = (int16_t)(buf[6] | (buf[7] << 8));
+            if(gpsSpeed > 88) gpsSpeed = 88;
+            switch(buf[8] | (buf[9] << 8)) {
+            case BTTFN_SSRC_GPS:
+                spdIsRotEnc = false;
+                break;
+            default:
+                spdIsRotEnc = true;
+            }
+            #ifdef VSR_DBG
+            Serial.printf("TCD sent speed %d\n", gpsSpeed);
+            #endif
+        } else {
+            #ifdef VSR_DBG
+            Serial.printf("Out-of-sequence packet received from TCD %d %d\n", seqCnt, bttfnTCDSeqCnt);
+            #endif
+        }
+        bttfnTCDSeqCnt = seqCnt;
+        break;
     case BTTFN_NOT_PREPARE:
         // Prepare for TT. Comes at some undefined point,
         // an undefined time before the actual tt, and
@@ -1841,28 +1866,6 @@ static void handle_tcd_notification(uint8_t *buf)
         if(!TTrunning) {
             wakeup();
         }
-        break;
-    case BTTFN_NOT_SPD:
-        seqCnt = GET32(buf, 12);
-        if(seqCnt == 1 || seqCnt > bttfnTCDSeqCnt) {
-            gpsSpeed = (int16_t)(buf[6] | (buf[7] << 8));
-            if(gpsSpeed > 88) gpsSpeed = 88;
-            switch(buf[8] | (buf[9] << 8)) {
-            case BTTFN_SSRC_GPS:
-                spdIsRotEnc = false;
-                break;
-            default:
-                spdIsRotEnc = true;
-            }
-            #ifdef VSR_DBG
-            Serial.printf("TCD sent speed %d\n", gpsSpeed);
-            #endif
-        } else {
-            #ifdef VSR_DBG
-            Serial.printf("Out-of-sequence packet received from TCD %d %d\n", seqCnt, bttfnTCDSeqCnt);
-            #endif
-        }
-        bttfnTCDSeqCnt = seqCnt;
         break;
     }
 }
@@ -2003,7 +2006,6 @@ static void BTTFNCheckPacket()
             bttfnReqStatus &= ~0x40;     // Do no longer poll capabilities
             #ifdef BTTFN_MC
             if(BTTFUDPBuf[31] & 0x01) {
-                bttfnMcMarker = BTTFN_SUP_MC;
                 bttfnReqStatus &= ~0x02; // Do no longer poll speed, comes over multicast
             }
             #endif
@@ -2036,25 +2038,30 @@ static bool BTTFNTriggerUpdate()
     return true;
 }
 
-static void BTTFNPreparePacket()
+static void BTTFNPreparePacketTemplate()
 {
-    memset(BTTFUDPBuf, 0, BTTF_PACKET_SIZE);
+    memset(BTTFUDPTBuf, 0, BTTF_PACKET_SIZE);
 
     // ID
-    memcpy(BTTFUDPBuf, BTTFUDPHD, 4);
+    memcpy(BTTFUDPTBuf, BTTFUDPHD, 4);
 
-    // Tell the TCD about our hostname (0-term., 13 bytes total)
-    strncpy((char *)BTTFUDPBuf + 10, settings.hostName, 12);
-    BTTFUDPBuf[10+12] = 0;
+    // Tell the TCD about our hostname
+    // 13 bytes total. If hostname is longer, last in buf is '.'
+    memcpy(BTTFUDPTBuf + 10, settings.hostName, 13);
+    if(strlen(settings.hostName) > 13) BTTFUDPTBuf[10+12] = '.';
 
-    BTTFUDPBuf[10+13] = BTTFN_TYPE_VSR;
+    BTTFUDPTBuf[10+13] = BTTFN_TYPE_VSR;
 
     // Version, MC-marker
+    BTTFUDPTBuf[4] = BTTFN_VERSION;
     #ifdef BTTFN_MC
-    BTTFUDPBuf[4] = BTTFN_VERSION | bttfnMcMarker;  
-    #else
-    BTTFUDPBuf[4] = BTTFN_VERSION;
-    #endif               
+    BTTFUDPTBuf[4] |= BTTFN_SUP_MC;
+    #endif
+}
+
+static void BTTFNPreparePacket()
+{
+    memcpy(BTTFUDPBuf, BTTFUDPTBuf, BTTF_PACKET_SIZE);               
 }
 
 static void BTTFNDispatch()

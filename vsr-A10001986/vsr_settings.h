@@ -69,6 +69,7 @@ extern uint8_t musFolderNum;
 #define DEF_WIFI_RETRY      3     // 1-10; Default: 3 retries
 #define DEF_WIFI_TIMEOUT    7     // 7-25; Default: 7 seconds
 #define DEF_AP_CHANNEL      1     // 1-13; 0 = random(1-13)
+#define DEF_WIFI_APOFFDELAY 0
 
 #define DEF_SMOOTHPW        1     // Smooth pushwheel changes
 #define DEF_FLUCT           0     // Voltage fluctuations 1=on, 0=off
@@ -108,6 +109,7 @@ struct Settings {
     char systemID[8]        = "";
     char appw[10]           = "";
     char apChnl[4]          = MS(DEF_AP_CHANNEL);
+    char wifiAPOffDelay[4]  = MS(DEF_WIFI_APOFFDELAY);
     
     char smoothpw[4]        = MS(DEF_SMOOTHPW);
     char fluct[4]           = MS(DEF_FLUCT);
