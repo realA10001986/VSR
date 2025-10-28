@@ -67,13 +67,18 @@ As long as the VSR is unconfigured, it creates its own WiFi network named "VSR-A
 
 It is ok to leave it in AP-mode, predominantly if used stand-alone. To keep operating your VSR in AP-mode, simply _do not configure_ a WiFi network connection as described below.
 
+<details>
+<summary>More...</summary>
+
 >Please do not leave computers/handhelds permanently connected to the VSR in AP-mode. These devices might think they are connected to the internet and therefore hammer your VSR with DNS and HTTP requests which might lead to disruptions.
 
 >If you wish for your device to remain in AP-mode, please select a suitable WiFi channel on the Config Portal's "WiFi Configuration" page. See [here](#-wifi-channel).
 
 > In AP-mode, the VSR can switch off WiFi to save power. See [here](#wifi-power-saving-features).
 
-#### &#9654; Home setup with a pre-existing local WiFi network
+</details>
+
+#### Home setup with a pre-existing local WiFi network
 
 In this case, you can connect your VSR to your home WiFi network. This allows for inter-prop-communication ([BTTFN](#bttf-network-bttfn)) and [HA/MQTT](#home-assistant--mqtt).
 
@@ -81,11 +86,16 @@ In this case, you can connect your VSR to your home WiFi network. This allows fo
 
 Click on "WiFi Configuration" and either select a network from the top of the page or enter a WiFi network name (SSID), and enter your WiFi password. After saving the WiFi network settings, your VSR reboots and tries to connect to your selected WiFi network.
 
+<details>
+<summary>More...</summary>
+
 >Your VSR requests an IP address via DHCP, unless you entered valid data in the fields for static IP addresses (IP, gateway, netmask, DNS). If the device is inaccessible as a result of incorrect static IPs, wait until the VSR has completed its startup sequence, then hold all three buttons until "ADM" is displayed, then _hold_ button "4C". After "RST" has been displayed, power-down the VSR. Upon power-up, the device is reset to DHCP.
+
+</details>
 
 If the VSR fails to connect, it falls back to AP-mode. You can trigger another connection attempt by holding button "10" in [Admin button mode](#admin-mode).
 
-#### &#9654; Places without a WiFi network
+#### Places without a WiFi network
 
 In this case and with no [Time Circuits Display](https://tcd.out-a-ti.me) at hand, keep your VSR operating in AP-mode.
 
@@ -93,7 +103,7 @@ If you have a TCD, you can connect your VSR to the TCD's own WiFi network.
 
 ![STAmode-car](img/stamode-car.png)
 
-Run the TCD in AP-Mode, and on your VSR's Config Portal, click on "WiFi Configuration" and either select "TCD-AP" from the top of the page or enter "TCD-AP" under *Network name (SSID)*. If you password-protected your TCD-AP, enter this password below. See [here](#car-setup) for more details.
+This setup is meant for cars, but suitable for any place with no WiFi network. See [here](#car-setup) for details.
 
 After completing WiFi setup, your VSR is ready for use; you can also continue configuring it to your personal preferences through the Config Portal.
 
@@ -116,11 +126,11 @@ It can be accessed as follows:
 #### If VSR is connected to a WiFi network
 
 - Connect your handheld/computer to the same (WiFi) network to which your VSR is connected, and
-- navigate your browser to http://vsr.local
+- navigate your browser to http://vsr.local  <details><summary>More...</summary>
 
   >Accessing the Config Portal through this address requires the operating system of your handheld/computer to support Bonjour/mDNS: Windows 10 version TH2     (1511) [other sources say 1703] and later, Android 13 and later; MacOS and iOS since the dawn of time.
 
-  >If connecting to http://vsr.local fails due to a name resolution error, you need to find out your VSR's IP address: Hold all three buttons until "ADM" is displayed, release all buttons and afterwards _hold_ button "9". Your VSR will display its current IP address (a. - b. - c. - d). Then, on your handheld or computer, navigate to http://a.b.c.d (a.b.c.d being the IP address as displayed on your VSR) in order to enter the Config Portal.
+  >If connecting to http://vsr.local fails due to a name resolution error, you need to find out your VSR's IP address: Hold all three buttons until "ADM" is displayed, release all buttons and afterwards _hold_ button "9". Your VSR will display its current IP address (a. - b. - c. - d). Then, on your handheld or computer, navigate to http://a.b.c.d (a.b.c.d being the IP address as displayed on your VSR) in order to enter the Config Portal.</details>
 
 In the main menu, click on "Settings" to configure your VSR. 
 
@@ -450,7 +460,12 @@ BTTFN requires the props all to be connected to the same network, such as, for e
 
 ![STAmode-bttfn](img/stamode-bttfn.png)
 
+<details>
+<summary>More...</summary>
+
 >The term "WiFi network" is used for both "WiFi network" and "ip subnet" here for simplicity reasons. However, for BTTFN communication, the devices must be on the same IP subnet, regardless of how they take part in it: They can be connected to different WiFi networks, if those WiFi networks are part of the same ip subnet.
+
+</details>
 
 In order to connect your VSR to the TCD using BTTFN, just enter the TCD's IP address or hostname in the **_IP address or hostname of TCD_** field in the VSR's Config Portal. On the TCD, no special configuration is required. 
   
@@ -492,7 +507,12 @@ _Do not connect 3V3 to the TCD!_
 
 Next, head to the Config Portal and set the option **_TCD connected by wire_**. On the TCD, the option "Control props connected by wire" must be set.
 
+<details>
+<summary>More...</summary>
+   
 >You can connect both the TCD and a button to the TT connector. However, the button should not be pressed when the option **_TCD connected by wire_** is set, as it might yield unwanted results. Also, note that the button connects to IO13 and 3_3V (not GND!).
+
+</details>
 
 ## Home Assistant / MQTT
 
@@ -577,15 +597,15 @@ In order to reduce the number of write operations and thereby prolong the life o
 
 ### Main page
 
-##### &#9654; WiFi Configuration
+##### &#9193; WiFi Configuration
 
 This leads to the [WiFi configuration page](#wifi-configuration)
 
-##### &#9654; Settings
+##### &#9193; Settings
 
 This leads to the [Settings page](#settings).
 
-##### &#9654; Update
+##### &#9193; Update
 
 This leads to the firmware and audio update page. 
 
@@ -609,11 +629,11 @@ In order to connect your VSR to your WiFi network, all you need to do is either 
 
 >By default, the VSR requests an IP address via DHCP. However, you can also configure a static IP for the VSRC by entering the IP, netmask, gateway and DNS server. All four fields must be filled for a valid static IP configuration. If you want to stick to DHCP, leave those four fields empty. If you connect your VSR to your Time Circuits Display acting as access point ("TCD-AP"), leave these all empty.
 
-##### &#9654; Forget Saved WiFi Network
+##### &#9193; Forget Saved WiFi Network
 
 Checking this box (and clicking SAVE) deletes the currently saved WiFi network (SSID and password as well as static IP data) and reboots the device; it will restart in "access point" (AP) mode. See [here](#connecting-to-a-wifi-network).
 
-##### &#9654; Hostname
+##### &#9193; Hostname
 
 The device's hostname in the WiFi network. Defaults to 'vsr'. This also is the domain name at which the Config Portal is accessible from a browser in the same local network. The URL of the Config Portal then is http://<i>hostname</i>.local (the default is http://vsr.local).
 
@@ -621,27 +641,27 @@ If you have more than one VSR in your local network, please give them unique hos
 
 _This setting applies to both AP-mode and when your VSR is connected to a WiFi network._ 
 
-##### &#9654; WiFi connection attempts
+##### &#9193; WiFi connection attempts
 
 Number of times the firmware tries to reconnect to a WiFi network, before falling back to AP-mode. See [here](#connecting-to-a-wifi-network)
 
-##### &#9654; WiFi connection timeout
+##### &#9193; WiFi connection timeout
 
 Number of seconds before a timeout occurs when connecting to a WiFi network. When a timeout happens, another attempt is made (see immediately above), and if all attempts fail, the device falls back to AP-mode. See [here](#connecting-to-a-wifi-network)
 
 #### <ins>Settings for AP-mode</ins>
 
-##### &#9654; Network name (SSID) appendix
+##### &#9193; Network name (SSID) appendix
 
 By default, when your VSR creates a WiFi network of its own ("AP-mode"), this network is named "VSR-AP". In case you have multiple VSRs in your vicinity, you can have a string appended to create a unique network name. If you, for instance, enter "-ABC" here, the WiFi network name will be "VSR-AP-ABC". Characters A-Z, a-z, 0-9 and - are allowed.
 
-##### &#9654; Password
+##### &#9193; Password
 
 By default, and if this field is empty, the VSR's own WiFi network ("VSR-AP") will be unprotected. If you want to protect your VSR access point, enter your password here. It needs to be 8 characters in length and only characters A-Z, a-z, 0-9 and - are allowed.
 
 If you forget this password and are thereby locked out of your VSR, select _Admin_ [button mode](#button-modes), and _hold_ "4C"; "RST" will be displayed, and your WiFi password is deleted. Then power-down and power-up your VSR and the access point will start unprotected.
 
-##### &#9654; WiFi channel
+##### &#9193; WiFi channel
 
 Here you can select one out of 11 channels, or have the VSR choose a random channel for you. The default channel is 1. Preferred are channels 1, 6 and 11.
 
@@ -654,7 +674,7 @@ If a WiFi Scan was done (which can be triggered by clicking "WiFI Scan"),
 
 The channel proposition is based on all WiFi networks found; it does not take non-WiFi equipment (baby monitors, cordless phones, Bluetooth devices, microwave ovens, etc) into account. 
 
-##### &#9654; Power save timer
+##### &#9193; Power save timer
 
 See [here](#wifi-power-saving-features).
 
@@ -664,35 +684,35 @@ See [here](#wifi-power-saving-features).
 
 #### <ins>Basic settings</ins>
 
-##### &#9654; Smooth voltage changes
+##### &#9193; Smooth voltage changes
 
 If this option is checked, the display follows pushwheel changes smoothly, ie in several steps. If this is unchecked, the display follows the pushwheels immediately.
 
-##### &#9654; Voltage fluctuations
+##### &#9193; Voltage fluctuations
 
 If this option is checked, the displayed pushwheel value slightly and randomly fluctuates. If this option is unchecked, the pushwheel value is statically displayed, without any fluctuations.
 
-##### &#9654; Display button mode on power-up
+##### &#9193; Display button mode on power-up
 
 If this is checked, the VSR briefly shows the current [button mode](#button-modes) upon power-up.
 
-##### &#9654; Lights indicate button mode
+##### &#9193; Lights indicate button mode
 
 If this is checked, the button lights permanently reflect the current [button mode](#button-modes), except for _light mode_.
 
-##### &#9654; Play time travel sounds
+##### &#9193; Play time travel sounds
 
 If other props are connected, they might bring their own time travel sound effects. In this case, you can uncheck this to disable the VSR's own time travel sounds. Note that this only covers sounds played during time travel, not other sound effects.
 
-##### &#9654; Play TCD-alarm sounds
+##### &#9193; Play TCD-alarm sounds
 
 If a TCD is connected via BTTFN or MQTT, the VSR visually signals when the TCD's alarm sounds. If you want the VSR to play an alarm sound, check this option.
 
-##### &#9654; Brightness level
+##### &#9193; Brightness level
 
 This selects the brightness level for the LED display.
 
-##### &#9654; Screen saver timer
+##### &#9193; Screen saver timer
 
 Enter the number of minutes until the Screen Saver should become active when the VSR is idle.
 
@@ -713,13 +733,13 @@ This can also be set/changed via the VSR's buttons in _Admin_ [button mode](#but
 
 #### <ins>Music Player settings</ins>
 
-##### &#9654; Music folder
+##### &#9193; Music folder
 
 Selects the current music folder, can be 0 through 9. 
 
 This can also be set/changed through a TCD keypad via BTTFN (8050 - 8059). Such a change will be saved immediately.
 
-##### &#9654; Shuffle at startup
+##### &#9193; Shuffle at startup
 
 When checked, songs are shuffled when the device is booted. When unchecked, songs will be played in order.
 
@@ -727,61 +747,61 @@ Shuffle mode can be changed at any time through the VSR's buttons in _MusicPlaye
 
 #### <ins>Settings for Night Mode</ins>
 
-##### &#9654; Display off
+##### &#9193; Display off
 
 If this is checked, the LED display is switched off in night mode. Otherwise, it will be dimmed.
 
 #### <ins>Settings for temperature display</ins>
 
-##### &#9654; Display in °Celsius
+##### &#9193; Display in °Celsius
 
 Selects between Fahrenheit and Celsius for temperature display. This setting is used for temperature both from a sensor connected to the VSR as well as temperature transmitted by a TCD.
 
-##### &#9654; Sensor Offset
+##### &#9193; Sensor Offset
 
 This offset, which can range from -3.0 to 3.0, is added to the sensor measurement, in order to compensate sensor inaccuracy or suboptimal sensor placement. This offset is only applied to a value read from a sensor connected to the VSR, and ignored when temperature is transmitted from a TCD; the TCD has its own Offset setting which is applied to the temperature reading before transmission.
 
 #### <ins>Settings for BTTFN communication</ins>
 
-##### &#9654; IP address or hostname of TCD
+##### &#9193; IP address or hostname of TCD
 
 If you want to have your VSR to communicate with a Time Circuits Display wirelessly ("BTTF-Network"), enter the TCD's hostname - usually 'timecircuits' - or IP address here.
 
 If you connect your VSR to the TCD's access point ("TCD-AP"), the TCD's IP address is 192.168.4.1.
 
-##### &#9654; Follow TCD night-mode
+##### &#9193; Follow TCD night-mode
 
 If this option is checked, and your TCD goes into night mode, the VSR will disable or dim the display and the button lights, and reduce its audio volume.
 
-##### &#9654; Follow TCD fake power
+##### &#9193; Follow TCD fake power
 
 If this option is checked, and your TCD is equipped with a fake power switch, the VSR will also fake-power up/down. If fake power is off, the VSR will be dark and it will ignore all input from buttons.
 
-##### &#9654; TT buttons trigger BTTFN-wide TT
+##### &#9193; TT buttons trigger BTTFN-wide TT
 
 If the VSR is connected to a TCD through BTTFN, this option allows to trigger a synchronized time travel on all BTTFN-connected devices when pressing "9" in _Operation_ [button mode](#button-modes), or pressing the Time Travel button, just as if the time travel was triggered by the TCD. If this option is unchecked, these actions only trigger a time travel sequence on the VSR.
 
-##### &#9654; Ignore network-wide TTs
+##### &#9193; Ignore network-wide TTs
 
 If this is checked, the VSR ignores network-wide (BTTFN, MQTT) time travels. After all, the VSR is never shown in the movies during a time travel, so its behavior is uncertain. If you don't like the made-up time travel sequence, check this option.
 
 #### <ins>Home Assistant / MQTT settings</ins>
 
-##### &#9654; Use Home Assistant (MQTT 3.1.1)
+##### &#9193; Use Home Assistant (MQTT 3.1.1)
 
 If checked, the VSR will connect to the broker (if configured) and send and receive messages via [MQTT](#home-assistant--mqtt)
 
-##### &#9654; Broker IP[:port] or domain[:port]
+##### &#9193; Broker IP[:port] or domain[:port]
 
 The broker server address. Can be a domain (eg. "myhome.me") or an IP address (eg "192.168.1.5"). The default port is 1883. If different port is to be used, it can be specified after the domain/IP and a colon ":", for example: "192.168.1.5:1884". Specifying the IP address is preferred over a domain since the DNS call adds to the network overhead. Note that ".local" (MDNS) domains are not supported.
 
-##### &#9654; User[:Password]
+##### &#9193; User[:Password]
 
 The username (and optionally the password) to be used when connecting to the broker. Can be left empty if the broker accepts anonymous logins.
 
 #### <ins>Settings for wired connections</ins>
 
-##### &#9654; TCD connected by wire
+##### &#9193; TCD connected by wire
 
 Check this if you have a Time Circuits Display connected by wire. Note that a wired connection only allows for synchronized time travel sequences, no other communication takes place.
 
@@ -789,7 +809,7 @@ While you can connect both a button and the TCD to the "time travel" connector o
 
 Do NOT check this option if your TCD is connected wirelessly (BTTFN, MQTT).
 
-##### &#9654; TCD signals Time Travel without 5s lead
+##### &#9193; TCD signals Time Travel without 5s lead
 
 Usually, the TCD signals a time travel with a 5 second lead, in order to give a prop a chance to play an acceleration sequence before the actual time travel takes place. Since this 5 second lead is unique to CircuitSetup props, and people sometimes want to connect third party props to the TCD, the TCD has the option of skipping this 5 second lead. If that is the case, and your VSR is connected by wire, you need to set this option.
 
@@ -797,7 +817,7 @@ If your VSR is connected wirelessly, this option has no effect.
 
 #### <ins>Other settings</ins>
 
-##### &#9654; Save secondary settings on SD
+##### &#9193; Save secondary settings on SD
 
 If this is checked, secondary settings (volume, brightness, button mode) are stored on the SD card (if one is present). This helps to minimize write operations to the internal flash memory and to prolong the lifetime of your VSR. See [Flash Wear](#flash-wear).
 
