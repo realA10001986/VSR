@@ -231,102 +231,6 @@ In this mode, the buttons light up when briefly pressed, and stay lit after _hol
 
 [Here](https://github.com/realA10001986/VSR/blob/main/CheatSheet.pdf) is a cheat sheet for printing or screen-use. (Note that MacOS' preview application has a bug that scrambles the links in the document. Acrobat Reader does it correctly.)
 
-### TCD remote command reference
-
-<table>
-   <tr><td>Function</td><td>Code on TCD</td></tr>
-    <tr>
-     <td align="left">Select pushwheel display mode</td>
-     <td align="left">8010&#9166;</td>
-    </tr>
-    <tr>
-     <td align="left">Select <a href="#temperature-display">temperature</a> display mode</td>
-     <td align="left">8011&#9166;</td>
-    </tr>
-    <tr>
-     <td align="left">Select <a href="#speed-display">speed</a> display mode</td>
-     <td align="left">8012&#9166;</td>
-    </tr>
-    <tr>
-     <td align="left">Set volume level (00-19)</td>
-     <td align="left">8300&#9166; - 8319&#9166;</td>
-    </tr>
-    <tr>
-     <td align="left">Set brightness level (00-15)</td>
-     <td align="left"<td>8400&#9166; - 8415&#9166;</td>
-    </tr>
-    <tr>
-     <td align="left"><a href="#the-music-player">Music Player</a>: Play/Stop</td>
-     <td align="left">8005&#9166;</td>
-    </tr>
-    <tr>
-     <td align="left"><a href="#the-music-player">Music Player</a>: Previous song</td>
-     <td align="left">8002&#9166;</td>
-    </tr>
-    <tr>
-     <td align="left"><a href="#the-music-player">Music Player</a>: Next song</td>
-     <td align="left">8008&#9166;</td>
-    </tr>
-    <tr>
-     <td align="left"><a href="#the-music-player">Music Player</a>: Select music folder (0-9)</td>
-     <td align="left">8050&#9166; - 8059&#9166;</td>
-    </tr>
-    <tr>
-     <td align="left"><a href="#the-music-player">Music Player</a>: Shuffle off</td>
-     <td align="left">8222&#9166;</td>
-    </tr>
-    <tr>
-     <td align="left"><a href="#the-music-player">Music Player</a>: Shuffle on</td>
-     <td align="left">8555&#9166;</td>
-    </tr> 
-    <tr>
-     <td align="left"><a href="#the-music-player">Music Player</a>: Go to song 0</td>
-     <td align="left">8888&#9166;</td>
-    </tr>
-    <tr>
-     <td align="left"><a href="#the-music-player">Music Player</a>: Go to song xxx</td>
-     <td align="left">8888xxx&#9166;</td>
-    </tr>
-    <tr>
-     <td align="left">Play "<a href="#additional-custom-sounds">key1.mp3</a>"</td>
-     <td align="left">8001&#9166;</td>
-    </tr>
-    <tr>
-     <td align="left">Play "<a href="#additional-custom-sounds">key3.mp3</a>"</td>
-     <td align="left">8003&#9166;</td>
-    </tr>
-    <tr>
-     <td align="left">Play "<a href="#additional-custom-sounds">key4.mp3</a>"</td>
-     <td align="left">8004&#9166;</td>
-    </tr>
-    <tr>
-     <td align="left">Play "<a href="#additional-custom-sounds">key6.mp3</a>"</td>
-     <td align="left">8006&#9166;</td>
-    </tr>
-    <tr>
-     <td align="left">Play "<a href="#additional-custom-sounds">key7.mp3</a>"</td>
-     <td align="left">8007&#9166;</td>
-    </tr>
-    <tr>
-     <td align="left">Play "<a href="#additional-custom-sounds">key9.mp3</a>"</td>
-     <td align="left">8009&#9166;</td>
-    </tr>
-    <tr>
-     <td align="left">Display current IP address</td>
-     <td align="left">8090&#9166;</td>
-    </tr>   
-    <tr>
-     <td align="left">Reboot the device</td>
-     <td align="left">8064738&#9166;</td>
-    </tr>
-     <tr>
-     <td align="left">Delete static IP address<br>and WiFi-AP password</td>
-     <td align="left">8123456&#9166;</td>
-    </tr>
-</table>
-
-[Here](https://github.com/realA10001986/VSR/blob/main/CheatSheet.pdf) is a cheat sheet for printing or screen-use. (Note that MacOS' preview application has a bug that scrambles the links in the document. Acrobat Reader does it correctly.)
-
 ## Time travel
 
 To trigger a "time travel" stand-alone, select the _Operation_ [button mode](#button-modes), and press "9".
@@ -472,12 +376,108 @@ In order to connect your VSR to the TCD using BTTFN, just enter the TCD's IP add
 Afterwards, the VSR and the TCD can communicate wirelessly and 
 - play time travel sequences in sync,
 - both play an alarm-sequence when the TCD's alarm occurs,
-- the VSR can be remote controlled through the TCD's keypad (command codes 8xxx),
+- the VSR can be remote controlled through the TCD's keypad (command codes 8xxx; see immediately below),
 - the VSR queries the TCD for temperature and GPS speed for display,
 - the VSR queries the TCD for fake power and night mode, in order to react accordingly if so configured,
 - the VSR's Time Travel button can trigger a synchronized Time Travel on all BTTFN-connected devices, just like if that Time Travel was triggered through the TCD.
 
 You can use BTTF-Network and MQTT at the same time, see [below](#home-assistant--mqtt).
+
+### TCD remote command reference
+
+<table>
+   <tr><td>Function</td><td>Code on TCD</td></tr>
+    <tr>
+     <td align="left">Select pushwheel display mode</td>
+     <td align="left">8010&#9166;</td>
+    </tr>
+    <tr>
+     <td align="left">Select <a href="#temperature-display">temperature</a> display mode</td>
+     <td align="left">8011&#9166;</td>
+    </tr>
+    <tr>
+     <td align="left">Select <a href="#speed-display">speed</a> display mode</td>
+     <td align="left">8012&#9166;</td>
+    </tr>
+    <tr>
+     <td align="left">Set volume level (00-19)</td>
+     <td align="left">8300&#9166; - 8319&#9166;</td>
+    </tr>
+    <tr>
+     <td align="left">Set brightness level (00-15)</td>
+     <td align="left"<td>8400&#9166; - 8415&#9166;</td>
+    </tr>
+    <tr>
+     <td align="left"><a href="#the-music-player">Music Player</a>: Play/Stop</td>
+     <td align="left">8005&#9166;</td>
+    </tr>
+    <tr>
+     <td align="left"><a href="#the-music-player">Music Player</a>: Previous song</td>
+     <td align="left">8002&#9166;</td>
+    </tr>
+    <tr>
+     <td align="left"><a href="#the-music-player">Music Player</a>: Next song</td>
+     <td align="left">8008&#9166;</td>
+    </tr>
+    <tr>
+     <td align="left"><a href="#the-music-player">Music Player</a>: Select music folder (0-9)</td>
+     <td align="left">8050&#9166; - 8059&#9166;</td>
+    </tr>
+    <tr>
+     <td align="left"><a href="#the-music-player">Music Player</a>: Shuffle off</td>
+     <td align="left">8222&#9166;</td>
+    </tr>
+    <tr>
+     <td align="left"><a href="#the-music-player">Music Player</a>: Shuffle on</td>
+     <td align="left">8555&#9166;</td>
+    </tr> 
+    <tr>
+     <td align="left"><a href="#the-music-player">Music Player</a>: Go to song 0</td>
+     <td align="left">8888&#9166;</td>
+    </tr>
+    <tr>
+     <td align="left"><a href="#the-music-player">Music Player</a>: Go to song xxx</td>
+     <td align="left">8888xxx&#9166;</td>
+    </tr>
+    <tr>
+     <td align="left">Play "<a href="#additional-custom-sounds">key1.mp3</a>"</td>
+     <td align="left">8001&#9166;</td>
+    </tr>
+    <tr>
+     <td align="left">Play "<a href="#additional-custom-sounds">key3.mp3</a>"</td>
+     <td align="left">8003&#9166;</td>
+    </tr>
+    <tr>
+     <td align="left">Play "<a href="#additional-custom-sounds">key4.mp3</a>"</td>
+     <td align="left">8004&#9166;</td>
+    </tr>
+    <tr>
+     <td align="left">Play "<a href="#additional-custom-sounds">key6.mp3</a>"</td>
+     <td align="left">8006&#9166;</td>
+    </tr>
+    <tr>
+     <td align="left">Play "<a href="#additional-custom-sounds">key7.mp3</a>"</td>
+     <td align="left">8007&#9166;</td>
+    </tr>
+    <tr>
+     <td align="left">Play "<a href="#additional-custom-sounds">key9.mp3</a>"</td>
+     <td align="left">8009&#9166;</td>
+    </tr>
+    <tr>
+     <td align="left">Display current IP address</td>
+     <td align="left">8090&#9166;</td>
+    </tr>   
+    <tr>
+     <td align="left">Reboot the device</td>
+     <td align="left">8064738&#9166;</td>
+    </tr>
+     <tr>
+     <td align="left">Delete static IP address<br>and WiFi-AP password</td>
+     <td align="left">8123456&#9166;</td>
+    </tr>
+</table>
+
+[Here](https://github.com/realA10001986/VSR/blob/main/CheatSheet.pdf) is a cheat sheet for printing or screen-use. (Note that MacOS' preview application has a bug that scrambles the links in the document. Acrobat Reader does it correctly.)
 
 ### Connecting a TCD by wire
 
