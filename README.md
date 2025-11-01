@@ -222,7 +222,7 @@ In this mode, the buttons light up when briefly pressed, and stay lit after _hol
      <td align="center"><img src="img/b9.png"></td><td>Volume up</td><td>Display IP address</td>
     </tr>
     <tr>
-     <td align="center"><img src="img/b10.png"></td><td>Volume down</td><td><a href="#wifi-power-saving-features">Re-enable WiFi</a> or re-try to <a href="#-home-setup-with-a-pre-existing-local-wifi-network">connect to WiFi</a></td>
+     <td align="center"><img src="img/b10.png"></td><td>Volume down</td><td><a href="#wifi-power-saving-features">Re-enable WiFi</a> or re-try to <a href="#home-setup-with-a-pre-existing-local-wifi-network">connect to WiFi</a></td>
     </tr>
     <tr>
      <td align="center"><img src="img/b4c.png"></td><td></td><td>Delete static IP and AP password</td>
@@ -585,7 +585,7 @@ The timer can be set to 0 (which disables it; WiFi is never switched off; this i
 
 After WiFi has been switched off due to timer expiration, it can be re-enabled by holding button "10" in [Admin button mode](#admin-mode), in which case the timers are restarted (ie WiFi is again switched off after timer expiration).
 
-> Holding "10" in Admin button mode also triggers a re-connection attempt in case your configured WiFi network was not available when the VSR was trying to connect, see [here](#-home-setup-with-a-pre-existing-local-wifi-network).
+> Holding "10" in Admin button mode also triggers a re-connection attempt in case your configured WiFi network was not available when the VSR was trying to connect, see [here](#home-setup-with-a-pre-existing-local-wifi-network).
 
 ## Flash Wear
 
