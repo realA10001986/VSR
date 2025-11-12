@@ -77,6 +77,8 @@ static unsigned long timeNow = 0;
 
 static unsigned long lastKeyPressed = 0;
 
+static uint32_t prevKeyPlayed = 0;
+
 enum {
     VSRB_IDLE = 0,
     VSRB_PRESSED,
@@ -154,7 +156,7 @@ static void controlsEvent(int idx, ButState bstate)
                     // Ugly hack to avoid button sound for volume adjustment; in that
                     // case a sound is played AFTER changing the volume level
                     if(buttonMode != VBM_ADMIN || curSoftVol == 255 || idx == 2) {
-                        play_button_sound();
+                        prevKeyPlayed = play_button_sound();
                     }
                 }
             }
@@ -187,14 +189,15 @@ static void controlsEvent(int idx, ButState bstate)
                     switch(idx) {
                     case 0:
                         if(!bttfnTT || !bttfn_trigger_tt()) {
-                            timeTravel(false);
+                            // We have no "acceleration", hence P0_DUR, not ETTO_LEAD
+                            timeTravel(false, P0_DUR);    
                         }
                         break;
                     case 1:
-                        play_key(3);
+                        play_key(3, prevKeyPlayed);
                         break;
                     case 2:
-                        play_key(6);
+                        play_key(6, prevKeyPlayed);
                         break;
                     }
                     break;

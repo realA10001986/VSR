@@ -719,11 +719,7 @@ void saveBrightness(bool useCache)
  *  Load/save the Volume
  */
 
-#ifdef VSR_HAVEVOLKNOB
-#define T_V_MAX 255
-#else
 #define T_V_MAX 19
-#endif
 
 bool loadCurVolume()
 {
@@ -1637,6 +1633,9 @@ void renameUploadFile(int idx)
         SD.remove(t);
         
         SD.rename(uploadFileName, t);
+
+        // Real name is now changed
+        strcpy(uploadFileName, t);
         
         free(t);
     }

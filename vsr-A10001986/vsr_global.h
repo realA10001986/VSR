@@ -15,8 +15,8 @@
  ***                          Version Strings                          ***
  *************************************************************************/
 
-#define VSR_VERSION "V1.20.1"
-#define VSR_VERSION_EXTRA "OCT262025"
+#define VSR_VERSION "V1.21"
+#define VSR_VERSION_EXTRA "NOV122025"
 
 //#define VSR_DBG              // debug output on Serial
 
@@ -45,9 +45,6 @@
  
 // Uncomment to include BTTFN discover support (multicast)
 #define BTTFN_MC
-
-// Uncomment if hardware has a volume knob
-//#define VSR_HAVEVOLKNOB
 
 // Use SPIFFS (if defined) or LittleFS (if undefined; esp32-arduino >= 2.x)
 //#define USE_SPIFFS
@@ -96,7 +93,5 @@
 #define BUTTON1_PWM_PIN   12      // Button LEDs
 #define BUTTON2_PWM_PIN   16
 #define BUTTON3_PWM_PIN   17
-
-#define VOLUME_PIN        39      // (unused on OEM board)
 
 #endif

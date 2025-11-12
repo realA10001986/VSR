@@ -87,8 +87,8 @@ static const char R_updateacdone[] = "/uac";
 
 static const char acul_part3[]  = "</head><body><div class='wrap'><h1>";
 static const char acul_part5[]  = "</h1><h3>";
-static const char acul_part6[]  = "</h3><div id='lc' class='msg";
-static const char acul_part7[]  = " S'><strong>Upload successful.</strong><br/>Device rebooting.";
+static const char acul_part6[]  = "</h3><div class='msg";
+static const char acul_part7[]  = " S' id='lc'><strong>Upload successful.</strong><br/>Device rebooting.";
 static const char acul_part7a[] = "<br>Installation will proceed after reboot.";
 static const char acul_part71[] = " D'><strong>Upload failed.</strong><br>";
 static const char acul_part8[]  = "</div></div></body></html>";
@@ -127,8 +127,6 @@ static const char *osde = "</option></select></div>";
 static const char *ooe  = "</option><option value='";
 static const char custHTMLSel[] = " selected";
 
-static const char *aco = "autocomplete='off'";
-
 // double-% since this goes through sprintf!
 static const char bestAP[]   = "<div class='c' style='background-color:#%s;color:#fff;font-size:80%%;border-radius:5px'>Proposed channel at current location: %d<br>%s(Non-WiFi devices not taken into account)</div>";
 static const char badWiFi[]  = "<br><i>Operating in AP mode not recommended</i>";
@@ -143,7 +141,7 @@ static const char haveNoSD[] = "<div class='c' style='background-color:#dc3630;c
 #define HNTEXT "Hostname<br><span style='font-size:80%'>(Valid characters: a-z/0-9/-)</span>"
 #endif
 WiFiManagerParameter custom_hostName("hostname", HNTEXT, settings.hostName, 31, "pattern='[A-Za-z0-9\\-]+' placeholder='Example: vsr'");
-WiFiManagerParameter custom_wifiConRetries("wifiret", "Connection attempts (1-10)", settings.wifiConRetries, 2, "type='number' min='1' max='10' autocomplete='off'", WFM_LABEL_BEFORE);
+WiFiManagerParameter custom_wifiConRetries("wifiret", "Connection attempts (1-10)", settings.wifiConRetries, 2, "type='number' min='1' max='10'");
 WiFiManagerParameter custom_wifiConTimeout("wificon", "Connection timeout (7-25[seconds])", settings.wifiConTimeout, 2, "type='number' min='7' max='25'");
 
 WiFiManagerParameter custom_sysID("sysID", "Network name (SSID) appendix<br><span style='font-size:80%'>Will be appended to \"VSR-AP\" to create a unique SSID if multiple VSRs are in range. [a-z/0-9/-]</span>", settings.systemID, 7, "pattern='[A-Za-z0-9\\-]+'");
@@ -157,28 +155,21 @@ WiFiManagerParameter custom_wifihint("<div style='margin:0;padding:0'>Hold '10' 
 
 WiFiManagerParameter custom_aood("<div class='msg P'>Please <a href='/update'>install/update</a> sound pack</div>");
 
-WiFiManagerParameter custom_smoothpw("smp", "Smooth voltage changes", settings.smoothpw, 1, "autocomplete='off' title='Check this to adapt display smoothly to pushwheel values' type='checkbox' class='mt5'", WFM_LABEL_AFTER);
-WiFiManagerParameter custom_fluct("flu", "Voltage fluctuations", settings.fluct, 1, "autocomplete='off' title='Check this to show random voltage fluctuations' type='checkbox'", WFM_LABEL_AFTER);
-WiFiManagerParameter custom_displayBM("dbm", "Display button mode on power-up", settings.displayBM, 1, "autocomplete='off' type='checkbox'", WFM_LABEL_AFTER);
-WiFiManagerParameter custom_signalBM("sbm", "Lights indicate button mode", settings.signalBM, 1, "autocomplete='off' type='checkbox'", WFM_LABEL_AFTER);
-WiFiManagerParameter custom_playTTSnd("plyTTS", "Play time travel sounds", settings.playTTsnds, 1, "autocomplete='off' title='Check to have the device play time travel sounds. Uncheck if other props provide time travel sound.' type='checkbox'", WFM_LABEL_AFTER);
-WiFiManagerParameter custom_playALSnd("plyALS", "Play TCD-alarm sound", settings.playALsnd, 1, "autocomplete='off' title='Check to have the device play a sound then the TCD alarm sounds.' type='checkbox' class='mb10'", WFM_LABEL_AFTER);
-WiFiManagerParameter custom_Bri("Bri", "Brightness level (0-15)", settings.Bri, 2, "type='number' min='0' max='15' autocomplete='off'", WFM_LABEL_BEFORE);
-WiFiManagerParameter custom_ssDelay("ssDel", "Screen saver timer (minutes; 0=off)", settings.ssTimer, 3, "type='number' min='0' max='999' autocomplete='off'", WFM_LABEL_BEFORE);
-
-#ifdef VSR_HAVEVOLKNOB
-WiFiManagerParameter custom_FixV("FixV", "Disable volume knob", settings.FixV, 1, "autocomplete='off' title='Check this if the audio volume should be set by software; if unchecked, the volume knob is used' type='checkbox' class='mt5'", WFM_LABEL_AFTER);
-WiFiManagerParameter custom_Vol("Vol", "Software volume level (0-19)", settings.Vol, 2, "type='number' min='0' max='19' autocomplete='off'", WFM_LABEL_BEFORE);
-#else
-WiFiManagerParameter custom_Vol("Vol", "Volume level (0-19)", settings.Vol, 2, "type='number' min='0' max='19' autocomplete='off'", WFM_LABEL_BEFORE);
-#endif
+WiFiManagerParameter custom_smoothpw("smp", "Smooth voltage changes", settings.smoothpw, 1, "title='Check this to adapt display smoothly to pushwheel values' class='mt5'", WFM_LABEL_AFTER|WFM_IS_CHKBOX);
+WiFiManagerParameter custom_fluct("flu", "Voltage fluctuations", settings.fluct, 1, "title='Check this to show random voltage fluctuations'", WFM_LABEL_AFTER|WFM_IS_CHKBOX);
+WiFiManagerParameter custom_displayBM("dbm", "Display button mode on power-up", settings.displayBM, 1, "", WFM_LABEL_AFTER|WFM_IS_CHKBOX);
+WiFiManagerParameter custom_signalBM("sbm", "Lights indicate button mode", settings.signalBM, 1, "", WFM_LABEL_AFTER|WFM_IS_CHKBOX);
+WiFiManagerParameter custom_playTTSnd("plyTTS", "Play time travel sounds", settings.playTTsnds, 1, "title='Check to have the device play time travel sounds. Uncheck if other props provide time travel sound.'", WFM_LABEL_AFTER|WFM_IS_CHKBOX);
+WiFiManagerParameter custom_playALSnd("plyALS", "Play TCD-alarm sound", settings.playALsnd, 1, "title='Check to have the device play a sound then the TCD alarm sounds.' class='mb10'", WFM_LABEL_AFTER|WFM_IS_CHKBOX);
+WiFiManagerParameter custom_Bri("Bri", "Brightness level (0-15)", settings.Bri, 2, "type='number' min='0' max='15' autocomplete='off'");
+WiFiManagerParameter custom_ssDelay("ssDel", "Screen saver timer (minutes; 0=off)", settings.ssTimer, 3, "type='number' min='0' max='999' autocomplete='off'");
 
 WiFiManagerParameter custom_musicFolder("mfol", "Music folder (0-9)", settings.musicFolder, 2, "type='number' min='0' max='9'");
-WiFiManagerParameter custom_shuffle("musShu", "Shuffle mode enabled at startup", settings.shuffle, 1, "type='checkbox' class='mt5'", WFM_LABEL_AFTER);
+WiFiManagerParameter custom_shuffle("musShu", "Shuffle mode enabled at startup", settings.shuffle, 1, "class='mt5'", WFM_LABEL_AFTER|WFM_IS_CHKBOX);
 
-WiFiManagerParameter custom_diNmOff("dinMOff", "Display off", settings.diNmOff, 1, "title='Dimmed if unchecked' type='checkbox' class='mt5'", WFM_LABEL_AFTER);
+WiFiManagerParameter custom_diNmOff("dinMOff", "Display off", settings.diNmOff, 1, "title='Dimmed if unchecked' class='mt5'", WFM_LABEL_AFTER|WFM_IS_CHKBOX);
 
-WiFiManagerParameter custom_tempUnit("tUnt", "Show temperature in °Celsius", settings.tempUnit, 1, "title='Fahrenheit if unchecked' type='checkbox' class='mt5 mb10'", WFM_LABEL_AFTER);
+WiFiManagerParameter custom_tempUnit("tUnt", "Show temperature in °Celsius", settings.tempUnit, 1, "title='Fahrenheit if unchecked' class='mt5 mb10'", WFM_LABEL_AFTER|WFM_IS_CHKBOX);
 #ifdef VSR_HAVETEMP
 WiFiManagerParameter custom_tempOffs("tOffs", "Sensor offset (-3.0-3.0)", settings.tempOffs, 4, "type='number' min='-3.0' max='3.0' step='0.1' title='Correction value to add to temperature as read from sensor. Ignored when temperature from TCD is displayed.' autocomplete='off'");
 #endif // VSR_HAVETEMP
@@ -188,23 +179,23 @@ WiFiManagerParameter custom_tcdIP("tcdIP", "IP address or hostname of TCD", sett
 #else
 WiFiManagerParameter custom_tcdIP("tcdIP", "IP address of TCD", settings.tcdIP, 31, "pattern='^((25[0-5]|(2[0-4]|1\\d|[1-9]|)\\d)\\.?\\b){4}$' placeholder='Example: 192.168.4.1'");
 #endif
-WiFiManagerParameter custom_uNM("uNM", "Follow TCD night-mode<br><span style='font-size:80%'>If checked, display and lights will be off or dimmed in night-mode.</span>", settings.useNM, 1, "autocomplete='off' type='checkbox' class='mb0'", WFM_LABEL_AFTER);
-WiFiManagerParameter custom_uFPO("uFPO", "Follow TCD fake power", settings.useFPO, 1, "autocomplete='off' type='checkbox'", WFM_LABEL_AFTER);
-WiFiManagerParameter custom_bttfnTT("bttfnTT", "TT buttons trigger BTTFN-wide TT<br><span style='font-size:80%'>If checked, pressing the Time Travel buttons triggers a BTTFN-wide TT</span>", settings.bttfnTT, 1, "autocomplete='off' type='checkbox' class='mb0'", WFM_LABEL_AFTER);
-WiFiManagerParameter custom_ignTT("ignTT", "Ignore network-wide TTs<br><span style='font-size:80%'>If checked, the VSR will not take part in BTTFN/MQTT-wide time travels</span>", settings.ignTT, 1, "autocomplete='off' type='checkbox' class='mb0'", WFM_LABEL_AFTER);
+WiFiManagerParameter custom_uNM("uNM", "Follow TCD night-mode<br><span style='font-size:80%'>If checked, display and lights will be off or dimmed in night-mode.</span>", settings.useNM, 1, "class='mb0'", WFM_LABEL_AFTER|WFM_IS_CHKBOX);
+WiFiManagerParameter custom_uFPO("uFPO", "Follow TCD fake power", settings.useFPO, 1, "", WFM_LABEL_AFTER|WFM_IS_CHKBOX);
+WiFiManagerParameter custom_bttfnTT("bttfnTT", "TT buttons trigger BTTFN-wide TT<br><span style='font-size:80%'>If checked, pressing the Time Travel buttons triggers a BTTFN-wide TT</span>", settings.bttfnTT, 1, "class='mb0'", WFM_LABEL_AFTER|WFM_IS_CHKBOX);
+WiFiManagerParameter custom_ignTT("ignTT", "Ignore network-wide TTs<br><span style='font-size:80%'>If checked, the VSR will not take part in BTTFN/MQTT-wide time travels</span>", settings.ignTT, 1, "class='mb0'", WFM_LABEL_AFTER|WFM_IS_CHKBOX);
 
 #ifdef VSR_HAVEMQTT
-WiFiManagerParameter custom_useMQTT("uMQTT", "Use Home Assistant (MQTT 3.1.1)", settings.useMQTT, 1, "type='checkbox' class='mt5 mb10'", WFM_LABEL_AFTER);
+WiFiManagerParameter custom_useMQTT("uMQTT", "Use Home Assistant (MQTT 3.1.1)", settings.useMQTT, 1, "class='mt5 mb10'", WFM_LABEL_AFTER|WFM_IS_CHKBOX);
 WiFiManagerParameter custom_mqttServer("ha_server", "Broker IP[:port] or domain[:port]", settings.mqttServer, 79, "pattern='[a-zA-Z0-9\\.:\\-]+' placeholder='Example: 192.168.1.5'");
 WiFiManagerParameter custom_mqttUser("ha_usr", "User[:Password]", settings.mqttUser, 63, "placeholder='Example: ronald:mySecret'");
 #endif // HAVEMQTT
 
-WiFiManagerParameter custom_TCDpresent("TCDpres", "TCD connected by wire", settings.TCDpresent, 1, "autocomplete='off' title='Check this if you have a Time Circuits Display connected via wire' type='checkbox' style='margin-top:5px;'", WFM_LABEL_AFTER);
-WiFiManagerParameter custom_noETTOL("uEtNL", "TCD signals Time Travel without 5s lead", settings.noETTOLead, 1, "autocomplete='off' type='checkbox' class='mt5' style='margin-left:20px;'", WFM_LABEL_AFTER);
+WiFiManagerParameter custom_TCDpresent("TCDpres", "TCD connected by wire", settings.TCDpresent, 1, "title='Check this if you have a Time Circuits Display connected via wire' style='margin-top:5px;'", WFM_LABEL_AFTER|WFM_IS_CHKBOX);
+WiFiManagerParameter custom_noETTOL("uEtNL", "TCD signals Time Travel without 5s lead", settings.noETTOLead, 1, "class='mt5' style='margin-left:20px;'", WFM_LABEL_AFTER|WFM_IS_CHKBOX);
 
 WiFiManagerParameter custom_haveSD(wmBuildHaveSD);
-WiFiManagerParameter custom_CfgOnSD("CfgOnSD", "Save secondary settings on SD<br><span style='font-size:80%'>Check this to avoid flash wear</span>", settings.CfgOnSD, 1, "autocomplete='off' type='checkbox' class='mt5 mb0'", WFM_LABEL_AFTER);
-//WiFiManagerParameter custom_sdFrq("sdFrq", "4MHz SD clock speed<br><span style='font-size:80%'>Checking this might help in case of SD card problems</span>", settings.sdFreq, 1, "autocomplete='off' type='checkbox' style='margin-top:12px'", WFM_LABEL_AFTER);
+WiFiManagerParameter custom_CfgOnSD("CfgOnSD", "Save secondary settings on SD<br><span style='font-size:80%'>Check this to avoid flash wear</span>", settings.CfgOnSD, 1, "class='mt5 mb0'", WFM_LABEL_AFTER|WFM_IS_CHKBOX);
+//WiFiManagerParameter custom_sdFrq("sdFrq", "4MHz SD clock speed<br><span style='font-size:80%'>Checking this might help in case of SD card problems</span>", settings.sdFreq, 1, "style='margin-top:12px'", WFM_LABEL_AFTER|WFM_IS_CHKBOX);
 
 WiFiManagerParameter custom_sectstart_head("<div class='sects'>");
 WiFiManagerParameter custom_sectstart("</div><div class='sects'>");
@@ -237,10 +228,11 @@ static const int8_t wifiMenu[TC_MENUSIZE] = {
 #define UNI_VERSION VSR_VERSION 
 #define UNI_VERSION_EXTRA VSR_VERSION_EXTRA
 #define WEBHOME "vsr"
+#define PARM2TITLE ""
 
 static const char myTitle[] = AA_TITLE;
 static const char apName[]  = "VSR-AP";
-static const char myHead[]  = "<link rel='shortcut icon' type='image/png' href='data:image/png;base64," AA_ICON "'><script>window.onload=function(){xx=false;document.title=xxx='" AA_TITLE "';id=-1;ar=['/u','/uac','/wifisave','/paramsave'];ti=['Firmware upload','','WiFi Configuration','Settings'];if(ge('s')&&ge('dns')){xx=true;yyy=ti[2]}if(ge('uploadbin')||(id=ar.indexOf(wlp()))>=0){xx=true;if(id>=2){yyy=ti[id]}else{yyy=ti[0]};aa=gecl('wrap');if(aa.length>0){if(ge('uploadbin')){aa[0].style.textAlign='center';}aa=getn('H3');if(aa.length>0){aa[0].remove()}aa=getn('H1');if(aa.length>0){aa[0].remove()}}}if(ge('ttrp')||wlp()=='/param'){xx=true;yyy=ti[3];}if(ge('ebnew')){xx=true;bb=getn('H3');aa=getn('H1');yyy=bb[0].innerHTML;ff=aa[0].parentNode;ff.style.position='relative';}if(xx){zz=(Math.random()>0.8);dd=document.createElement('div');dd.classList.add('tpm0');dd.innerHTML='<div class=\"tpm\" onClick=\"window.location=\\'/\\'\"><div class=\"tpm2\"><img src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABAAQMAAACQp+OdAAAABlBMVEUAAABKnW0vhlhrAAAAAXRSTlMAQObYZgAAA'+(zz?'GBJREFUKM990aEVgCAABmF9BiIjsIIbsJYNRmMURiASePwSDPD0vPT12347GRejIfaOOIQwigSrRHDKBK9CCKoEqQF2qQMOSQAzEL9hB9ICNyMv8DPKgjCjLtAD+AV4dQM7O4VX9m1RYAAAAABJRU5ErkJggg==':'HtJREFUKM990bENwyAUBuFnuXDpNh0rZIBIrJUqMBqjMAIlBeIihQIF/fZVX39229PscYG32esCzeyjsXUzNHZsI0ocxJ0kcZIOsoQjnxQJT3FUiUD1NAloga6wQQd+4B/7QBQ4BpLAOZAn3IIy4RfUibCgTTDq+peG6AvsL/jPTu1L9wAAAABJRU5ErkJggg==')+'\" class=\"tpm3\"></div><H1 class=\"tpmh1\"'+(zz?' style=\"margin-left:1.4em\"':'')+'>'+xxx+'</H1>'+'<H3 class=\"tpmh3\"'+(zz?' style=\"padding-left:5em\"':'')+'>'+yyy+'</div></div>';}if(ge('ebnew')){bb[0].remove();aa[0].replaceWith(dd);}else if(xx){aa=gecl('wrap');if(aa.length>0){aa[0].insertBefore(dd,aa[0].firstChild);aa[0].style.position='relative';}}var lc=ge('lc');if(lc){lc.style.transform='rotate('+(358+[0,1,3,4,5][Math.floor(Math.random()*4)])+'deg)'}}</script><style type='text/css'>H1,H2{margin-top:0px;margin-bottom:0px;text-align:center;}H3{margin-top:0px;margin-bottom:5px;text-align:center;}button{transition-delay:250ms;margin-top:10px;margin-bottom:10px;font-variant-caps:all-small-caps;border-bottom:0.2em solid #225a98}input{border:thin inset}em > small{display:inline}form{margin-block-end:0;}.tpm{cursor:pointer;border:1px solid black;border-radius:5px;padding:0 0 0 0px;min-width:18em;}.tpm2{position:absolute;top:-0.7em;z-index:130;left:0.7em;}.tpm3{width:4em;height:4em;}.tpmh1{font-variant-caps:all-small-caps;font-weight:normal;margin-left:2.2em;overflow:clip;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI Semibold',Roboto,'Helvetica Neue',Verdana,Helvetica}.tpmh3{background:#000;font-size:0.6em;color:#ffa;padding-left:7.2em;margin-left:0.5em;margin-right:0.5em;border-radius:5px}.tpm0{position:relative;width:20em;padding:5px 0px 5px 0px;margin:0 auto 0 auto;}.cmp0{margin:0;padding:0;}.sel0{font-size:90%;width:auto;margin-left:10px;vertical-align:baseline;}.mt5{margin-top:5px!important}.mb10{margin-bottom:10px!important}.mb0{margin-bottom:0px!important}.mb15{margin-bottom:15px!important}</style>";
+static const char myHead[]  = "<link rel='shortcut icon' type='image/png' href='data:image/png;base64," AA_ICON "'><script>window.onload=function(){xx=false;document.title=xxx='" AA_TITLE "';id=-1;ar=['/u','/uac','/wifisave','/paramsave','/param2save'];ti=['Firmware upload','','WiFi Configuration','Settings','" PARM2TITLE "'];if(ge('s')&&ge('dns')){xx=true;yyy=ti[2]}if(ge('uploadbin')||(id=ar.indexOf(wlp()))>=0){xx=true;if(id>=2){yyy=ti[id]}else{yyy=ti[0]};aa=gecl('wrap');if(aa.length>0){if(ge('uploadbin')){aa[0].style.textAlign='center';}aa=getn('H3');if(aa.length>0){aa[0].remove()}aa=getn('H1');if(aa.length>0){aa[0].remove()}}}if(ge('ttrp')||wlp()=='/param'||wlp()=='/param2'){xx=true;yyy=ti[3];}if(ge('ebnew')){xx=true;bb=getn('H3');aa=getn('H1');yyy=bb[0].innerHTML;ff=aa[0].parentNode;ff.style.position='relative';}if(xx){zz=(Math.random()>0.8);dd=document.createElement('div');dd.classList.add('tpm0');dd.innerHTML='<div class=\"tpm\" onClick=\"window.location=\\'/\\'\"><div class=\"tpm2\"><img src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABAAQMAAACQp+OdAAAABlBMVEUAAABKnW0vhlhrAAAAAXRSTlMAQObYZgAAA'+(zz?'GBJREFUKM990aEVgCAABmF9BiIjsIIbsJYNRmMURiASePwSDPD0vPT12347GRejIfaOOIQwigSrRHDKBK9CCKoEqQF2qQMOSQAzEL9hB9ICNyMv8DPKgjCjLtAD+AV4dQM7O4VX9m1RYAAAAABJRU5ErkJggg==':'HtJREFUKM990bENwyAUBuFnuXDpNh0rZIBIrJUqMBqjMAIlBeIihQIF/fZVX39229PscYG32esCzeyjsXUzNHZsI0ocxJ0kcZIOsoQjnxQJT3FUiUD1NAloga6wQQd+4B/7QBQ4BpLAOZAn3IIy4RfUibCgTTDq+peG6AvsL/jPTu1L9wAAAABJRU5ErkJggg==')+'\" class=\"tpm3\"></div><H1 class=\"tpmh1\"'+(zz?' style=\"margin-left:1.4em\"':'')+'>'+xxx+'</H1>'+'<H3 class=\"tpmh3\"'+(zz?' style=\"padding-left:5em\"':'')+'>'+yyy+'</div></div>';}if(ge('ebnew')){bb[0].remove();aa[0].replaceWith(dd);}else if(xx){aa=gecl('wrap');if(aa.length>0){aa[0].insertBefore(dd,aa[0].firstChild);aa[0].style.position='relative';}}var lc=ge('lc');if(lc){lc.style.transform='rotate('+(358+[0,1,3,4,5][Math.floor(Math.random()*4)])+'deg)'}}</script><style type='text/css'>H1,H2{margin-top:0px;margin-bottom:0px;text-align:center;}H3{margin-top:0px;margin-bottom:5px;text-align:center;}button{transition-delay:250ms;margin-top:10px;margin-bottom:10px;font-variant-caps:all-small-caps;border-bottom:0.2em solid #225a98}input{border:thin inset}em > small{display:inline}form{margin-block-end:0;}.tpm{cursor:pointer;border:1px solid black;border-radius:5px;padding:0 0 0 0px;min-width:18em;}.tpm2{position:absolute;top:-0.7em;z-index:130;left:0.7em;}.tpm3{width:4em;height:4em;}.tpmh1{font-variant-caps:all-small-caps;font-weight:normal;margin-left:2.2em;overflow:clip;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI Semibold',Roboto,'Helvetica Neue',Verdana,Helvetica}.tpmh3{background:#000;font-size:0.6em;color:#ffa;padding-left:7.2em;margin-left:0.5em;margin-right:0.5em;border-radius:5px}.tpm0{position:relative;width:20em;padding:5px 0px 5px 0px;margin:0 auto 0 auto;}.cmp0{margin:0;padding:0;}.sel0{font-size:90%;width:auto;margin-left:10px;vertical-align:baseline;}.mt5{margin-top:5px!important}.mb10{margin-bottom:10px!important}.mb0{margin-bottom:0px!important}.mb15{margin-bottom:15px!important}</style>";
 static const char* myCustMenu = "<img id='ebnew' style='display:block;margin:10px auto 5px auto;' src='data:image/png;base64,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'><div style='font-size:0.9em;line-height:0.9em;font-weight:bold;margin:5px auto 0px auto;text-align:center;font-variant:all-small-caps'>" UNI_VERSION " (" UNI_VERSION_EXTRA ")<br>Powered by A10001986 <a href='https://" WEBHOME ".out-a-ti.me' style='text-decoration:underline' target=_blank>[Home]</a></div>";
 
 const char menu_myNoSP[] = "<hr><div style='margin-left:auto;margin-right:auto;text-align:center;'>Please <a href='/update'>install</a> sound pack</div><hr>";
@@ -251,9 +243,6 @@ static bool shouldDeleteIPConfig = false;
 
 // Did user configure a WiFi network to connect to?
 bool wifiHaveSTAConf = false;
-
-static unsigned long lastConnect = 0;
-static unsigned long consecutiveAPmodeFB = 0;
 
 // WiFi power management in AP mode
 bool          wifiInAPMode = false;
@@ -275,15 +264,13 @@ static int  *ACULerr = NULL;
 static int  *opType = NULL;
 
 #ifdef VSR_HAVEMQTT
-#define       MQTT_SHORT_INT  (30*1000)
-#define       MQTT_LONG_INT   (5*60*1000)
-static const char emptyStr[1] = { 0 };
-bool          useMQTT = false;
-char          *mqttUser = (char *)emptyStr;
-char          *mqttPass = (char *)emptyStr;
-char          *mqttServer = (char *)emptyStr;
-uint16_t      mqttPort = 1883;
-bool          pubMQTT = false;
+#define MQTT_SHORT_INT (30*1000)
+#define MQTT_LONG_INT  (5*60*1000)
+static const char    emptyStr[1] = { 0 };
+static bool          useMQTT = false;
+static char          *mqttUser = (char *)emptyStr;
+static char          *mqttPass = (char *)emptyStr;
+static char          *mqttServer = (char *)emptyStr;
 static unsigned long mqttReconnectNow = 0;
 static unsigned long mqttReconnectInt = MQTT_SHORT_INT;
 static uint16_t      mqttReconnFails = 0;
@@ -300,7 +287,7 @@ static uint16_t      mqttPingsExpired = 0;
 static void wifiConnect(bool deferConfigPortal = false);
 static void wifiOff(bool force);
 
-static void saveParamsCallback();
+static void saveParamsCallback(int);
 static void preSaveWiFiCallback();
 static void saveWiFiCallback(const char *ssid, const char *pass);
 static void preUpdateCallback();
@@ -380,12 +367,6 @@ void wifi_setup()
       &custom_playALSnd,
       &custom_Bri,
       &custom_ssDelay,
-  
-      &custom_sectstart,     // 2 (3)
-      #ifdef VSR_HAVEVOLKNOB
-      &custom_FixV,
-      #endif
-      &custom_Vol,
   
       &custom_sectstart_mp,  // 3
       &custom_musicFolder,
@@ -567,9 +548,12 @@ void wifi_setup2()
     
     if(useMQTT) {
 
+        uint16_t mqttPort = 1883;
         bool mqttRes = false;
         char *t;
         int tt;
+
+        mqttClient.setBufferSize(MQTT_MAX_PACKET_SIZE);
 
         // No WiFi power save if we're using MQTT
         origWiFiOffDelay = wifiOffDelay = 0;
@@ -754,32 +738,6 @@ void wifi_loop()
 
             // Parameters on Settings page
 
-            // Save volume setting
-            #ifdef VSR_HAVEVOLKNOB
-            strcpyCB(settings.FixV, &custom_FixV);
-            #endif
-
-            mystrcpy(settings.Vol, &custom_Vol);
-            
-            #ifdef VSR_HAVEVOLKNOB
-            if(settings.FixV[0] == '0') {
-                if(curSoftVol != 255) {
-                    curSoftVol = 255;
-                    saveCurVolume();
-                }
-            } else if(settings.FixV[0] == '1') {
-            #endif  // HAVEVOLKNOB
-                if(strlen(settings.Vol) > 0) {
-                    temp = atoi(settings.Vol);
-                    if(temp >= 0 && temp <= 19) {
-                        curSoftVol = temp;
-                        saveCurVolume();
-                    }
-                }
-            #ifdef VSR_HAVEVOLKNOB
-            }
-            #endif
-
             // Save music folder number
             if(haveSD) {
                 mystrcpy(settings.musicFolder, &custom_musicFolder);
@@ -869,15 +827,8 @@ void wifi_loop()
         esp_restart();
     }
 
-    // For some reason (probably memory allocation doing some
-    // garbage collection), the first HTTPSend (triggered in
-    // wm.process()) after initiating mp3 playback takes
-    // unusally long, in bad cases 100s of ms. It's worse 
-    // closer to playback start.
-    // This hack skips Webserver-handling inside wm.process() 
-    // if an mp3 playback started within the last 3 seconds.
-    wm.process(!checkAudioStarted());
-
+    wm.process();
+      
     // WiFi power management
     // If a delay > 0 is configured, WiFi is powered-down after timer has
     // run out. The timer starts when the device is powered-up/boots.
@@ -957,8 +908,6 @@ static void wifiConnect(bool deferConfigPortal)
         wifiOnNow = millis();
         wifiAPIsOff = false;  // Sic! Allows checks like if(wifiAPIsOff || wifiIsOff)
 
-        //consecutiveAPmodeFB = 0;  // Reset counter of consecutive AP-mode fall-backs
-
     } else {
         #ifdef VSR_DBG
         Serial.println("Config portal running in AP-mode");
@@ -999,14 +948,7 @@ static void wifiConnect(bool deferConfigPortal)
         wifiAPModeNow = millis();
         wifiIsOff = false;    // Sic!
 
-        /*
-        if(wifiHaveSTAConf) {    
-            consecutiveAPmodeFB++;  // increase counter of consecutive AP-mode fall-backs
-        }
-        */
     }
-
-    //lastConnect = millis();
 }
 
 static void wifiOff(bool force)
@@ -1027,19 +969,13 @@ void wifiOn(unsigned long newDelay, bool alsoInAPMode, bool deferCP)
     unsigned long Now = millis();
     
     // wifiON() is called when holding '10' in ADM mode (with alsoInAPMode
-    // TRUE) [and - UNUSED - (with alsoInAPMode FALSE)].
+    // TRUE)
     //
     // '10' in ADM mode serves two purposes: To re-enable WiFi if in power save
     // mode, and to re-connect to a configured WiFi network if we failed to 
     // connect to that network at the last connection attempt. In both cases,
     // the Config Portal is started.
     //
-    // [Unused:
-    // The call with alsoInAPMode=FALSE should only re-connect if we are in 
-    // power-save  mode after being connected to a user-configured network, 
-    // or if we are in AP mode but the user had config'd a network. Should  
-    // only be called when a short freeze is feasible.]
-    //    
     // "wifiInAPMode" only tells us our latest mode; if the configured WiFi
     // network was - for whatever reason - was not available when we
     // tried to (re)connect, "wifiInAPMode" is true.
@@ -1082,67 +1018,6 @@ void wifiOn(unsigned long newDelay, bool alsoInAPMode, bool deferCP)
             }
 
         }
-
-    } else {      // unused
-
-        /*
-         
-        // If no user-config'd network - no point, bail
-        if(!wifiHaveSTAConf) return;
-
-        if(wifiInAPMode) {  // We are in AP mode (because connection failed)
-
-            #ifdef VSR_DBG
-            Serial.printf("wifiOn: consecutiveAPmodeFB %d\n", consecutiveAPmodeFB);
-            #endif
-
-            // Reset counter of consecutive AP-mode fallbacks
-            // after a couple of days
-            if(Now - lastConnect > 4*24*60*60*1000)
-                consecutiveAPmodeFB = 0;
-
-            // Give up after so many attempts
-            if(consecutiveAPmodeFB > 5)
-                return;
-
-            // Do not try to switch from AP- to STA-mode
-            // if last fall-back to AP-mode was less than
-            // 15 (for the first 2 attempts, then 90) minutes ago
-            if(Now - lastConnect < ((consecutiveAPmodeFB <= 2) ? 15*60*1000 : 90*60*1000))
-                return;
-
-            if(!wifiAPIsOff) {
-
-                // If ON, disable WiFi at this point
-                // (in hope of successful connection below)
-                wifiOff(true);
-
-            }
-
-        } else {            // We are in STA mode
-
-            // If WiFi is not off, check if caller wanted
-            // to start the CP, and do so, if not running
-            if(!wifiIsOff && (WiFi.status() == WL_CONNECTED)) {
-                if(!deferCP) {
-                    if(!wm.getWebPortalActive()) {
-                        wm.startWebPortal();
-                    }
-                }
-                // Add 60 seconds to timer in case the NTP
-                // request might fall off the edge
-                if(origWiFiOffDelay > 0) {
-                    if((Now - wifiOnNow >= wifiOffDelay) ||
-                       ((wifiOffDelay - (Now - wifiOnNow)) < (60*1000))) {
-                        wifiOnNow += (60*1000);
-                    }
-                }
-                return;
-            }
-
-        }
-
-        */
 
     }
 
@@ -1239,10 +1114,11 @@ static void saveWiFiCallback(const char *ssid, const char *pass)
 }
 
 // This is the callback from the actual Params page. We read out
-// thew WM "Settings" parameters and save them.
-static void saveParamsCallback()
+// the WM "Settings" parameters and save them.
+// paramspage is 1 or 2
+static void saveParamsCallback(int paramspage)
 {
-    shouldSaveConfig = 2;
+    shouldSaveConfig = paramspage + 1;
 }
 
 // This is called before a firmware updated is initiated.
@@ -1432,13 +1308,6 @@ void gpCallback(int reason)
     if(audioInitDone) {
         switch(reason) {
         case WM_LP_PREHTTPSEND:
-            if(wifiInAPMode) {
-                if(checkMP3Running()) {
-                    mp_stop();
-                    stopAudio();
-                    return;
-                }
-            } // fall through
         case WM_LP_NONE:
         case WM_LP_POSTHTTPSEND:
             audio_loop();
@@ -1495,28 +1364,6 @@ void updateConfigPortalValues()
 
     setCBVal(&custom_CfgOnSD, settings.CfgOnSD);
     //setCBVal(&custom_sdFrq, settings.sdFreq);
-}
-
-void updateConfigPortalVolValues()
-{
-    #ifdef VSR_HAVEVOLKNOB
-    if(curSoftVol == 255) {
-        strcpy(settings.FixV, "0");
-        strcpy(settings.Vol, "6");
-    } else {
-        strcpy(settings.FixV, "1");
-        sprintf(settings.Vol, "%d", curSoftVol);
-    }
-    #else
-    if(curSoftVol > 19) curSoftVol = DEFAULT_VOLUME;
-    sprintf(settings.Vol, "%d", curSoftVol);
-    #endif
-    
-    #ifdef VSR_HAVEVOLKNOB
-    setCBVal(&custom_FixV, settings.FixV);
-    #endif
-    
-    custom_Vol.setValue(settings.Vol, 2);
 }
 
 void updateConfigPortalMFValues()
@@ -1989,16 +1836,27 @@ static void mqttLooper()
     audio_loop();
 }
 
+static uint16_t a2i(char *p)
+{
+    unsigned int t = 0;
+    t += (*p++ - '0') * 1000;
+    t += (*p++ - '0') * 100;
+    t += (*p++ - '0') * 10;
+    t += (*p - '0');
+
+    return (uint16_t)t;
+}
+
 static void mqttCallback(char *topic, byte *payload, unsigned int length)
 {
     int i = 0, j, ml = (length <= 255) ? length : 255;
     char tempBuf[256];
     static const char *cmdList[] = {
       "TIMETRAVEL",       // 0
-      "DISPLAY_PW",
-      "DISPLAY_TEMP",
-      "DISPLAY_SPEED",
-      "WWW",              // [Placeholder]
+      "DISPLAY_PW",       // 1
+      "DISPLAY_TEMP",     // 2
+      "DISPLAY_SPEED",    // 3
+      "WWW",              // 4 [Placeholder]
       "MP_SHUFFLE_ON",    // 5 
       "MP_SHUFFLE_OFF",   // 6
       "MP_PLAY",          // 7
@@ -2006,6 +1864,9 @@ static void mqttCallback(char *topic, byte *payload, unsigned int length)
       "MP_NEXT",          // 9
       "MP_PREV",          // 10
       "MP_FOLDER_",       // 11  MP_FOLDER_0..MP_FOLDER_9
+      "PLAYKEY_",         // 12  PLAYKEY_1..PLAYKEY_9
+      "STOPKEY",          // 13
+      "INJECT_",          // 14
       NULL
     };
     static const char *cmdList2[] = {
@@ -2017,6 +1878,12 @@ static void mqttCallback(char *topic, byte *payload, unsigned int length)
       "WAKEUP",           // 5
       NULL
     };
+
+    // Note: This might be called while we are in a
+    // wait-delay-loop. Best to just set flags here
+    // that are evaluated synchronously (=later).
+    // Do not stuff that messes with display, input,
+    // etc.
 
     if(!length) return;
 
@@ -2049,9 +1916,7 @@ static void mqttCallback(char *topic, byte *payload, unsigned int length)
             // sound (if to be played)
             // We don't ignore this if TCD is connected by wire,
             // because this signal does not come via wire.
-            if(!ignTT && !TTrunning) {
-                prepareTT();
-            }
+            doPrepareTT = true;
             break;
         case 1:
             // Trigger Time Travel (if not running already)
@@ -2061,7 +1926,13 @@ static void mqttCallback(char *topic, byte *payload, unsigned int length)
                 networkTCDTT = true;
                 networkReentry = false;
                 networkAbort = false;
-                networkLead = ETTO_LEAD;
+                if(strlen(tempBuf) == 20) {   // FIXME really 20?
+                    networkLead = a2i(&tempBuf[11]);
+                    networkP1 = a2i(&tempBuf[16]);
+                } else {
+                    networkLead = ETTO_LEAD;
+                    networkP1 = 6600;
+                }
             }
             break;
         case 2:   // Re-entry
@@ -2083,9 +1954,7 @@ static void mqttCallback(char *topic, byte *payload, unsigned int length)
             // Eval this at our convenience
             break;
         case 5:   // Wakeup
-            if(!TTrunning) {
-                wakeup();
-            }
+            doWakeup = true;
             break;
         }
        
@@ -2094,8 +1963,8 @@ static void mqttCallback(char *topic, byte *payload, unsigned int length)
         // User commands
 
         // Not taking commands under these circumstances:
-        if(TTrunning || !FPBUnitIsOn)
-            return;
+        //if(TTrunning || !FPBUnitIsOn)
+        //    return;
         
         while(cmdList[i]) {
             j = strlen(cmdList[i]);
@@ -2107,52 +1976,39 @@ static void mqttCallback(char *topic, byte *payload, unsigned int length)
 
         if(!cmdList[i]) return;
 
+        // What needs to be handled here:
+        // - complete command parsing
+        // - stuff to execute when fake power is off
+        // All other stuff translated into command and queued
+        
         switch(i) {
-        case 0:
-            // Trigger Time Travel; treated like button, not
-            // like TT from TCD.
-            networkTimeTravel = true;
-            networkTCDTT = false;
-            break;
         case 1:
-            userDispMode = LDM_WHEELS;
-            break;
         case 2:
-            userDispMode = LDM_TEMP;
-            break;
         case 3:
-            userDispMode = LDM_GPS;
-            break;
-        case 4:
-            // Placeholder
+            addCmdQueue(10 + i - 1);
             break;
         case 5:
         case 6:
-            if(haveMusic) mp_makeShuffle((i == 5));
-            break;
-        case 7:    
-            if(haveMusic) mp_play();
-            break;
-        case 8:
-            if(haveMusic && mpActive) {
-                mp_stop();
-            }
-            break;
-        case 9:
-            if(haveMusic) mp_next(mpActive);
-            break;
-        case 10:
-            if(haveMusic) mp_prev(mpActive);
+            addCmdQueue((i == 5) ? 555 : 222);
             break;
         case 11:
-            if(haveSD) {
-                if(strlen(tempBuf) > j && tempBuf[j] >= '0' && tempBuf[j] <= '9') {
-                    switchMusicFolder((uint8_t)(tempBuf[j] - '0'));
-                }
+            if(strlen(tempBuf) > j && tempBuf[j] >= '0' && tempBuf[j] <= '9') {
+                addCmdQueue(50 + (uint32_t)(tempBuf[j] - '0'));
             }
             break;
+        case 12:
+            if(strlen(tempBuf) > j && tempBuf[j] >= '1' && tempBuf[j] <= '9') {
+                addCmdQueue(500 + (uint32_t)(tempBuf[j] - '0'));
+            }
+            break;
+        case 14:
+            if(strlen(tempBuf) > j) {
+                addCmdQueue(atoi(tempBuf+j) | 0x80000000);
+            }
+            break;
+        default:
+            addCmdQueue(1000 + i);
         }
-            
     } 
 }
 

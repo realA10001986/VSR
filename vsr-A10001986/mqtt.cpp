@@ -72,15 +72,16 @@ PubSubClient::PubSubClient(WiFiClient& client)
     this->_state = MQTT_DISCONNECTED;
     this->_client = &client;
     this->bufferSize = 0;
-    setBufferSize(MQTT_MAX_PACKET_SIZE);
     this->keepAlive = MQTT_KEEPALIVE;
     this->socketTimeout = MQTT_SOCKET_TIMEOUT * 1000;
     setLooper(defLooper);
+    // user MUST call setBufferSize before connecting
 }
 
 PubSubClient::~PubSubClient()
 {
-    free(this->buffer);
+    if(this->bufferSize) 
+        free(this->buffer);
 }
 
 bool PubSubClient::connect(const char *id)

@@ -78,8 +78,6 @@ static AudioOutputI2S *out;
 bool audioInitDone = false;
 bool audioMute = false;
 
-unsigned long audioplaystart = 0;
-
 bool haveMusic = false;
 bool mpActive = false;
 static uint16_t maxMusic = 0;
@@ -95,15 +93,6 @@ static const float volTable[20] = {
     0.70, 0.80, 0.90, 1.00
 };
 uint8_t         curSoftVol = DEFAULT_VOLUME;
-#ifdef VSR_HAVEVOLKNOB
-// Resolution for pot, 9-12 allowed
-#define POT_RESOLUTION 9
-#define VOL_SMOOTH_SIZE 4
-static int      rawVol[VOL_SMOOTH_SIZE];
-static int      rawVolIdx = 0;
-static int      anaReadCount = 0;
-static long     prev_avg, prev_raw, prev_raw2;
-#endif
 static uint32_t g(uint32_t a, int o) { return a << (PA_MASKA - o); }
 
 static float    curVolFact = 1.0;
@@ -111,12 +100,11 @@ static bool     curChkNM   = false;
 static bool     dynVol     = true;
 static int      sampleCnt = 0;
 
-static uint16_t key_playing = 0;
-static uint16_t key_played = 0;
+static uint32_t key_playing = 0;
 
 static char     append_audio_file[256];
 static float    append_vol;
-static uint16_t append_flags;
+static uint32_t append_flags;
 static bool     appendFile = false;
 
 static char     keySnd[] = "/key3.mp3"; // not const
@@ -124,6 +112,7 @@ static bool     haveKeySnd[10];
 
 static const char *tcdrdone = "/TCD_DONE.TXT";   // leave "TCD", SD is interchangable this way
 unsigned long   renNow1;
+unsigned long   renNow2;
 
 static float    getVolume();
 
@@ -148,12 +137,6 @@ void audio_setup()
     audioLogger = &Serial;
     #endif
 
-    // Set resolution for volume pot
-    #ifdef VSR_HAVEVOLKNOB
-    analogReadResolution(POT_RESOLUTION);
-    analogSetWidth(POT_RESOLUTION);
-    #endif
-
     out = new AudioOutputI2S(0, 0, 32, 0);
     out->SetOutputModeMono(true);
     out->SetPinout(I2S_BCLK_PIN, I2S_LRCLK_PIN, I2S_DIN_PIN);
@@ -168,7 +151,6 @@ void audio_setup()
     }
 
     loadCurVolume();
-    updateConfigPortalVolValues();
 
     loadMusFoldNum();
     updateConfigPortalMFValues();
@@ -190,7 +172,6 @@ void audio_setup()
 
     // Check for keyX sounds to avoid unsuccessful file-lookups every time
     for(int i = 1; i < 10; i++) {
-        if(i == 8) continue;
         keySnd[4] = '0' + i;
         haveKeySnd[i] = check_file_SD(keySnd);
     }
@@ -208,7 +189,6 @@ void audio_loop()
         if(!mp3->loop()) {
             mp3->stop();
             key_playing = 0;
-            audioplaystart = 0;
             if(appendFile) {
                 play_file(append_audio_file, append_flags, append_vol);
             } else if(mpActive) {
@@ -225,7 +205,6 @@ void audio_loop()
         if(!wav->loop()) {
             wav->stop();
             key_playing = 0;
-            audioplaystart = 0;
             if(appendFile) {
                 play_file(append_audio_file, append_flags, append_vol);
             } else if(mpActive) {
@@ -273,7 +252,7 @@ static int findWAVdata(char *buf)
     return 0;
 }
 
-void append_file(const char *audio_file, uint16_t flags, float volumeFactor)
+void append_file(const char *audio_file, uint32_t flags, float volumeFactor)
 {
     strcpy(append_audio_file, audio_file);
     append_flags = flags;
@@ -285,7 +264,7 @@ void append_file(const char *audio_file, uint16_t flags, float volumeFactor)
     #endif
 }
 
-void play_file(const char *audio_file, uint16_t flags, float volumeFactor)
+void play_file(const char *audio_file, uint32_t flags, float volumeFactor)
 {
     char buf[64];
     int32_t curSeek = 0;
@@ -310,17 +289,11 @@ void play_file(const char *audio_file, uint16_t flags, float volumeFactor)
     } else if(wav->isRunning()) {
         wav->stop();
     }
-    audioplaystart = 0;
 
     curVolFact  = volumeFactor;
     curChkNM    = (flags & PA_IGNNM)  ? false : true;
     dynVol      = (flags & PA_DYNVOL) ? true : false;
-    key_playing = flags & 0xff00;
-
-    #ifdef VSR_HAVEVOLKNOB
-    rawVolIdx = 0;
-    anaReadCount = 0;
-    #endif
+    key_playing = flags & 0x1ff00;
     
     out->SetGain(getVolume());
 
@@ -341,7 +314,6 @@ void play_file(const char *audio_file, uint16_t flags, float volumeFactor)
             mySD0L->setStartPos(curSeek);
             mySD0L->seek(curSeek, SEEK_SET);
             mp3->begin(mySD0L, out);
-            audioplaystart = millis();
         }
         
         #ifdef VSR_DBG
@@ -368,7 +340,6 @@ void play_file(const char *audio_file, uint16_t flags, float volumeFactor)
             myFS0L->setStartPos(curSeek);
             myFS0L->seek(curSeek, SEEK_SET);
             mp3->begin(myFS0L, out);
-            audioplaystart = millis();
         }
         
         #ifdef VSR_DBG
@@ -385,10 +356,11 @@ void play_file(const char *audio_file, uint16_t flags, float volumeFactor)
 /*
  * Play specific sounds
  */
-void play_button_sound()
+uint32_t play_button_sound()
 {
-    key_played = key_playing;
+    uint32_t prevKeyPlayed = key_playing;
     play_file("/button.mp3", PA_ALLOWSD, 1.0);
+    return prevKeyPlayed;
 }
 
 void play_buttonl_sound()
@@ -406,20 +378,20 @@ void play_volchg_sound()
     play_file("/volchg.mp3", PA_ALLOWSD, 1.0);
 }
 
-void play_key(int k)
+void play_key(int k, uint32_t prevKeyPlayed)
 {
-    uint16_t pa_key = (k == 9) ? 0x8000 : (1 << (7+k));
+    uint32_t pa_key = (1 << (7+k));
     
     if(!haveKeySnd[k]) return; 
 
-    if(key_played == pa_key) {
-        key_played = 0;
+    if(prevKeyPlayed == pa_key) {
+        // Logic for button sound having interrupted
+        // us already; no need to stop().
         return;
     }
     if(pa_key == key_playing) {
         mp3->stop();
         key_playing = 0;
-        audioplaystart = 0;
         return;
     }
     
@@ -427,81 +399,11 @@ void play_key(int k)
     play_file(keySnd, pa_key|PA_INTRMUS|PA_ALLOWSD|PA_DYNVOL);
 }
 
-// Returns value for volume based on the position of the pot
-// Since the values vary we do some noise reduction
-#ifdef VSR_HAVEVOLKNOB
-static float getRawVolume()
-{
-    float vol_val;
-    long avg = 0, avg1 = 0, avg2 = 0;
-    long raw;
-
-    raw = analogRead(VOLUME_PIN);
-
-    if(anaReadCount > 1) {
-      
-        rawVol[rawVolIdx] = raw;
-
-        if(anaReadCount < VOL_SMOOTH_SIZE) {
-        
-            avg = 0;
-            for(int i = rawVolIdx; i > rawVolIdx - anaReadCount; i--) {
-                avg += rawVol[i & (VOL_SMOOTH_SIZE-1)];
-            }
-            avg /= anaReadCount;
-            anaReadCount++;
-
-        } else {
-
-            for(int i = rawVolIdx; i > rawVolIdx - anaReadCount; i--) {
-                if(i & 1) { 
-                    avg1 += rawVol[i & (VOL_SMOOTH_SIZE-1)];
-                } else {
-                    avg2 += rawVol[i & (VOL_SMOOTH_SIZE-1)];
-                }
-            }
-            avg1 = round((float)avg1 / (float)(VOL_SMOOTH_SIZE/2));
-            avg2 = round((float)avg2 / (float)(VOL_SMOOTH_SIZE/2));
-            avg = (abs(avg1-prev_avg) < abs(avg2-prev_avg)) ? avg1 : avg2;
-
-            //Serial.printf("%d %d %d %d\n", raw, avg1, avg2, avg);
-            
-            prev_avg = avg;
-        }
-        
-    } else {
-      
-        anaReadCount++;
-        rawVol[rawVolIdx] = avg = prev_avg = prev_raw = prev_raw2 = raw;
-        
-    }
-
-    rawVolIdx++;
-    rawVolIdx &= (VOL_SMOOTH_SIZE-1);
-
-    vol_val = (float)avg / (float)((1<<POT_RESOLUTION)-1);
-
-    if((raw + prev_raw + prev_raw2 > 0) && vol_val < 0.01) vol_val = 0.01;
-
-    prev_raw2 = prev_raw;
-    prev_raw = raw;
-
-    //Serial.println(vol_val);
-
-    return vol_val;
-}
-#endif
-
 static float getVolume()
 {
     float vol_val;
 
-    #ifdef VSR_HAVEVOLKNOB
-    if(curSoftVol == 255) {
-        vol_val = getRawVolume();
-    } else 
-    #endif
-        vol_val = volTable[curSoftVol];
+    vol_val = volTable[curSoftVol];
 
     // If user muted, return 0
     if(vol_val == 0.0) return vol_val;
@@ -564,21 +466,19 @@ void stopAudioAtLoopEnd()
     }
 }
 
+bool stop_key()
+{
+    if(key_playing) {
+        mp3->stop();
+        key_playing = 0;
+        return true;
+    }
+    return false;
+}
+
 bool append_pending()
 {
     return appendFile;
-}
-
-bool checkAudioStarted()
-{
-    if(!audioplaystart)
-        return false;
-
-    if(millis() - audioplaystart < 3000) {
-        return true;
-    }
-
-    return false;
 }
 
 /*
@@ -725,7 +625,6 @@ bool mp_stop()
     if(mpActive) {
         mp3->stop();
         mpActive = false;
-        audioplaystart = 0;
     }
     
     return ret;
@@ -852,36 +751,58 @@ int mp_checkForFolder(int num)
  * Auto-renamer
  */
 
-// Check file is eligible for renaming:
+
+// Check file is eligable for renaming:
 // - not a hidden/exAtt file,
+// - file name ends with ".mp3"
 // - filename not already "/musicX/ddd.mp3"
 static bool mpren_checkFN(const char *buf)
 {
-    // Hidden or macOS exAttr file, ignore
+    // Hidden or macOS exAttr file? Ignore.
     if(buf[0] == '.') return true;
 
-    if(strlen(buf) != 7) return false;
+    size_t s = strlen(buf);
 
-    if(buf[3+0] != '.' || buf[3+3] != '3')
-        return false;
-    if(buf[3+1] != 'm' && buf[3+1] != 'M')
-        return false;
-    if(buf[3+2] != 'p' && buf[3+2] != 'P')
+    // Filename shorter than ".mp3"? Ignore.
+    if(s < 4) return true;
+
+    s -= 4;
+    // Not an mp3? Ignore.
+    if(buf[s] != '.' || buf[s+3] != '3')
+        return true;
+    if(buf[s+1] != 'm' && buf[s+1] != 'M')
+        return true;
+    if(buf[s+2] != 'p' && buf[s+2] != 'P')
+        return true;
+
+    // Now check for xxx.mp3 (xxx=000-999)
+
+    // Filename shorter or longer? Do it.
+    if(s != 3)
         return false;
 
+    // Filename not a 3-digit number? Do it.
     if(buf[0] < '0' || buf[0] > '9' ||
        buf[1] < '0' || buf[1] > '9' ||
        buf[2] < '0' || buf[2] > '9')
         return false;
 
+    // Otherwise ignore.
     return true;
 }
 
-static void mpren_looper(bool isSetup, bool checking)
-{       
-    if(millis() - renNow1 > 250) {
+static void mpren_looper(bool isSetup, bool checking, int fileNum)
+{
+    unsigned long now = millis();
+    
+    if(now - renNow1 > 250) {
         wifi_loop();
-        renNow1 = millis();
+        delay(10);
+        renNow1 = now;
+    }
+    if(!checking && (now - renNow2 > 2000)) {
+        showNumber(fileNum);
+        renNow2 = now;
     }
 }
 
@@ -910,7 +831,7 @@ static bool mp_renameFilesInDir(bool isSetup)
 #endif
     const char *funcName = "MusicPlayer/Renamer: ";
 
-    renNow1 = millis();
+    renNow1 = renNow2 = millis();
 
     // Build "DONE"-file name
     sprintf(fnbuf, "/music%1d", num);
@@ -979,7 +900,7 @@ static bool mp_renameFilesInDir(bool isSetup)
 #endif
     {
 
-        mpren_looper(isSetup, true);
+        mpren_looper(isSetup, true, 0);
 
 #ifdef HAVE_GETNEXTFILENAME
 
@@ -1089,7 +1010,7 @@ static bool mp_renameFilesInDir(bool isSetup)
 
         for(int i = 0; i < fileNum && count <= 999; i++) {
             
-            mpren_looper(isSetup, false);
+            mpren_looper(isSetup, false, fileNum - i);
 
             sprintf(fnbuf + 8, "%03d.mp3", count);
             strcpy(fnbuf2 + 8, a[i]);

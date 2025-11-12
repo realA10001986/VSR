@@ -52,12 +52,8 @@
 #ifndef _VSR_AUDIO_H
 #define _VSR_AUDIO_H
 
-// Default volume (index or 255 for knob)
-#ifdef VSR_HAVEVOLKNOB
+// Default volume (index)
 #define DEFAULT_VOLUME 10
-#else
-#define DEFAULT_VOLUME 10  // (not 255!)
-#endif
 
 #define PA_LOOP    0x0001
 #define PA_INTRMUS 0x0002
@@ -71,22 +67,22 @@
 void audio_setup();
 void audio_loop();
 
-void play_file(const char *audio_file, uint16_t flags, float volumeFactor = 1.0);
-void append_file(const char *audio_file, uint16_t flags, float volumeFactor = 1.0);
+void play_file(const char *audio_file, uint32_t flags, float volumeFactor = 1.0);
+void append_file(const char *audio_file, uint32_t flags, float volumeFactor = 1.0);
 
-void play_button_sound();
-void play_buttonl_sound();
-void play_button_bad();
-void play_key(int k);
-void play_volchg_sound();
+uint32_t play_button_sound();
+void     play_buttonl_sound();
+void     play_button_bad();
+void     play_key(int k, uint32_t prevKeyPlayed = 0xffff);
+void     play_volchg_sound();
 
 bool check_file_SD(const char *audio_file);
 bool checkAudioDone();
 bool checkMP3Running();
 void stopAudio();
 void stopAudioAtLoopEnd();
+bool stop_key();
 bool append_pending();
-bool checkAudioStarted();
 
 void     mp_init(bool isSetup);
 void     mp_play(bool forcePlay = true);

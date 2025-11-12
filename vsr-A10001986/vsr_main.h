@@ -67,8 +67,9 @@ extern bool          udispchanged;
 extern unsigned long udispchgnow;
 
 // Durations of tt phases for *internal* tt
-#define P0_DUR           700    // acceleration phase
-#define P1_DUR          5000    // time tunnel phase
+#define P0_DUR          1000    // acceleration phase (stand-alone; only relay-click-lead)
+#define P1_DUR_TCD      6600    // time tunnel phase (synced; overruled by TCD network commands)
+#define P1_DUR          5000    // time tunnel phase (stand-alone)
 #define P2_DUR          3000    // re-entry phase
 
 extern unsigned long powerupMillis;
@@ -99,6 +100,10 @@ extern bool networkReentry;
 extern bool networkAbort;
 extern bool networkAlarm;
 extern uint16_t networkLead;
+extern uint16_t networkP1;
+
+extern bool doPrepareTT;
+extern bool doWakeup;
 
 extern bool ssActive;
  
@@ -112,7 +117,7 @@ void flushDelayedSave();
 void increaseVolume();
 void decreaseVolume();
 
-void timeTravel(bool TCDtriggered, uint16_t P0Dur = P0_DUR);
+void timeTravel(bool TCDtriggered, uint16_t P0Dur = P0_DUR, uint16_t P1Dur = 0);
 
 void displaySysMsg(const char *msg, unsigned long timeout);
 
@@ -124,6 +129,7 @@ void ssRestartTimer();
 void showWaitSequence();
 void endWaitSequence();
 void showCopyError();
+void showNumber(int num);
 
 void allOff();
 void prepareReboot();
@@ -139,6 +145,7 @@ void waitAudioDone();
 void myCustomDelay_KP(unsigned long mydel);
 void mydelay(unsigned long mydel);
 
+void addCmdQueue(uint32_t command);
 void bttfn_loop();
 bool bttfn_trigger_tt();
 

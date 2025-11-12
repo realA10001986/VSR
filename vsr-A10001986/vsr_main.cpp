@@ -149,6 +149,8 @@ bool networkAlarm      = false;
 uint16_t networkLead   = ETTO_LEAD;
 uint16_t networkP1     = 6600;
 
+static bool tcdIsBusy  = false;
+
 #define GPS_GRACE_PERIOD 1000
 static bool usingGPSS   = false;
 static int16_t gpsSpeed = -1;
@@ -190,18 +192,21 @@ static bool nmOverruled = false;
 bool        bttfnTT = false;
 bool        ignTT = false;
 
+bool doPrepareTT = false;
+bool doWakeup = false;
+
 // Time travel status flags etc.
 #define RELAY_AHEAD  1000                // Relay-click ahead of reaching 88 (in ms) (used for sync'd tts only)
 bool                 TTrunning = false;  // TT sequence is running
 static bool          extTT = false;      // TT was triggered by TCD
 static unsigned long TTstart = 0;
 static unsigned long P0duration = ETTO_LEAD;
+static unsigned long P1_maxtimeout = 10000;
 static bool          TTP0 = false;
 static bool          TTP1 = false;
 static bool          TTP2 = false;
 static unsigned long TTFInt = 0;
 static unsigned long TTFDelay = 0;
-static unsigned long TTfUpdNow = 0;
 static int           TTcnt = 0;
 #define TT_V_LEV     0.7
 
@@ -246,10 +251,11 @@ bool                 FPBUnitIsOn = true;
 #define BTTFN_NOT_AUX_CMD  11
 #define BTTFN_NOT_VSR_CMD  12
 #define BTTFN_NOT_SPD      15
+#define BTTFN_NOT_BUSY     16
 #define BTTFN_TYPE_ANY     0    // Any, unknown or no device
 #define BTTFN_TYPE_FLUX    1    // Flux Capacitor
 #define BTTFN_TYPE_SID     2    // SID
-#define BTTFN_TYPE_PCG     3    // Plutonium gauge panel
+#define BTTFN_TYPE_PCG     3    // Dash Gauges
 #define BTTFN_TYPE_VSR     4    // VSR
 #define BTTFN_TYPE_AUX     5    // Aux (user custom device)
 #define BTTFN_TYPE_REMOTE  6    // Futaba remote control
@@ -556,6 +562,9 @@ void main_loop()
             nmOverruled = false;
 
             flushDelayedSave();
+
+            doPrepareTT = false;
+            doWakeup = false;
             
             // FIXME - anything else?
             
@@ -595,7 +604,21 @@ void main_loop()
         fpoOld = tcdFPO;
     }
 
-    // Execute remote commands
+    // Eval flags set in handle_tcd_notification
+    if(doPrepareTT) {
+        if(FPBUnitIsOn && !ignTT && !TTrunning) {
+            prepareTT();
+        }
+        doPrepareTT = false;
+    }
+    if(doWakeup) {
+        if(FPBUnitIsOn && !TTrunning) {
+            wakeup();
+        }
+        doWakeup = false;
+    }
+
+    // Execute remote commands from TCD or MQTT
     if(FPBUnitIsOn) {
         execute_remote_command();
     }
@@ -649,7 +672,8 @@ void main_loop()
                     ssEnd();
                 }
                 if(TCDconnected || !bttfnTT || !bttfn_trigger_tt()) {
-                    timeTravel(TCDconnected, noETTOLead ? 0 : ETTO_LEAD);
+                    // stand-alone TT with P0_DUR lead, not ETTO_LEAD
+                    timeTravel(TCDconnected, (TCDconnected && noETTOLead) ? 0 : (TCDconnected ? ETTO_LEAD : P0_DUR));
                 }
             }
         }
@@ -658,7 +682,7 @@ void main_loop()
         if(networkTimeTravel) {
             networkTimeTravel = false;
             ssEnd();
-            timeTravel(networkTCDTT, networkLead);
+            timeTravel(networkTCDTT, networkLead, networkP1);
         }
     }
 
@@ -680,19 +704,14 @@ void main_loop()
 
                     // TT "acceleration"
 
-                    if(!TTFDelay || (now - TTfUpdNow >= TTFDelay)) {
-
-                        TTFDelay = 0;
+                    if(now - TTstart >= TTFDelay) {
                         if(TTFInt) {
-                            TTFInt = 0;
                             if(playTTsounds) {
                                 play_file("/ttstart.mp3", PA_INTRMUS|PA_ALLOWSD, TT_V_LEV);
                                 append_file("/humm.wav", PA_LOOP|PA_WAV|PA_INTRMUS|PA_ALLOWSD, TT_V_LEV);
                             }
-
+                            TTFInt = 0;
                         }
-                        TTfUpdNow = now;
-                       
                     } 
                       
                     // Update display during "acceleration"
@@ -708,32 +727,32 @@ void main_loop()
 
                 } else {
 
-                    if(TTstart == TTfUpdNow) {
+                    // If we have missed P0, play it now
+                    if(TTFInt) {
                         if(playTTsounds) {
-                            // If we have skipped P0, play it now
                             play_file("/ttstart.mp3", PA_INTRMUS|PA_ALLOWSD, TT_V_LEV);
                             append_file("/humm.wav", PA_LOOP|PA_WAV|PA_INTRMUS|PA_ALLOWSD, TT_V_LEV);
                         }
                     }
 
+                    vsrdisplay.setText("1.21");
+                    vsrdisplay.show();
+
                     TTP0 = false;
                     TTP1 = true;
 
-                    TTstart = TTfUpdNow = now;
+                    TTstart = now;
                     TTFInt = 1;
 
                 }
             }
-            if(TTP1) {   // Peak/"time tunnel" - ends with pin going LOW or MQTT "REENTRY"
+            if(TTP1) {   // Peak/"time tunnel" - ends with pin going LOW or MQTT "REENTRY" (or a long timeout)
 
-                if( (networkTCDTT && (!networkReentry && !networkAbort)) || (!networkTCDTT && digitalRead(TT_IN_PIN))) 
-                {
+                if(((networkTCDTT && (!networkReentry && !networkAbort)) || 
+                    (!networkTCDTT && digitalRead(TT_IN_PIN)))               &&
+                    (millis() - TTstart <  P1_maxtimeout) ) {
 
-                    if(TTFInt) {
-                        vsrdisplay.setText("1.21");
-                        vsrdisplay.show();
-                        TTFInt = 0;
-                    }
+                   // Wait...
                     
                 } else {
 
@@ -741,8 +760,6 @@ void main_loop()
                     TTP2 = true; 
 
                     if(playTTsounds) {
-                        //append_file("/ttend.mp3", PA_INTRMUS|PA_ALLOWSD, TT_V_LEV);
-                        //stopAudioAtLoopEnd();
                         play_file("/ttend.mp3", PA_INTRMUS|PA_ALLOWSD, TT_V_LEV);
                     }
 
@@ -768,32 +785,29 @@ void main_loop()
             // TT triggered by button (if TCD not connected), MQTT ************************
             // ****************************************************************************
           
-            if(TTP0) {   // Acceleration - runs for P0_DUR ms
+            if(TTP0) {   // Acceleration - runs for P0duration ms
 
-                if(now - TTstart < P0_DUR) {
+                if(now - TTstart < P0duration) {
 
-                    // TT "acceleration"
-
-                    if(!TTFDelay || (now - TTfUpdNow >= TTFDelay)) {
-
-                        TTFDelay = 0;
+                    if(now - TTstart >= TTFDelay) {
                         if(TTFInt) {
                             if(playTTsounds) {
                                 play_file("/ttstart.mp3", PA_INTRMUS|PA_ALLOWSD, TT_V_LEV);
                                 append_file("/humm.wav", PA_LOOP|PA_WAV|PA_INTRMUS|PA_ALLOWSD, TT_V_LEV);
                             }
-                            TTfUpdNow = now;
                             TTFInt = 0;
                         }
-                       
                     }
 
                 } else {
 
                     TTP0 = false;
                     TTP1 = true;
+
+                    vsrdisplay.setText("1.21");
+                    vsrdisplay.show();
                     
-                    TTstart = TTfUpdNow = now;
+                    TTstart = now;
                     TTFInt = 1;
                     
                 }
@@ -803,11 +817,7 @@ void main_loop()
 
                 if(now - TTstart < P1_DUR) {
 
-                    if(TTFInt) {
-                        vsrdisplay.setText("1.21");
-                        vsrdisplay.show();
-                        TTFInt = 0;
-                    }
+                     // Wait...
                     
                 } else {
 
@@ -815,8 +825,6 @@ void main_loop()
                     TTP2 = true; 
 
                     if(playTTsounds) {
-                        //append_file("/ttend.mp3", PA_INTRMUS|PA_ALLOWSD, TT_V_LEV);
-                        //stopAudioAtLoopEnd();
                         play_file("/ttend.mp3", PA_INTRMUS|PA_ALLOWSD, TT_V_LEV);
                     }
 
@@ -1142,11 +1150,6 @@ static void chgVolume(int d)
 {
     char buf[8];
 
-    #ifdef VSR_HAVEVOLKNOB
-    if(curSoftVol == 255)
-        return;
-    #endif
-
     int nv = curSoftVol;
     nv += d;
     if(nv < 0 || nv > 19)
@@ -1159,7 +1162,6 @@ static void chgVolume(int d)
 
     volchanged = true;
     volchgnow = millis();
-    updateConfigPortalVolValues();
 }
 
 void increaseVolume()
@@ -1177,7 +1179,7 @@ void decreaseVolume()
  * 
  */
 
-void timeTravel(bool TCDtriggered, uint16_t P0Dur)
+void timeTravel(bool TCDtriggered, uint16_t P0Dur, uint16_t P1Dur)
 {
     if(TTrunning)
         return;
@@ -1187,16 +1189,23 @@ void timeTravel(bool TCDtriggered, uint16_t P0Dur)
     nmOverruled = false;
         
     TTrunning = true;
-    TTstart = TTfUpdNow = millis();
+    TTstart = millis();
     TTP0 = true;   // phase 0
+    TTP1 = TTP2 = false;
+
+    // P1Dur, even if coming from TCD, is not used for timing, 
+    // but only to calculate steps and for a max timeout
+    if(!P1Dur) {
+        P1Dur = TCDtriggered ? P1_DUR_TCD : P1_DUR;
+    }
+    P1_maxtimeout = P1Dur + 3000;
+
+    P0duration = P0Dur;
     
     if(TCDtriggered) {    // TCD-triggered TT (GPIO, BTTFN or MQTT) (synced with TCD)
       
         extTT = true;
-        P0duration = P0Dur;
-        #ifdef VSR_DBG
-        Serial.printf("P0 duration is %d\n", P0duration);
-        #endif
+        
         if(P0duration > RELAY_AHEAD) {
             TTFDelay = P0duration - RELAY_AHEAD;
         } else if(P0duration > 600) {
@@ -1206,15 +1215,22 @@ void timeTravel(bool TCDtriggered, uint16_t P0Dur)
         }
         TTFInt = 1;
         
-    } else {              // button/IR-triggered TT (stand-alone)
+    } else {              // button-triggered TT (stand-alone)
       
         extTT = false;
-        TTFDelay = P0_DUR - 600;
+        
+        if(P0duration >= 600) {
+            TTFDelay = P0_DUR - 600;    // FIXME enough for relay sound?
+        } else {
+            TTFDelay = 0;
+        }
+        
         TTFInt = 1;
                     
     }
     
     #ifdef VSR_DBG
+    Serial.printf("P0 duration is %d\n", P0duration);
     Serial.printf("TTFDelay %d  TTFInt %d  TTcnt %d\n", TTFDelay, TTFInt, TTcnt);
     #endif
 }
@@ -1373,9 +1389,20 @@ void showCopyError()
     doForceDispUpd = true;
 }
 
+void showNumber(int num)
+{
+    char buf[8];
+    sprintf(buf, "%3d", num);
+    vsrdisplay.setText(buf);
+    vsrdisplay.show();
+    doForceDispUpd = true;
+}
+
 void prepareTT()
 {
     ssEnd();
+
+    doPrepareTT = false;
 }
 
 // Wakeup: Sent by TCD upon entering dest date,
@@ -1386,11 +1413,14 @@ void wakeup()
 {
     // End screen saver
     ssEnd();
+
+    doWakeup = false;
 }
 
 static void execute_remote_command()
 {
     uint32_t command = commandQueue[oCmdIdx];
+    bool     injected = false;
 
     // We are only called if ON
     // No command execution during time travel
@@ -1403,6 +1433,11 @@ static void execute_remote_command()
     commandQueue[oCmdIdx] = 0;
     oCmdIdx++;
     oCmdIdx &= 0x0f;
+
+    if(command & 0x80000000) {
+        injected = true;
+        command &= ~0x80000000;
+    }
 
     if(command < 10) {                                // 800x
         switch(command) {
@@ -1484,17 +1519,11 @@ static void execute_remote_command()
 
             command -= 300;                       // 8300-8319/8399: Set fixed volume level / enable knob
             if(command == 99) {
-                #ifdef VSR_HAVEVOLKNOB
-                curSoftVol = 255;
-                volchanged = true;
-                volchgnow = millis();
-                updateConfigPortalVolValues();
-                #endif
+                // nada
             } else if(command <= 19) {
                 curSoftVol = command;
                 volchanged = true;
                 volchgnow = millis();
-                updateConfigPortalVolValues();
             }
 
         } else if(command >= 400 && command <= 415) {
@@ -1507,6 +1536,10 @@ static void execute_remote_command()
                 brichgnow = millis();
                 updateConfigPortalBriValues();
             }
+
+        } else if(command >= 501 && command <= 509) {
+
+            play_key(command - 500);              // 8501-8509: Play keyX
 
         } else {
 
@@ -1524,23 +1557,66 @@ static void execute_remote_command()
                 break;
             }
         }
+
+    } else if(command < 10000) {                  // 1000-9999 MQTT commands
+
+        // All below only when we're ON
+        // Commands allowed while off must be handled in mqttCallback()
+
+        #ifdef VSR_HAVEMQTT
+        if(!injected) {
+
+            command -= 1000;
+    
+            switch(command) {
+            case 0:
+                // Trigger stand-alone Time Travel
+                // We have no "acceleration", hence P0_DUR, not ETTO_LEAD
+                ssEnd();
+                timeTravel(false, P0_DUR);    
+                break;
+            case 7:    
+                if(haveMusic) mp_play();
+                break;
+            case 8:
+                if(haveMusic && mpActive) {
+                    mp_stop();
+                }
+                break;
+            case 9:
+                if(haveMusic) mp_next(mpActive);
+                break;
+            case 10:
+                if(haveMusic) mp_prev(mpActive);
+                break;
+            case 13:
+                stop_key();
+                break;
+            }
+
+        }
+        #endif
         
     } else {
       
         switch(command) {
         case 64738:                               // 8064738: reboot
-            prepareReboot();
-            delay(500);
-            esp_restart();
+            if(!injected) {
+                prepareReboot();
+                delay(500);
+                esp_restart();
+            }
             break;
         case 123456:
             flushDelayedSave();
-            deleteIpSettings();                   // 8123456: deletes IP settings
-            if(settings.appw[0]) {
-                settings.appw[0] = 0;             // and clears AP mode WiFi password
-                write_settings();
+            if(!injected) {
+                deleteIpSettings();                   // 8123456: deletes IP settings
+                if(settings.appw[0]) {
+                    settings.appw[0] = 0;             // and clears AP mode WiFi password
+                    write_settings();
+                }
+                ssRestartTimer();
             }
-            ssRestartTimer();
             break;
         default:                                  // 8888xxx: goto song #xxx
             if((command / 1000) == 888) {
@@ -1691,7 +1767,7 @@ void mydelay(unsigned long mydel)
  * Basic Telematics Transmission Framework (BTTFN)
  */
 
-static void addCmdQueue(uint32_t command)
+void addCmdQueue(uint32_t command)
 {
     if(!command) return;
 
@@ -1795,11 +1871,17 @@ static bool check_packet(uint8_t *buf)
 static void handle_tcd_notification(uint8_t *buf)
 {
     uint32_t seqCnt;
+
+    // Note: This might be called while we are in a
+    // wait-delay-loop. Best to just set flags here
+    // that are evaluated synchronously (=later).
+    // Do not stuff that messes with display, input,
+    // etc.
     
     switch(buf[5]) {
     case BTTFN_NOT_SPD:
         seqCnt = GET32(buf, 12);
-        if(seqCnt == 1 || seqCnt > bttfnTCDSeqCnt) {
+        if(seqCnt > bttfnTCDSeqCnt || seqCnt == 1) {
             gpsSpeed = (int16_t)(buf[6] | (buf[7] << 8));
             if(gpsSpeed > 88) gpsSpeed = 88;
             switch(buf[8] | (buf[9] << 8)) {
@@ -1826,9 +1908,7 @@ static void handle_tcd_notification(uint8_t *buf)
         // We disable our Screen Saver.
         // We don't ignore this if TCD is connected by wire,
         // because this signal does not come via wire.
-        if(!ignTT && !TTrunning) {
-            prepareTT();
-        }
+        doPrepareTT = true;
         break;
     case BTTFN_NOT_TT:
         // Trigger Time Travel (if not running already)
@@ -1839,6 +1919,7 @@ static void handle_tcd_notification(uint8_t *buf)
             networkReentry = false;
             networkAbort = false;
             networkLead = buf[6] | (buf[7] << 8);
+            networkP1 = buf[8] | (buf[9] << 8);
         }
         break;
     case BTTFN_NOT_REENTRY:
@@ -1857,15 +1938,15 @@ static void handle_tcd_notification(uint8_t *buf)
         break;
     case BTTFN_NOT_ALARM:
         networkAlarm = true;
-        // Eval this at our convenience
         break;
     case BTTFN_NOT_VSR_CMD:
         addCmdQueue(GET32(buf, 6));
         break;
     case BTTFN_NOT_WAKEUP:
-        if(!TTrunning) {
-            wakeup();
-        }
+        doWakeup = true;
+        break;
+    case BTTFN_NOT_BUSY:
+        tcdIsBusy = !!(buf[8]);
         break;
     }
 }
@@ -1891,26 +1972,22 @@ static bool bttfn_checkmc()
 
     if(haveTCDIP) {
         if(bttfnTcdIP != vsrMcUDP->remoteIP())
-            return true; //false;
+            return true;
     } else {
         // Do not use tcdHostNameHash; let DISCOVER do its work
         // and wait for a result.
-        return true; //false;
+        return true;
     }
 
     if(!check_packet(BTTFMCBuf))
-        return true; //false;
+        return true;
 
     if((BTTFMCBuf[4] & 0x4f) == (BTTFN_VERSION | 0x40)) {
 
         // A notification from the TCD
         handle_tcd_notification(BTTFMCBuf);
     
-    } /*else {
-      
-        return false;
-
-    }*/
+    }
 
     return true;
 }
@@ -1997,6 +2074,7 @@ static void BTTFNCheckPacket()
         if(BTTFUDPBuf[5] & 0x10) {
             tcdNM  = (BTTFUDPBuf[26] & 0x01) ? true : false;
             tcdFPO = (BTTFUDPBuf[26] & 0x02) ? true : false;   // 1 means fake power off
+            tcdIsBusy = (BTTFUDPBuf[26] & 0x10) ? true : false; 
         } else {
             tcdNM = false;
             tcdFPO = false;
@@ -2109,7 +2187,7 @@ static void BTTFNSendPacket()
     BTTFNDispatch();
 }
 
-bool bttfn_trigger_tt()
+static bool BTTFNConnected()
 {
     if(!useBTTFN)
         return false;
@@ -2125,7 +2203,15 @@ bool bttfn_trigger_tt()
     if(!lastBTTFNpacket)
         return false;
 
-    if(TTrunning)
+    return true;
+}
+
+bool bttfn_trigger_tt()
+{
+    if(!BTTFNConnected())
+        return false;
+
+    if(TTrunning || tcdIsBusy)
         return false;
 
     BTTFNPreparePacket();
