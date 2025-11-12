@@ -14,7 +14,7 @@ Features include
 
 - various display modes, selectable by buttons: Pushwheel values, temperature (from directly connected sensor, or from [Time Circuits Display](https://tcd.out-a-ti.me) via BTTFN), or speed (from a [CircuitSetup](https://circuitsetup.us) [Time Circuits Display](https://tcd.out-a-ti.me) via BTTFN)
 - [Time Travel](#time-travel) sequence, triggered by button, [Time Circuits Display](https://tcd.out-a-ti.me) or via [MQTT](#home-assistant--mqtt)
-- [music player](#the-music-player): Play mp3 files located on an SD card, controlled by buttons or [Time Circuits Display](https://tcd.out-a-ti.me) keypad via BTTFN
+- [music player](#the-music-player): Play mp3 files located on an SD card, controlled by buttons, [Time Circuits Display](https://tcd.out-a-ti.me) keypad via BTTFN, or HA/MQTT
 - [SD card](#sd-card) support for custom audio files for effects, and music for the Music Player
 - advanced network-accessible [Config Portal](#the-config-portal) for setup (http://vsr.local, hostname configurable)
 - [wireless communication](#bttf-network-bttfn) with [Time Circuits Display](https://tcd.out-a-ti.me); used for synchronized time travels, alarm, night mode, fake power, temperature display and remote control through keypad
@@ -33,7 +33,7 @@ If you are using a fresh ESP32 board, please see [vsr-A10001986.ino](https://git
 
 The firmware comes with a sound-pack which needs to be installed separately. The sound-pack is not updated as often as the firmware itself. If you have previously installed the latest version of the sound-pack, you normally don't have to re-install it when you update the firmware. Only if the VSR briefly displays "AUD" during boot, a re-installation/update of the sound-pack is needed.
 
-The first step is to download "install/sound-pack-xxxxxxxx.zip" and extract it. It contains one file named "VSRA.bin".
+The first step is to download "install/sound-pack-vrXX.zip" and extract it. It contains one file named "VSRA.bin".
 
 Then there are two alternative ways to proceed. Note that both methods *require an SD card*.
 
@@ -313,10 +313,9 @@ Your replacements need to be put in the root (top-most) directory of the SD card
 
 The firmware supports some additional user-provided sound effects, which it will load from the SD card. If the respective file is present, it will be used. If that file is absent, no sound will be played.
 
-- "key3.mp3"/"key6.mp3": Will be played when you press "10" or "4C" in _Operation_ [button mode](#button-modes), or type 8003 / 8006 on the TCD's keypad (connected through BTTFN);
-- "key1.mp3", "key4.mp3", "key7.mp3", "key9.mp3": Will be played when you type 8001 / 8004 / 8007 / 8009 on the TCD's keypad (connected through BTTFN).
+- "key1.mp3" - "key9.mp3": Will be played when you type 800x (x being 1, 3, 4, 6, 7 or 9) or 850x (1-9) on the TCD (connected through BTTFN). Additionally, "key3.mp3"/"key6.mp3" will be played when you press "10" or "4C" in _Operation_ [button mode](#button-modes)
 
-> The seemingly odd numbering is because of synchronicity with other props, especially the TCD and its keymap where the Music Player occupies keys 2, 5, 8.
+> The seemingly odd numbering of the 800x range is because of synchronicity with other props, especially the TCD and its keymap where the Music Player occupies keys 2, 5, 8. Likewise, 8002, 8005 and 8008 control the VSR's Music Player (prev, play/stop, next).
 
 Those files are not provided here. You can use any mp3, with a bitrate of 128kpbs or less.
 
@@ -324,7 +323,7 @@ Those files are not provided here. You can use any mp3, with a bitrate of 128kpb
 
 Replacements and custom sounds can either be copied to the SD card using a computer, or uploaded through the Config Portal.
 
-Uploading through the Config Portal works exactly like [installing the default audio files](#sound-pack-installation); on the main menu, click "UPDATE". Afterwards choose one or more mp3 files to upload using the bottom file selector, and click "UPLOAD". The firmware will store the uploaded mp3 files on the SD card.
+Uploading through the Config Portal works exactly like [installing the sound-pack](#sound-pack-installation); on the main menu, click "UPDATE". Afterwards choose one or more mp3 files to upload using the bottom file selector, and click "UPLOAD". The firmware will store the uploaded mp3 files on the SD card.
 
 In order to delete a file from the SD card, upload a file whose name is prefixed with "delete-". For example: To delete "key3.mp3" from the SD card, upload a file named "delete-key3.mp3"; the file's contents does not matter, so it's easiest to use a newly created empty file. The firmware detects the "delete-" part and, instead of storing the uploaded file, it throws it away and deletes "key3.mp3" from the SD card.
 
@@ -441,41 +440,55 @@ You can use BTTF-Network and MQTT at the same time, see [below](#home-assistant-
     </tr>
     <tr>
      <td align="left">Play "<a href="#additional-custom-sounds">key1.mp3</a>"</td>
-     <td align="left">8001&#9166;</td>
+     <td align="left">8001&#9166; / 8501&#9166;</td>
+    </tr>
+   <tr>
+     <td align="left">Play "<a href="#additional-custom-sounds">key2.mp3</a>"</td>
+     <td align="left">8502&#9166;</td>
     </tr>
     <tr>
      <td align="left">Play "<a href="#additional-custom-sounds">key3.mp3</a>"</td>
-     <td align="left">8003&#9166;</td>
+     <td align="left">8003&#9166; / 8503&#9166;</td>
     </tr>
     <tr>
      <td align="left">Play "<a href="#additional-custom-sounds">key4.mp3</a>"</td>
-     <td align="left">8004&#9166;</td>
+     <td align="left">8004&#9166; / 8504&#9166;</td>
+    </tr>
+    <tr>
+     <td align="left">Play "<a href="#additional-custom-sounds">key5.mp3</a>"</td>
+     <td align="left">8505&#9166;</td>
     </tr>
     <tr>
      <td align="left">Play "<a href="#additional-custom-sounds">key6.mp3</a>"</td>
-     <td align="left">8006&#9166;</td>
+     <td align="left">8006&#9166; / 8506&#9166;</td>
     </tr>
     <tr>
      <td align="left">Play "<a href="#additional-custom-sounds">key7.mp3</a>"</td>
-     <td align="left">8007&#9166;</td>
+     <td align="left">8007&#9166; / 8507&#9166;</td>
+    </tr>
+    <tr>
+     <td align="left">Play "<a href="#additional-custom-sounds">key8.mp3</a>"</td>
+     <td align="left">8508&#9166;</td>
     </tr>
     <tr>
      <td align="left">Play "<a href="#additional-custom-sounds">key9.mp3</a>"</td>
-     <td align="left">8009&#9166;</td>
+     <td align="left">8009&#9166; / 8509&#9166;</td>
     </tr>
     <tr>
      <td align="left">Display current IP address</td>
      <td align="left">8090&#9166;</td>
     </tr>   
     <tr>
-     <td align="left">Reboot the device</td>
+     <td align="left">Reboot the device<sup>1</sup></td>
      <td align="left">8064738&#9166;</td>
     </tr>
      <tr>
-     <td align="left">Delete static IP address<br>and WiFi-AP password</td>
+     <td align="left">Delete static IP address<br>and WiFi-AP password<sup>1</sup></td>
      <td align="left">8123456&#9166;</td>
     </tr>
 </table>
+
+1: Not supported through HA/MQTT [_INJECT_](#the-inject_x-command) command
 
 [Here](https://github.com/realA10001986/VSR/blob/main/CheatSheet.pdf) is a cheat sheet for printing or screen-use. (Note that MacOS' preview application has a bug that scrambles the links in the document. Acrobat Reader does it correctly.)
 
@@ -532,6 +545,19 @@ The VSR can - to some extent - be controlled through messages sent to topic **bt
 - MP_SHUFFLE_ON: Enables shuffle mode in [Music Player](#the-music-player)
 - MP_SHUFFLE_OFF: Disables shuffle mode in [Music Player](#the-music-player)
 - MP_FOLDER_x: x being 0-9, set folder number for [Music Player](#the-music-player)
+- PLAYKEY_x: Play keyX.mp3 (from SD card), X being in the range from 1 to 9.
+- STOPKEY: Stop playback of keyX file. Does nothing if no keyX file is currently played back.
+- INJECT_x: See immediately below.
+
+#### The INJECT_x command
+
+This command allows remote control of the VSR through HA/MQTT in the same way as through the TCD keypad by injecting commands into the VSR command queue (hence the name). Commands are listed [here](#tcd-remote-command-reference); nearly all with a leading "8" are supported, but are to be entered _minus 8000_. For example:
+
+To set volume level to 10 (8310), issue the following command: **INJECT_310**
+
+To play "key2.mp3" (8502), issue **INJECT_502**
+
+To select the 'music1' folder (8051), issue **INJECT_51**
 
 ### Receive commands from Time Circuits Display
 
@@ -722,14 +748,6 @@ The Screen Saver, when active, disables all lights and the display, until
 - on a connected TCD, a destination date is entered (only if TCD is wirelessly connected) or a time travel event is triggered (also when wired).
 
 The music player will continue to run.
- 
-#### <ins>Volume settings</ins>
-
-##### Volume level (0-19)
-
-Enter a value between 0 (mute) or 19 (very loud) here. 
-
-This can also be set/changed via the VSR's buttons in _Admin_ [button mode](#button-modes) or through a TCD keypad via BTTFN (8300 - 8319); in both cases the change will be saved 10 seconds after it occurred.
 
 #### <ins>Music Player settings</ins>
 
