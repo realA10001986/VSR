@@ -375,7 +375,7 @@ In order to connect your VSR to the TCD using BTTFN, just enter the TCD's IP add
 Afterwards, the VSR and the TCD can communicate wirelessly and 
 - play time travel sequences in sync,
 - both play an alarm-sequence when the TCD's alarm occurs,
-- the VSR can be remote controlled through the TCD's keypad (command codes 8xxx; see immediately below),
+- the VSR can be remote controlled through the TCD's keypad (command codes 8xxx),
 - the VSR queries the TCD for temperature and GPS speed for display,
 - the VSR queries the TCD for fake power and night mode, in order to react accordingly if so configured,
 - the VSR's Time Travel button can trigger a synchronized Time Travel on all BTTFN-connected devices, just like if that Time Travel was triggered through the TCD.
@@ -533,7 +533,7 @@ The VSR supports the MQTT protocol version 3.1.1 for the following features:
 
 ### Control the VSR via MQTT
 
-The VSR can - to some extent - be controlled through messages sent to topic **bttf/vsr/cmd**. Supported commands are
+The VSR can be controlled through messages sent to topic **bttf/vsr/cmd**. Supported commands are
 - TIMETRAVEL: Start a [time travel](#time-travel)
 - DISPLAY_PW: Set [display mode](#display-modes) to "pushwheels"
 - DISPLAY_TEMP: Set [display mode](#display-modes) to "temperature"
@@ -637,7 +637,7 @@ This leads to the firmware and audio update page.
 
 In order to upload a new firmware binary (such as the ones published here in the install/ folder), select that image file in the top file selector and click "Update".
 
-You can also install the VSR's audio data on this page; download the current sound-pack, extract it and select the resulting VSRA.bin file in the bottom file selector. Finally, click "Upload". Note that an SD card is required for this operation.
+You can also install the VSR's sound-pack on this page; download the current sound-pack, extract it and select the resulting VSRA.bin file in the bottom file selector. Finally, click "Upload". Note that an SD card is required for this operation.
 
 Note that either a firmware or audio data can be uploaded at once, not both at the same time.
 
