@@ -551,13 +551,13 @@ The VSR can be controlled through messages sent to topic **bttf/vsr/cmd**. Suppo
 
 #### The INJECT_x command
 
-This command allows remote control of the VSR through HA/MQTT in the same way as through the TCD keypad by injecting commands into the VSR command queue (hence the name). Commands are listed [here](#tcd-remote-command-reference); nearly all with a leading "8" are supported, but are to be entered _minus 8000_. For example:
+This command allows remote control of the VSR through HA/MQTT in the same way as through the TCD keypad by injecting commands into the VSR command queue (hence the name). Commands are listed [here](#tcd-remote-command-reference); nearly all are supported. For example:
 
-To set volume level to 10 (8310), issue the following command: **INJECT_310**
+To set volume level to 10 (8310), issue the following command: **INJECT_8310**
 
-To play "key2.mp3" (8502), issue **INJECT_502**
+To play "key2.mp3" (8502), issue **INJECT_8502**
 
-To select the 'music1' folder (8051), issue **INJECT_51**
+To select the 'music1' folder (8051), issue **INJECT_8051**
 
 ### Receive commands from Time Circuits Display
 
@@ -805,7 +805,7 @@ If this is checked, the VSR ignores network-wide (BTTFN, MQTT) time travels. Aft
 
 #### <ins>Home Assistant / MQTT settings</ins>
 
-##### &#9193; Use Home Assistant (MQTT 3.1.1)
+##### &#9193; Home Assistant support (MQTT 3.1.1)
 
 If checked, the VSR will connect to the broker (if configured) and send and receive messages via [MQTT](#home-assistant--mqtt)
 
