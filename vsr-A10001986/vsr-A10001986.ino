@@ -119,18 +119,29 @@
 
 /*  Changelog
  *
+ *  2025/11/16 (A10001986) [1.22]
+ *    - WM: Require HTTP_POST for params save pages. Also, check if request 
+ *      has parameter, do not overwrite current value with null (protects from 
+ *      overwriting settings by errorneous page reloads)
+ *  2025/11/14 (A10001986)
+ *    - Remove BTTFN_MC conditional
+ *  2025/11/13 (A10001986)
+ *    - Move Music Player init into main_setup()
+ *    - Block WiFi scan during some sequences
+ *    - Allow using TCD command codes 8xxx with MQTT-INJECT command
+ *    - Block BTTFN/MQTT commands while busy
  *  2025/11/12 (A10001986) [1.21]
  *    - Clean-up time travel
  *  2025/11/10 (A10001986)
- *    - Add support for (private) MQTT-"TIMETRAVEL" command with lead time and time 
- *      tunnel duration attached, eg. "TIMETRAVEL_1234_9876". Only on bttf/tcd/pub.
+ *    - Support MQTT-"TIMETRAVEL" command for inter-prop communication with lead
+ *      time and time tunnel duration attached ("TIMETRAVEL_1234_9876") (TCD 3.9)
  *  2025/11/09 (A10001986)
  *    - Add BTTFN_NOT_BUSY support (TCD 3.9)
  *  2025/11/08 (A10001986)
  *    - Allocate MQTT buffer only if MQTT is actually used
  *  2025/11/07 (A10001986)
  *    - Make TCD notifications synchronous (wakeup, prepareTT)
- *    - MP/File-Renamer: Ignore non-mp3 files; display number of files-to-do while
+ *    - MP3/File-Renamer: Ignore non-mp3 files; display number of files-to-do while
  *      renaming
  *    - Remove hack to skip web handling in on mp3-playback start, remove stopping
  *      sound in AP mode on CP access.

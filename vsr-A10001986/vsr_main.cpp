@@ -150,6 +150,7 @@ uint16_t networkLead   = ETTO_LEAD;
 uint16_t networkP1     = 6600;
 
 static bool tcdIsBusy  = false;
+bool        vsrBusy    = false;
 
 #define GPS_GRACE_PERIOD 1000
 static bool usingGPSS   = false;
@@ -230,6 +231,7 @@ bool                 ssActive = false;
 static bool          nmOld = false;
 static bool          fpoOld = false;
 bool                 FPBUnitIsOn = true;
+bool                 blockScan = false;
 
 // BTTF network
 #define BTTFN_VERSION              1
@@ -270,10 +272,8 @@ static const uint8_t BTTFUDPHD[4] = { 'B', 'T', 'T', 'F' };
 static bool          useBTTFN = false;
 static WiFiUDP       bttfUDP;
 static UDP*          vsrUDP;
-#ifdef BTTFN_MC
 static WiFiUDP       bttfMcUDP;
 static UDP*          vsrMcUDP;
-#endif
 static byte          BTTFUDPBuf[BTTF_PACKET_SIZE];
 static byte          BTTFUDPTBuf[BTTF_PACKET_SIZE];
 static unsigned long BTTFNUpdateNow = 0;
@@ -290,11 +290,9 @@ static bool          haveTCDIP = false;
 static IPAddress     bttfnTcdIP;
 static uint32_t      bttfnTCDSeqCnt = 0;
 static uint8_t       bttfnReqStatus = 0x56; // Request capabilities, status, temperature, speed
-#ifdef BTTFN_MC
 static uint32_t      tcdHostNameHash = 0;
 static byte          BTTFMCBuf[BTTF_PACKET_SIZE];
 static IPAddress     bttfnMcIP(224, 0, 0, 224);
-#endif  
 
 static int      iCmdIdx = 0;
 static int      oCmdIdx = 0;
@@ -333,9 +331,7 @@ static void myloop();
 
 static void bttfn_setup();
 static void bttfn_loop_quick();
-#ifdef BTTFN_MC
 static bool bttfn_checkmc();
-#endif
 static void BTTFNCheckPacket();
 static bool BTTFNTriggerUpdate();
 static void BTTFNPreparePacketTemplate();
@@ -480,6 +476,9 @@ void main_setup()
         vsrdisplay.clearBuf();
         vsrdisplay.show();
     }
+
+    // Init music player (don't check for SD here)
+    switchMusicFolder(musFolderNum, true);
 
     // Initialize BTTF network
     bttfn_setup();
@@ -1220,7 +1219,7 @@ void timeTravel(bool TCDtriggered, uint16_t P0Dur, uint16_t P1Dur)
         extTT = false;
         
         if(P0duration >= 600) {
-            TTFDelay = P0_DUR - 600;    // FIXME enough for relay sound?
+            TTFDelay = P0_DUR - 600;
         } else {
             TTFDelay = 0;
         }
@@ -1252,6 +1251,8 @@ static void play_startup()
         {  0,  0, 0, 0 }
     };
 
+    blockScan = true;
+
     play_file("/startup.mp3", PA_ALLOWSD, 1.0);
 
     while(!checkAudioDone() || !j) {
@@ -1262,6 +1263,8 @@ static void play_startup()
         if(i > 9) { i = 0; j++; }
     }
     vsrdisplay.setText((char *)intro[10]);
+
+    blockScan = false;
 }
 
 static void displayButtonMode()
@@ -1423,6 +1426,7 @@ static void execute_remote_command()
     bool     injected = false;
 
     // We are only called if ON
+    // To check here:
     // No command execution during time travel
     // No command execution during timed sequences
     // ssActive checked by individual command
@@ -1437,6 +1441,13 @@ static void execute_remote_command()
     if(command & 0x80000000) {
         injected = true;
         command &= ~0x80000000;
+        // Allow user to directly use TCD code
+        if(command >= 8000 && command <= 8999) {
+            command -= 8000;
+        } else if(command >= 8000000 && command <= 8999999) {
+            command -= 8000000;
+        }
+        if(!command) return;
     }
 
     if(command < 10) {                                // 800x
@@ -1508,7 +1519,9 @@ static void execute_remote_command()
         } else if(command >= 50 && command <= 59) {   // 8050-8059: Set music folder number
             
             if(haveSD) {
+                ssEnd();
                 switchMusicFolder((uint8_t)command - 50);
+                ssRestartTimer();
             }
             
         }
@@ -1610,9 +1623,9 @@ static void execute_remote_command()
         case 123456:
             flushDelayedSave();
             if(!injected) {
-                deleteIpSettings();                   // 8123456: deletes IP settings
+                deleteIpSettings();               // 8123456: deletes IP settings
                 if(settings.appw[0]) {
-                    settings.appw[0] = 0;             // and clears AP mode WiFi password
+                    settings.appw[0] = 0;         // and clears AP mode WiFi password
                     write_settings();
                 }
                 ssRestartTimer();
@@ -1637,6 +1650,8 @@ void display_ip()
     vsrdisplay.setText("IP");
     vsrdisplay.show();
 
+    blockScan = true;
+
     mydelay(500);
 
     wifi_getIP(a[0], a[1], a[2], a[3]);
@@ -1652,38 +1667,57 @@ void display_ip()
     vsrdisplay.show();
     mydelay(500);
 
+    blockScan = false;
+
     doForceDispUpd = true;
 }
 
-void switchMusicFolder(uint8_t nmf)
+bool switchMusicFolder(uint8_t nmf, bool isSetup)
 {
     bool waitShown = false;
 
-    if(nmf > 9) return;
+    if(nmf > 9) return false;
+
+    vsrBusy = true;
     
-    if(musFolderNum != nmf) {
-        musFolderNum = nmf;
-        // Initializing the MP can take a while;
-        // need to stop all audio before calling
-        // mp_init()
-        if(haveMusic && mpActive) {
-            mp_stop();
+    if((musFolderNum != nmf) || isSetup) {
+
+        blockScan = true;
+        
+        if(!isSetup) {
+            musFolderNum = nmf;
+            // Initializing the MP can take a while;
+            // need to stop all audio before calling
+            // mp_init()
+            if(haveMusic && mpActive) {
+                mp_stop();
+            }
+            stopAudio();
         }
-        stopAudio();
-        if(mp_checkForFolder(musFolderNum) == -1) {
-            flushDelayedSave();
-            showWaitSequence();
-            waitShown = true;
-            play_file("/renaming.mp3", PA_INTRMUS|PA_ALLOWSD);
-            waitAudioDone();
+        if(haveSD) {
+            if(mp_checkForFolder(musFolderNum) == -1) {
+                if(!isSetup) flushDelayedSave();
+                showWaitSequence();
+                waitShown = true;
+                play_file("/renaming.mp3", PA_INTRMUS|PA_ALLOWSD);
+                waitAudioDone();
+            }
         }
-        saveMusFoldNum();
-        updateConfigPortalMFValues();
-        mp_init(false);
+        if(!isSetup) {
+            saveMusFoldNum();
+            updateConfigPortalMFValues();
+        }
+        mp_init(isSetup);
         if(waitShown) {
             endWaitSequence();
         }
+
+        blockScan = false;
     }
+
+    vsrBusy = false;
+
+    return waitShown;
 }
 
 void waitAudioDone()
@@ -1787,13 +1821,9 @@ static void bttfn_setup()
     haveTCDIP = isIp(settings.tcdIP);
     
     if(!haveTCDIP) {
-        #ifdef BTTFN_MC
         tcdHostNameHash = 0;
         unsigned char *s = (unsigned char *)settings.tcdIP;
         for ( ; *s; ++s) tcdHostNameHash = 37 * tcdHostNameHash + tolower(*s);
-        #else
-        return;
-        #endif
     } else {
         bttfnTcdIP.fromString(settings.tcdIP);
     }
@@ -1801,10 +1831,8 @@ static void bttfn_setup()
     vsrUDP = &bttfUDP;
     vsrUDP->begin(BTTF_DEFAULT_LOCAL_PORT);
 
-    #ifdef BTTFN_MC
     vsrMcUDP = &bttfMcUDP;
     vsrMcUDP->beginMulticast(bttfnMcIP, BTTF_DEFAULT_LOCAL_PORT + 2);
-    #endif
 
     BTTFNPreparePacketTemplate();
     
@@ -1814,17 +1842,13 @@ static void bttfn_setup()
 
 void bttfn_loop()
 {
-    #ifdef BTTFN_MC
     int t = 100;
-    #endif
     
     if(!useBTTFN)
         return;
 
-    #ifdef BTTFN_MC
     while(bttfn_checkmc() && t--) {}
-    #endif
-        
+
     BTTFNCheckPacket();
     
     if(!BTTFNPacketDue) {
@@ -1840,16 +1864,12 @@ void bttfn_loop()
 
 static void bttfn_loop_quick()
 {
-    #ifdef BTTFN_MC
     int t = 100;
-    #endif
     
     if(!useBTTFN)
         return;
 
-    #ifdef BTTFN_MC
     while(bttfn_checkmc() && t--) {}
-    #endif
 }
 
 static bool check_packet(uint8_t *buf)
@@ -1913,7 +1933,7 @@ static void handle_tcd_notification(uint8_t *buf)
     case BTTFN_NOT_TT:
         // Trigger Time Travel (if not running already)
         // Ignore command if TCD is connected by wire
-        if(!ignTT && !TCDconnected && !TTrunning) {
+        if(!ignTT && !TCDconnected && !TTrunning && !vsrBusy) {
             networkTimeTravel = true;
             networkTCDTT = true;
             networkReentry = false;
@@ -1940,7 +1960,9 @@ static void handle_tcd_notification(uint8_t *buf)
         networkAlarm = true;
         break;
     case BTTFN_NOT_VSR_CMD:
-        addCmdQueue(GET32(buf, 6));
+        if(!vsrBusy) {
+            addCmdQueue(GET32(buf, 6));
+        }
         break;
     case BTTFN_NOT_WAKEUP:
         doWakeup = true;
@@ -1951,7 +1973,6 @@ static void handle_tcd_notification(uint8_t *buf)
     }
 }
 
-#ifdef BTTFN_MC
 static bool bttfn_checkmc()
 {
     int psize = vsrMcUDP->parsePacket();
@@ -1991,7 +2012,6 @@ static bool bttfn_checkmc()
 
     return true;
 }
-#endif
 
 // Check for pending packet and parse it
 static void BTTFNCheckPacket()
@@ -2043,7 +2063,6 @@ static void BTTFNCheckPacket()
         // If it's our expected packet, no other is due for now
         BTTFNPacketDue = false;
 
-        #ifdef BTTFN_MC
         if(BTTFUDPBuf[5] & 0x80) {
             if(!haveTCDIP) {
                 bttfnTcdIP = vsrUDP->remoteIP();
@@ -2057,7 +2076,6 @@ static void BTTFNCheckPacket()
                 #endif
             }
         }
-        #endif
 
         if(BTTFUDPBuf[5] & 0x02) {
             gpsSpeed = (int16_t)(BTTFUDPBuf[18] | (BTTFUDPBuf[19] << 8));
@@ -2082,11 +2100,9 @@ static void BTTFNCheckPacket()
 
         if(BTTFUDPBuf[5] & 0x40) {
             bttfnReqStatus &= ~0x40;     // Do no longer poll capabilities
-            #ifdef BTTFN_MC
             if(BTTFUDPBuf[31] & 0x01) {
                 bttfnReqStatus &= ~0x02; // Do no longer poll speed, comes over multicast
             }
-            #endif
         }
 
         lastBTTFNpacket = mymillis;
@@ -2131,10 +2147,7 @@ static void BTTFNPreparePacketTemplate()
     BTTFUDPTBuf[10+13] = BTTFN_TYPE_VSR;
 
     // Version, MC-marker
-    BTTFUDPTBuf[4] = BTTFN_VERSION;
-    #ifdef BTTFN_MC
-    BTTFUDPTBuf[4] |= BTTFN_SUP_MC;
-    #endif
+    BTTFUDPTBuf[4] = BTTFN_VERSION | BTTFN_SUP_MC;
 }
 
 static void BTTFNPreparePacket()
@@ -2150,18 +2163,14 @@ static void BTTFNDispatch()
     }
     BTTFUDPBuf[BTTF_PACKET_SIZE - 1] = a;
 
-    #ifdef BTTFN_MC
     if(haveTCDIP) {
-    #endif
-        vsrUDP->beginPacket(bttfnTcdIP, BTTF_DEFAULT_LOCAL_PORT);
-    #ifdef BTTFN_MC    
+        vsrUDP->beginPacket(bttfnTcdIP, BTTF_DEFAULT_LOCAL_PORT);       
     } else {
         #ifdef VSR_DBG
         //Serial.printf("Sending multicast (hostname hash %x)\n", tcdHostNameHash);
         #endif
         vsrUDP->beginPacket(bttfnMcIP, BTTF_DEFAULT_LOCAL_PORT + 1);
     }
-    #endif
     vsrUDP->write(BTTFUDPBuf, BTTF_PACKET_SIZE);
     vsrUDP->endPacket();
 }
@@ -2177,12 +2186,10 @@ static void BTTFNSendPacket()
     // Request status, temperature, speed
     BTTFUDPBuf[5] = bttfnReqStatus;
 
-    #ifdef BTTFN_MC
     if(!haveTCDIP) {
         BTTFUDPBuf[5] |= 0x80;
         SET32(BTTFUDPBuf, 31, tcdHostNameHash);
     }
-    #endif
 
     BTTFNDispatch();
 }
@@ -2192,10 +2199,8 @@ static bool BTTFNConnected()
     if(!useBTTFN)
         return false;
 
-    #ifdef BTTFN_MC
     if(!haveTCDIP)
         return false;
-    #endif
 
     if(WiFi.status() != WL_CONNECTED)
         return false;

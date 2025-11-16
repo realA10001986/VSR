@@ -15,8 +15,8 @@
  ***                          Version Strings                          ***
  *************************************************************************/
 
-#define VSR_VERSION "V1.21"
-#define VSR_VERSION_EXTRA "NOV122025"
+#define VSR_VERSION "V1.22"
+#define VSR_VERSION_EXTRA "NOV162025"
 
 //#define VSR_DBG              // debug output on Serial
 
@@ -43,9 +43,6 @@
 // lead" must be set, too.
 #define ETTO_LEAD 5000
  
-// Uncomment to include BTTFN discover support (multicast)
-#define BTTFN_MC
-
 // Use SPIFFS (if defined) or LittleFS (if undefined; esp32-arduino >= 2.x)
 //#define USE_SPIFFS
 

@@ -174,18 +174,14 @@ WiFiManagerParameter custom_tempUnit("tUnt", "Show temperature in °Celsius", se
 WiFiManagerParameter custom_tempOffs("tOffs", "Sensor offset (-3.0-3.0)", settings.tempOffs, 4, "type='number' min='-3.0' max='3.0' step='0.1' title='Correction value to add to temperature as read from sensor. Ignored when temperature from TCD is displayed.' autocomplete='off'");
 #endif // VSR_HAVETEMP
 
-#ifdef BTTFN_MC
 WiFiManagerParameter custom_tcdIP("tcdIP", "IP address or hostname of TCD", settings.tcdIP, 31, "pattern='(^((25[0-5]|(2[0-4]|1\\d|[1-9]|)\\d)\\.?\\b){4}$)|([A-Za-z0-9\\-]+)' placeholder='Example: 192.168.4.1'");
-#else
-WiFiManagerParameter custom_tcdIP("tcdIP", "IP address of TCD", settings.tcdIP, 31, "pattern='^((25[0-5]|(2[0-4]|1\\d|[1-9]|)\\d)\\.?\\b){4}$' placeholder='Example: 192.168.4.1'");
-#endif
 WiFiManagerParameter custom_uNM("uNM", "Follow TCD night-mode<br><span style='font-size:80%'>If checked, display and lights will be off or dimmed in night-mode.</span>", settings.useNM, 1, "class='mb0'", WFM_LABEL_AFTER|WFM_IS_CHKBOX);
 WiFiManagerParameter custom_uFPO("uFPO", "Follow TCD fake power", settings.useFPO, 1, "", WFM_LABEL_AFTER|WFM_IS_CHKBOX);
 WiFiManagerParameter custom_bttfnTT("bttfnTT", "TT buttons trigger BTTFN-wide TT<br><span style='font-size:80%'>If checked, pressing the Time Travel buttons triggers a BTTFN-wide TT</span>", settings.bttfnTT, 1, "class='mb0'", WFM_LABEL_AFTER|WFM_IS_CHKBOX);
 WiFiManagerParameter custom_ignTT("ignTT", "Ignore network-wide TTs<br><span style='font-size:80%'>If checked, the VSR will not take part in BTTFN/MQTT-wide time travels</span>", settings.ignTT, 1, "class='mb0'", WFM_LABEL_AFTER|WFM_IS_CHKBOX);
 
 #ifdef VSR_HAVEMQTT
-WiFiManagerParameter custom_useMQTT("uMQTT", "Use Home Assistant (MQTT 3.1.1)", settings.useMQTT, 1, "class='mt5 mb10'", WFM_LABEL_AFTER|WFM_IS_CHKBOX);
+WiFiManagerParameter custom_useMQTT("uMQTT", "Home Assistant support (MQTT 3.1.1)", settings.useMQTT, 1, "class='mt5 mb10'", WFM_LABEL_AFTER|WFM_IS_CHKBOX);
 WiFiManagerParameter custom_mqttServer("ha_server", "Broker IP[:port] or domain[:port]", settings.mqttServer, 79, "pattern='[a-zA-Z0-9\\.:\\-]+' placeholder='Example: 192.168.1.5'");
 WiFiManagerParameter custom_mqttUser("ha_usr", "User[:Password]", settings.mqttUser, 63, "placeholder='Example: ronald:mySecret'");
 #endif // HAVEMQTT
@@ -1279,7 +1275,7 @@ static bool preWiFiScanCallback()
     // Do not allow a WiFi scan under some circumstances (as
     // it may disrupt sequences)
     
-    if(TTrunning || networkAlarm)
+    if(blockScan || TTrunning || networkAlarm)
         return false;
 
     return true;
@@ -1887,6 +1883,8 @@ static void mqttCallback(char *topic, byte *payload, unsigned int length)
 
     if(!length) return;
 
+    if(vsrBusy) return;
+
     memcpy(tempBuf, (const char *)payload, ml);
     tempBuf[ml] = 0;
     for(j = 0; j < ml; j++) {
@@ -1926,7 +1924,7 @@ static void mqttCallback(char *topic, byte *payload, unsigned int length)
                 networkTCDTT = true;
                 networkReentry = false;
                 networkAbort = false;
-                if(strlen(tempBuf) == 20) {   // FIXME really 20?
+                if(strlen(tempBuf) == 20) {
                     networkLead = a2i(&tempBuf[11]);
                     networkP1 = a2i(&tempBuf[16]);
                 } else {
@@ -1961,10 +1959,6 @@ static void mqttCallback(char *topic, byte *payload, unsigned int length)
     } else if(!strcmp(topic, "bttf/vsr/cmd")) {
 
         // User commands
-
-        // Not taking commands under these circumstances:
-        //if(TTrunning || !FPBUnitIsOn)
-        //    return;
         
         while(cmdList[i]) {
             j = strlen(cmdList[i]);

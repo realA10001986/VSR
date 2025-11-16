@@ -158,17 +158,7 @@ void audio_setup()
     mpShuffle = (settings.shuffle[0] != '0');
 
     // MusicPlayer init
-    if(haveSD) {
-        // Show "wait" if mp_init will take some noticable time
-        if(mp_checkForFolder(musFolderNum) == -1) {
-            showWaitSequence();
-            waitShown = true;
-        }
-    }
-    mp_init(true);
-    if(waitShown) {
-        endWaitSequence();
-    }
+    // done in main_setup()
 
     // Check for keyX sounds to avoid unsuccessful file-lookups every time
     for(int i = 1; i < 10; i++) {
@@ -711,9 +701,13 @@ int mp_checkForFolder(int num)
     // -1 if folder exists but needs processing
     // -2 if musicX contains no audio files
     // -3 if musicX is not a folder
+    // -4 if no SD
 
     if(num < 0 || num > 9)
         return 0;
+
+    if(!haveSD)
+        return -4;
 
     // If folder does not exist, return 0
     sprintf(fnbuf, "/music%1d", num);
@@ -752,7 +746,7 @@ int mp_checkForFolder(int num)
  */
 
 
-// Check file is eligable for renaming:
+// Check file is eligible for renaming:
 // - not a hidden/exAtt file,
 // - file name ends with ".mp3"
 // - filename not already "/musicX/ddd.mp3"

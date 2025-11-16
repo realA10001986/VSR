@@ -105,7 +105,11 @@ extern uint16_t networkP1;
 extern bool doPrepareTT;
 extern bool doWakeup;
 
+extern bool vsrBusy;
+
 extern bool ssActive;
+
+extern bool blockScan;
  
 void main_boot();
 void main_boot2();
@@ -139,7 +143,7 @@ void wakeup();
 
 void display_ip();
 
-void switchMusicFolder(uint8_t nmf);
+bool switchMusicFolder(uint8_t nmf, bool isSetup = false);
 void waitAudioDone();
 
 void myCustomDelay_KP(unsigned long mydel);
