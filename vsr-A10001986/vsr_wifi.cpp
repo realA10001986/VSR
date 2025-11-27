@@ -103,7 +103,7 @@ static const char *acul_errs[]  = {
 };
 
 static const char *apChannelCustHTMLSrc[14] = {
-    "<div class='cmp0'><label for='apchnl'>WiFi channel</label><select class='sel0' value='",
+    "<div class='cmp0'><label class='mp0' for='apchnl'>WiFi channel</label><select class='sel0' value='",
     "apchnl",
     ">Random%s1'",
     ">1%s2'",
@@ -119,19 +119,55 @@ static const char *apChannelCustHTMLSrc[14] = {
     ">11%s"
 };
 
+#ifdef VSR_HAVEMQTT
+static const char *mqttpCustHTMLSrc[4] = {
+    "<div class='cmp0'><label class='mp0' for='mprot'>Protocol version</label><select class='sel0' value='",
+    "mprot",
+    ">3.1.1%s1'",
+    ">5.0%s"
+};
+static const char mqttMsgDisabled[] = "Disabled";
+static const char mqttMsgConnecting[] = "Connecting...";
+static const char mqttMsgTimeout[] = "Connection time-out";
+static const char mqttMsgFailed[] = "Connection failed";
+static const char mqttMsgDisconnected[] = "Disconnected";
+static const char mqttMsgConnected[] = "Connected";
+static const char mqttMsgBadProtocol[] = "Protocol error";
+static const char mqttMsgUnavailable[] = "Server unavailable/busy";
+static const char mqttMsgBadCred[] = "Login failed";
+static const char mqttMsgGenError[] = "Error";
+#endif
+
 static const char *wmBuildApChnl(const char *dest);
 static const char *wmBuildBestApChnl(const char *dest);
+
 static const char *wmBuildHaveSD(const char *dest);
+
+#ifdef VSR_HAVEMQTT
+static const char *wmBuildMQTTprot(const char *dest);
+static const char *wmBuildMQTTstate(const char *dest);
+#endif
 
 static const char *osde = "</option></select></div>";
 static const char *ooe  = "</option><option value='";
 static const char custHTMLSel[] = " selected";
+static const char custHTMLSelFmt[] = "' name='%s' id='%s' autocomplete='off'><option value='0'";
+static const char col_g[] = "609b71";
+static const char col_r[] = "dc3630";
+static const char col_gr[] = "777";
 
 // double-% since this goes through sprintf!
-static const char bestAP[]   = "<div class='c' style='background-color:#%s;color:#fff;font-size:80%%;border-radius:5px'>Proposed channel at current location: %d<br>%s(Non-WiFi devices not taken into account)</div>";
+static const char bannerStart[] = "<div class='c' style='background-color:#";
+static const char bannerMid[] = ";color:#fff;font-size:80%;border-radius:5px'>";
+
+static const char bestAP[]   = "%s%s%sProposed channel at current location: %d<br>%s(Non-WiFi devices not taken into account)</div>";
 static const char badWiFi[]  = "<br><i>Operating in AP mode not recommended</i>";
 
 static const char haveNoSD[] = "<div class='c' style='background-color:#dc3630;color:#fff;font-size:80%;border-radius:5px'><i>No SD card present</i></div>";
+
+#ifdef VSR_HAVEMQTT
+static const char mqttStatus[] = "%s%s%s%s%s (%d)</div>";
+#endif
 
 // WiFi Configuration
 
@@ -144,12 +180,12 @@ WiFiManagerParameter custom_hostName("hostname", HNTEXT, settings.hostName, 31, 
 WiFiManagerParameter custom_wifiConRetries("wifiret", "Connection attempts (1-10)", settings.wifiConRetries, 2, "type='number' min='1' max='10'");
 WiFiManagerParameter custom_wifiConTimeout("wificon", "Connection timeout (7-25[seconds])", settings.wifiConTimeout, 2, "type='number' min='7' max='25'");
 
-WiFiManagerParameter custom_sysID("sysID", "Network name (SSID) appendix<br><span style='font-size:80%'>Will be appended to \"VSR-AP\" to create a unique SSID if multiple VSRs are in range. [a-z/0-9/-]</span>", settings.systemID, 7, "pattern='[A-Za-z0-9\\-]+'");
-WiFiManagerParameter custom_appw("appw", "Password<br><span style='font-size:80%'>Password to protect VSR-AP. Empty or 8 characters [a-z/0-9/-]<br><b>Write this down, you might lock yourself out!</b></span>", settings.appw, 8, "minlength='8' pattern='[A-Za-z0-9\\-]+'");
+WiFiManagerParameter custom_sysID("sysID", "Network name (SSID) appendix<br><span style='font-size:80%'>Will be appended to \"VSR-AP\" [a-z/0-9/-]</span>", settings.systemID, 7, "pattern='[A-Za-z0-9\\-]+'");
+WiFiManagerParameter custom_appw("appw", "Password<br><span style='font-size:80%'>Password to protect VSR-AP. Empty or 8 characters [a-z/0-9/-]</span>", settings.appw, 8, "minlength='8' pattern='[A-Za-z0-9\\-]+'");
 WiFiManagerParameter custom_apch(wmBuildApChnl);
 WiFiManagerParameter custom_bapch(wmBuildBestApChnl);
 WiFiManagerParameter custom_wifiAPOffDelay("wifiAPoff", "Power save timer<br><span style='font-size:80%'>(10-99[minutes]; 0=off)</span>", settings.wifiAPOffDelay, 2, "type='number' min='0' max='99' title='WiFi-AP will be shut down after chosen period. 0 means never.'");
-WiFiManagerParameter custom_wifihint("<div style='margin:0;padding:0'>Hold '10' in Admin button mode to re-enable Wifi when in power save mode.</div>");
+WiFiManagerParameter custom_wifihint("<div style='margin:0;padding:0;font-size:80%'>Hold '10' in Admin button mode to re-enable Wifi when in power save mode</div>");
 
 // Settings
 
@@ -180,18 +216,20 @@ WiFiManagerParameter custom_uFPO("uFPO", "Follow TCD fake power", settings.useFP
 WiFiManagerParameter custom_bttfnTT("bttfnTT", "TT buttons trigger BTTFN-wide TT<br><span style='font-size:80%'>If checked, pressing the Time Travel buttons triggers a BTTFN-wide TT</span>", settings.bttfnTT, 1, "class='mb0'", WFM_LABEL_AFTER|WFM_IS_CHKBOX);
 WiFiManagerParameter custom_ignTT("ignTT", "Ignore network-wide TTs<br><span style='font-size:80%'>If checked, the VSR will not take part in BTTFN/MQTT-wide time travels</span>", settings.ignTT, 1, "class='mb0'", WFM_LABEL_AFTER|WFM_IS_CHKBOX);
 
-#ifdef VSR_HAVEMQTT
-WiFiManagerParameter custom_useMQTT("uMQTT", "Home Assistant support (MQTT 3.1.1)", settings.useMQTT, 1, "class='mt5 mb10'", WFM_LABEL_AFTER|WFM_IS_CHKBOX);
-WiFiManagerParameter custom_mqttServer("ha_server", "Broker IP[:port] or domain[:port]", settings.mqttServer, 79, "pattern='[a-zA-Z0-9\\.:\\-]+' placeholder='Example: 192.168.1.5'");
-WiFiManagerParameter custom_mqttUser("ha_usr", "User[:Password]", settings.mqttUser, 63, "placeholder='Example: ronald:mySecret'");
-#endif // HAVEMQTT
-
 WiFiManagerParameter custom_TCDpresent("TCDpres", "TCD connected by wire", settings.TCDpresent, 1, "title='Check this if you have a Time Circuits Display connected via wire' style='margin-top:5px;'", WFM_LABEL_AFTER|WFM_IS_CHKBOX);
 WiFiManagerParameter custom_noETTOL("uEtNL", "TCD signals Time Travel without 5s lead", settings.noETTOLead, 1, "class='mt5' style='margin-left:20px;'", WFM_LABEL_AFTER|WFM_IS_CHKBOX);
 
 WiFiManagerParameter custom_haveSD(wmBuildHaveSD);
 WiFiManagerParameter custom_CfgOnSD("CfgOnSD", "Save secondary settings on SD<br><span style='font-size:80%'>Check this to avoid flash wear</span>", settings.CfgOnSD, 1, "class='mt5 mb0'", WFM_LABEL_AFTER|WFM_IS_CHKBOX);
 //WiFiManagerParameter custom_sdFrq("sdFrq", "4MHz SD clock speed<br><span style='font-size:80%'>Checking this might help in case of SD card problems</span>", settings.sdFreq, 1, "style='margin-top:12px'", WFM_LABEL_AFTER|WFM_IS_CHKBOX);
+
+#ifdef VSR_HAVEMQTT
+WiFiManagerParameter custom_useMQTT("uMQTT", "Home Assistant support (MQTT)", settings.useMQTT, 1, "class='mt5 mb10'", WFM_LABEL_AFTER|WFM_IS_CHKBOX);
+WiFiManagerParameter custom_state(wmBuildMQTTstate);
+WiFiManagerParameter custom_mqttServer("ha_server", "Broker IP[:port] or domain[:port]", settings.mqttServer, 79, "pattern='[a-zA-Z0-9\\.:\\-]+' placeholder='Example: 192.168.1.5'");
+WiFiManagerParameter custom_mqttVers(wmBuildMQTTprot);
+WiFiManagerParameter custom_mqttUser("ha_usr", "User[:Password]", settings.mqttUser, 63, "placeholder='Example: ronald:mySecret'");
+#endif // HAVEMQTT
 
 WiFiManagerParameter custom_sectstart_head("<div class='sects'>");
 WiFiManagerParameter custom_sectstart("</div><div class='sects'>");
@@ -207,10 +245,17 @@ WiFiManagerParameter custom_sectstart_nw("</div><div class='sects'><div class='h
 
 WiFiManagerParameter custom_sectend_foot("</div><p></p>");
 
+#ifdef VSR_HAVEMQTT
+#define TC_MENUSIZE 8
+#else
 #define TC_MENUSIZE 7
+#endif
 static const int8_t wifiMenu[TC_MENUSIZE] = { 
     WM_MENU_WIFI,
     WM_MENU_PARAM,
+    #ifdef VSR_HAVEMQTT
+    WM_MENU_PARAM2,
+    #endif
     WM_MENU_SEP,
     WM_MENU_UPDATE,
     WM_MENU_SEP,
@@ -224,7 +269,7 @@ static const int8_t wifiMenu[TC_MENUSIZE] = {
 #define UNI_VERSION VSR_VERSION 
 #define UNI_VERSION_EXTRA VSR_VERSION_EXTRA
 #define WEBHOME "vsr"
-#define PARM2TITLE ""
+#define PARM2TITLE WM_PARAM2_TITLE
 
 static const char myTitle[] = AA_TITLE;
 static const char apName[]  = "VSR-AP";
@@ -383,14 +428,7 @@ void wifi_setup()
       &custom_uFPO,
       &custom_bttfnTT,
       &custom_ignTT,
-     
-      #ifdef VSR_HAVEMQTT
-      &custom_sectstart,     // 4
-      &custom_useMQTT,
-      &custom_mqttServer,
-      &custom_mqttUser,
-      #endif
-      
+
       &custom_sectstart,     // 3
       &custom_TCDpresent,
       &custom_noETTOL, 
@@ -404,6 +442,24 @@ void wifi_setup()
 
       NULL
     };
+
+    #ifdef VSR_HAVEMQTT
+    WiFiManagerParameter *parm2Array[] = {
+
+      &custom_aood,
+
+      &custom_sectstart_head, 
+      &custom_useMQTT,
+      &custom_state,
+      &custom_mqttServer,
+      &custom_mqttVers,
+      &custom_mqttUser,
+
+      &custom_sectend_foot,
+
+      NULL
+    };
+    #endif
 
     // Transition from NVS-saved data to own management:
     if(!settings.ssid[0] && settings.ssid[1] == 'X') {
@@ -480,6 +536,16 @@ void wifi_setup()
         temp++;
     }
 
+    #ifdef VSR_HAVEMQTT
+    wm.allocParms2((sizeof(parm2Array) / sizeof(WiFiManagerParameter *)) - 1);
+
+    temp = haveAudioFiles ? 1 : 0;
+    while(parm2Array[temp]) {
+        wm.addParameter2(parm2Array[temp]);
+        temp++;
+    }
+    #endif
+
     updateConfigPortalValues();
 
     #ifdef VSR_HAVEMQTT
@@ -550,6 +616,8 @@ void wifi_setup2()
         int tt;
 
         mqttClient.setBufferSize(MQTT_MAX_PACKET_SIZE);
+        mqttClient.setVersion(atoi(settings.mqttVers) > 0 ? 5 : 3);
+        mqttClient.setClientID(settings.hostName);
 
         // No WiFi power save if we're using MQTT
         origWiFiOffDelay = wifiOffDelay = 0;
@@ -730,7 +798,7 @@ void wifi_loop()
             }
             mystrcpy(settings.wifiAPOffDelay, &custom_wifiAPOffDelay);
 
-        } else { 
+        } else if(shouldSaveConfig == 2) { 
 
             // Parameters on Settings page
 
@@ -783,12 +851,6 @@ void wifi_loop()
             strcpyCB(settings.bttfnTT, &custom_bttfnTT);
             strcpyCB(settings.ignTT, &custom_ignTT);
 
-            #ifdef VSR_HAVEMQTT
-            strcpyCB(settings.useMQTT, &custom_useMQTT);
-            strcpytrim(settings.mqttServer, custom_mqttServer.getValue());
-            strcpyutf8(settings.mqttUser, custom_mqttUser.getValue(), sizeof(settings.mqttUser));
-            #endif
-
             strcpyCB(settings.TCDpresent, &custom_TCDpresent);
             strcpyCB(settings.noETTOLead, &custom_noETTOL);
 
@@ -801,6 +863,17 @@ void wifi_loop()
             if(oldCfgOnSD != settings.CfgOnSD[0]) {
                 copySettings();
             }
+
+        } else {
+
+            // Parameters on HA/MQTT Settings page
+
+            #ifdef VSR_HAVEMQTT
+            strcpyCB(settings.useMQTT, &custom_useMQTT);
+            strcpytrim(settings.mqttServer, custom_mqttServer.getValue());
+            getParam("mprot", settings.mqttVers, 1, 0);
+            strcpyutf8(settings.mqttUser, custom_mqttUser.getValue(), sizeof(settings.mqttUser));
+            #endif
 
         }
 
@@ -1374,13 +1447,32 @@ void updateConfigPortalBriValues()
     custom_Bri.setValue(settings.Bri, 2);
 }
 
+static unsigned int calcSelectMenu(const char **theHTML, int cnt, char *setting)
+{
+    int sr = atoi(setting);
+
+    unsigned int l = 0;
+    
+    l += strlen(theHTML[0]);
+    l += strlen(setting);
+    l += (STRLEN(custHTMLSelFmt) - (2*2));
+    l += (2*strlen(theHTML[1]));
+    for(int i = 0; i < cnt - 2; i++) {
+        if(sr == i) l += STRLEN(custHTMLSel);
+        l += (strlen(theHTML[i+2]) - 2);
+        l += strlen((i == cnt - 3) ? osde : ooe);
+    }
+
+    return l + 16;
+}
+
 static void buildSelectMenu(char *target, const char **theHTML, int cnt, char *setting)
 {
     int sr = atoi(setting);
     
     strcat(target, theHTML[0]);
     strcat(target, setting);
-    sprintf(target + strlen(target), "' name='%s' id='%s' autocomplete='off'><option value='0'", theHTML[1], theHTML[1]);
+    sprintf(target + strlen(target), custHTMLSelFmt, theHTML[1], theHTML[1]);
     for(int i = 0; i < cnt - 2; i++) {
         if(sr == i) strcat(target, custHTMLSel);
         sprintf(target + strlen(target), 
@@ -1394,8 +1486,9 @@ static const char *wmBuildApChnl(const char *dest)
       free((void *)dest);
       return NULL;
     }
-    
-    char *str = (char *)malloc(600);    // actual length 564
+
+    unsigned int l = calcSelectMenu(apChannelCustHTMLSrc, 14, settings.apChnl);
+    char *str = (char *)malloc(l);
 
     str[0] = 0;
     buildSelectMenu(str, apChannelCustHTMLSrc, 14, settings.apChnl);
@@ -1414,8 +1507,8 @@ static const char *wmBuildBestApChnl(const char *dest)
     int qual = 0;
 
     if(wm.getBestAPChannel(mychan, qual)) {
-        char *str = (char *)malloc(STRLEN(bestAP) + 4 + 7 + STRLEN(badWiFi) + 1);
-        sprintf(str, bestAP, qual < 0 ? "dc3630" : (qual > 0 ? "609b71" : "777"), mychan, qual < 0 ? badWiFi : "");
+        char *str = (char *)malloc(STRLEN(bestAP) + STRLEN(bannerStart) + 7 + STRLEN(bannerMid) + 4 + STRLEN(badWiFi) + 1);
+        sprintf(str, bestAP, bannerStart, qual < 0 ? col_r : (qual > 0 ? col_g : col_gr), bannerMid, mychan, qual < 0 ? badWiFi : "");
         return str;
     }
 
@@ -1429,6 +1522,101 @@ static const char *wmBuildHaveSD(const char *dest)
 
     return haveNoSD;
 }
+
+#ifdef VSR_HAVEMQTT
+static const char *wmBuildMQTTprot(const char *dest)
+{
+    if(dest) {
+        free((void *)dest);
+        return NULL;
+    }
+
+    unsigned int l = calcSelectMenu(mqttpCustHTMLSrc, 4, settings.mqttVers);
+    char *str = (char *)malloc(l);
+
+    str[0] = 0;
+    buildSelectMenu(str, mqttpCustHTMLSrc, 4, settings.mqttVers);
+    
+    return str;
+}
+static const char *wmBuildMQTTstate(const char *dest)
+{
+    // Check original setting, not "useMQTT" which
+    // might be overruled.
+    if(!atoi(settings.useMQTT)) {
+        return NULL;
+    }
+    
+    if(dest) {
+        free((void *)dest);
+        return NULL;
+    }
+
+    int s = 0;
+    const char *msg = NULL;
+    const char *cls = col_r;
+
+    if(!useMQTT) {
+        msg = mqttMsgDisabled;
+        cls = col_gr;
+    } else {
+        s = mqttClient.state();
+        switch(s) {
+        case MQTT_CONNECTED:
+            msg = mqttMsgConnected;
+            cls = col_g;
+            break;
+        case MQTT_CONNECTING:
+            msg = mqttMsgConnecting;
+            cls = col_gr;
+            break;
+        case MQTT_CONNECTION_TIMEOUT:
+            msg = mqttMsgTimeout;
+            break;
+        case MQTT_CONNECTION_LOST:
+        case MQTT_CONNECT_FAILED:
+            msg = mqttMsgFailed;
+            break;
+        case MQTT_DISCONNECTED:
+            msg = mqttMsgDisconnected;
+            break;
+        case MQTT_CONNECT_BAD_PROTOCOL:
+        case MQTT_CONNECT_BAD_CLIENT_ID:
+        case 129:
+        case 130:
+        case 132:
+        case 133:
+            msg = mqttMsgBadProtocol;
+            break;
+        case MQTT_CONNECT_UNAVAILABLE:
+        case 136:
+        case 137:
+            msg = mqttMsgUnavailable;
+            break;
+        case MQTT_CONNECT_BAD_CREDENTIALS:
+        case MQTT_CONNECT_UNAUTHORIZED:
+        case 134:
+        case 135:
+        case 138:
+        case 140:
+        case 156:
+        case 157:
+            msg = mqttMsgBadCred;
+            break;
+        default:
+            msg = mqttMsgGenError;
+            break;
+        }
+    }
+
+    char *str = (char *)malloc(STRLEN(mqttStatus) + STRLEN(bannerStart) + strlen(cls) + 20 + STRLEN(bannerMid) + strlen(msg) + 6);
+
+    sprintf(str, mqttStatus, bannerStart, cls, ";margin-bottom:10px", bannerMid, msg, s);
+
+    return str;
+}
+#endif
+
 
 /*
  * Audio data uploader
@@ -1883,8 +2071,6 @@ static void mqttCallback(char *topic, byte *payload, unsigned int length)
 
     if(!length) return;
 
-    if(vsrBusy) return;
-
     memcpy(tempBuf, (const char *)payload, ml);
     tempBuf[ml] = 0;
     for(j = 0; j < ml; j++) {
@@ -1919,7 +2105,7 @@ static void mqttCallback(char *topic, byte *payload, unsigned int length)
         case 1:
             // Trigger Time Travel (if not running already)
             // Ignore command if TCD is connected by wire
-            if(!ignTT && !TCDconnected && !TTrunning) {
+            if(!ignTT && !TCDconnected && !TTrunning && !vsrBusy) {
                 networkTimeTravel = true;
                 networkTCDTT = true;
                 networkReentry = false;
@@ -1956,7 +2142,7 @@ static void mqttCallback(char *topic, byte *payload, unsigned int length)
             break;
         }
        
-    } else if(!strcmp(topic, "bttf/vsr/cmd")) {
+    } else if(!vsrBusy && !strcmp(topic, "bttf/vsr/cmd")) {
 
         // User commands
         
@@ -2062,9 +2248,9 @@ static bool mqttReconnect(bool force)
                 #endif
     
                 if(strlen(mqttUser)) {
-                    success = mqttClient.connect(settings.hostName, mqttUser, strlen(mqttPass) ? mqttPass : NULL);
+                    success = mqttClient.connect(mqttUser, strlen(mqttPass) ? mqttPass : NULL);
                 } else {
-                    success = mqttClient.connect(settings.hostName);
+                    success = mqttClient.connect();
                 }
     
                 mqttReconnectNow = millis();

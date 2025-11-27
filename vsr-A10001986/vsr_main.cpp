@@ -470,7 +470,7 @@ void main_setup()
         Serial.println("Current audio data not installed");
         #endif
         vsrdisplay.on();
-        vsrdisplay.setText("AUD");
+        vsrdisplay.setText("ISP");
         vsrdisplay.show();
         delay(1000);
         vsrdisplay.clearBuf();
@@ -726,22 +726,45 @@ void main_loop()
 
                 } else {
 
-                    // If we have missed P0, play it now
-                    if(TTFInt) {
-                        if(playTTsounds) {
-                            play_file("/ttstart.mp3", PA_INTRMUS|PA_ALLOWSD, TT_V_LEV);
-                            append_file("/humm.wav", PA_LOOP|PA_WAV|PA_INTRMUS|PA_ALLOWSD, TT_V_LEV);
+                    if(!networkAbort) {
+
+                        // If we have missed P0, play it now
+                        if(TTFInt) {
+                            if(playTTsounds) {
+                                play_file("/ttstart.mp3", PA_INTRMUS|PA_ALLOWSD, TT_V_LEV);
+                                append_file("/humm.wav", PA_LOOP|PA_WAV|PA_INTRMUS|PA_ALLOWSD, TT_V_LEV);
+                            }
                         }
+
+                        vsrdisplay.setText("1.21");
+                        vsrdisplay.show();
+
+                        TTP0 = false;
+                        TTP1 = true;
+      
+                        TTstart = now;
+                        TTFInt = 1;
+                        
+                    } else {
+
+                        // We were aborted: Handle sound gracefully, skip P1.
+
+                        if(!TTFInt) {
+                            // If "humm" is still pending, replace by ttend
+                            // Otherwise interrupt "humm" by ttend
+                            if(append_pending()) {
+                                append_file("/ttend.mp3", PA_INTRMUS|PA_ALLOWSD, TT_V_LEV);
+                            } else {
+                                play_file("/ttend.mp3", PA_INTRMUS|PA_ALLOWSD, TT_V_LEV);
+                            }
+                        }
+
+                        TTP0 = false;
+                        TTP2 = true;
+
+                        TTstart = now;
+                      
                     }
-
-                    vsrdisplay.setText("1.21");
-                    vsrdisplay.show();
-
-                    TTP0 = false;
-                    TTP1 = true;
-
-                    TTstart = now;
-                    TTFInt = 1;
 
                 }
             }
@@ -756,7 +779,7 @@ void main_loop()
                 } else {
 
                     TTP1 = false;
-                    TTP2 = true; 
+                    TTP2 = true;
 
                     if(playTTsounds) {
                         play_file("/ttend.mp3", PA_INTRMUS|PA_ALLOWSD, TT_V_LEV);
@@ -1902,15 +1925,22 @@ static void handle_tcd_notification(uint8_t *buf)
     case BTTFN_NOT_SPD:
         seqCnt = GET32(buf, 12);
         if(seqCnt > bttfnTCDSeqCnt || seqCnt == 1) {
-            gpsSpeed = (int16_t)(buf[6] | (buf[7] << 8));
-            if(gpsSpeed > 88) gpsSpeed = 88;
             switch(buf[8] | (buf[9] << 8)) {
             case BTTFN_SSRC_GPS:
                 spdIsRotEnc = false;
                 break;
+            case BTTFN_SSRC_P1:
+                // If packets come out-of-order, we might
+                // get this one before TTrunning, and we
+                // don't want a switch to usingGPSS only 
+                // because of P1 speed
+                if(!TTrunning) return;
+                // fall through
             default:
                 spdIsRotEnc = true;
             }
+            gpsSpeed = (int16_t)(buf[6] | (buf[7] << 8));
+            if(gpsSpeed > 88) gpsSpeed = 88;
             #ifdef VSR_DBG
             Serial.printf("TCD sent speed %d\n", gpsSpeed);
             #endif
