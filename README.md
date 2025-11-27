@@ -18,7 +18,7 @@ Features include
 - [SD card](#sd-card) support for custom audio files for effects, and music for the Music Player
 - advanced network-accessible [Config Portal](#the-config-portal) for setup (http://vsr.local, hostname configurable)
 - [wireless communication](#bttf-network-bttfn) with [Time Circuits Display](https://tcd.out-a-ti.me); used for synchronized time travels, alarm, night mode, fake power, temperature display and remote control through keypad
-- [Home Assistant](#home-assistant--mqtt) (MQTT 3.1.1) support
+- [Home Assistant](#home-assistant--mqtt) (MQTT) support
 - built-in OTA installer for firmware updates and audio files
 
 ## Firmware Installation
@@ -31,7 +31,7 @@ If you are using a fresh ESP32 board, please see [vsr-A10001986.ino](https://git
 
 ### Sound-pack installation
 
-The firmware comes with a sound-pack which needs to be installed separately. The sound-pack is not updated as often as the firmware itself. If you have previously installed the latest version of the sound-pack, you normally don't have to re-install it when you update the firmware. Only if the VSR briefly displays "AUD" during boot, a re-installation/update of the sound-pack is needed.
+The firmware comes with a sound-pack which needs to be installed separately. The sound-pack is not updated as often as the firmware itself. If you have previously installed the latest version of the sound-pack, you normally don't have to re-install it when you update the firmware. Only if the VSR briefly displays "ISP" during boot, a re-installation/update of the sound-pack is needed.
 
 The first step is to download "install/sound-pack-vrXX.zip" and extract it. It contains one file named "VSRA.bin".
 
@@ -529,7 +529,7 @@ Next, head to the Config Portal and set the option **_TCD connected by wire_**. 
 
 ## Home Assistant / MQTT
 
-The VSR supports the MQTT protocol version 3.1.1 for the following features:
+The VSR supports MQTT protocol versions 3.1.1 and 5.0 for the following features:
 
 ### Control the VSR via MQTT
 
@@ -573,9 +573,11 @@ MQTT requires a "broker" (such as [mosquitto](https://mosquitto.org/), [EMQ X](h
 
 The broker's address needs to be configured in the Config Portal. It can be specified either by domain or IP (IP preferred, spares us a DNS call). The default port is 1883. If a different port is to be used, append a ":" followed by the port number to the domain/IP, such as "192.168.1.5:1884". 
 
+If your broker supports protocol version 3.1.1, stick with 3.1.1. Version 5.0 has no advantages, but more overhead.
+
 If your broker does not allow anonymous logins, a username and password can be specified.
 
-Limitations: MQTT Protocol version 3.1.1; TLS/SSL not supported; ".local" domains (MDNS) not supported; server/broker must respond to PING (ICMP) echo requests. For proper operation with low latency, it is recommended that the broker is on your local network. MQTT is disabled when your VSR is operated in AP-mode or when connected to the TCD run in AP-Mode (TCD-AP).
+Limitations: TLS/SSL not supported; ".local" domains (MDNS) not supported; server/broker must respond to PING (ICMP) echo requests. For proper operation with low latency, it is recommended that the broker is on your local network. MQTT is disabled when your VSR is operated in AP-mode or when connected to the TCD run in AP-Mode (TCD-AP).
 
 ## Car setup
 
@@ -630,6 +632,10 @@ This leads to the [WiFi configuration page](#wifi-configuration)
 ##### &#9193; Settings
 
 This leads to the [Settings page](#settings).
+
+##### &#9193; HA/MQTT Settings
+
+This leads to the [HomeAssistant/MQTT Settings page](#hamqtt-settings).
 
 ##### &#9193; Update
 
@@ -803,20 +809,6 @@ If the VSR is connected to a TCD through BTTFN, this option allows to trigger a 
 
 If this is checked, the VSR ignores network-wide (BTTFN, MQTT) time travels. After all, the VSR is never shown in the movies during a time travel, so its behavior is uncertain. If you don't like the made-up time travel sequence, check this option.
 
-#### <ins>Home Assistant / MQTT settings</ins>
-
-##### &#9193; Home Assistant support (MQTT 3.1.1)
-
-If checked, the VSR will connect to the broker (if configured) and send and receive messages via [MQTT](#home-assistant--mqtt)
-
-##### &#9193; Broker IP[:port] or domain[:port]
-
-The broker server address. Can be a domain (eg. "myhome.me") or an IP address (eg "192.168.1.5"). The default port is 1883. If different port is to be used, it can be specified after the domain/IP and a colon ":", for example: "192.168.1.5:1884". Specifying the IP address is preferred over a domain since the DNS call adds to the network overhead. Note that ".local" (MDNS) domains are not supported.
-
-##### &#9193; User[:Password]
-
-The username (and optionally the password) to be used when connecting to the broker. Can be left empty if the broker accepts anonymous logins.
-
 #### <ins>Settings for wired connections</ins>
 
 ##### &#9193; TCD connected by wire
@@ -849,6 +841,25 @@ If you want copy settings from one SD card to another, do as follows:
 - Power-up the VSR, enter the Config Portal, re-enable _Save secondary settings on SD_, and click "SAVE".
 
 This procedure ensures that all your settings are copied from the old to the new SD card.
+
+### HA/MQTT Settings
+
+##### &#9193; Home Assistant support (MQTT)
+
+If checked, the VSR will connect to the broker (if configured) and send and receive messages via [MQTT](#home-assistant--mqtt)
+
+##### &#9193; Broker IP[:port] or domain[:port]
+
+The broker server address. Can be a domain (eg. "myhome.me") or an IP address (eg "192.168.1.5"). The default port is 1883. If different port is to be used, it can be specified after the domain/IP and a colon ":", for example: "192.168.1.5:1884". Specifying the IP address is preferred over a domain since the DNS call adds to the network overhead. Note that ".local" (MDNS) domains are not supported.
+
+##### &#9193; Protocol version
+
+The firmware supports MQTT 3.1.1 and 5.0. There is no difference in features, so there is no advantage in selecting 5.0. This was implemented only for brokers that do not support 3.1.1.
+
+##### &#9193; User[:Password]
+
+The username (and optionally the password) to be used when connecting to the broker. Can be left empty if the broker accepts anonymous logins.
+
 
 ---
 _Text & images: (C) Thomas Winischhofer ("A10001986"). See LICENSE._ Source: https://vsr.out-a-ti.me  
