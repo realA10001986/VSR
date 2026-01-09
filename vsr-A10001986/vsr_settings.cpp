@@ -1,7 +1,7 @@
 /*
  * -------------------------------------------------------------------
  * Voltage Systems Regulator
- * (C) 2024-2025 Thomas Winischhofer (A10001986)
+ * (C) 2024-2026 Thomas Winischhofer (A10001986)
  * https://github.com/realA10001986/VSR
  * https://vsr.out-a-ti.me
  *
@@ -157,9 +157,8 @@ static bool checkValidNumParm(char *text, int lowerLim, int upperLim, int setDef
 static bool checkValidNumParmF(char *text, float lowerLim, float upperLim, float setDefault);
 
 static bool copy_audio_files(bool& delIDfile);
-static void open_and_copy(const char *fn, int& haveErr, int& haveWriteErr);
-static bool filecopy(File source, File dest, int& haveWriteErr);
 static void cfc(File& sfile, bool doCopy, int& haveErr, int& haveWriteErr);
+
 static bool audio_files_present(int& alienVER);
 
 static bool formatFlashFS(bool userSignal);
@@ -184,7 +183,9 @@ static void firmware_update();
  */
 void settings_setup()
 {
+    #ifdef VSR_DBG
     const char *funcName = "settings_setup";
+    #endif
     bool writedefault = false;
     bool SDres = false;
     int alienVER = -1;
@@ -374,7 +375,7 @@ static bool read_settings(File configFile, int cfgReadCount)
     #if ARDUINOJSON_VERSION_MAJOR < 7
     jsonSize = json.memoryUsage();
     if(jsonSize > JSON_SIZE) {
-        Serial.printf("%s: ERROR: Config file too large (%d vs %d), memory corrupted, awaiting doom.\n", funcName, jsonSize, JSON_SIZE);
+        Serial.printf("ERROR: Config file too large (%d vs %d), memory corrupted, awaiting doom.\n", jsonSize, JSON_SIZE);
     }
     
     #ifdef VSR_DBG
@@ -745,7 +746,7 @@ bool loadCurVolume()
         if(!readJSONCfgFile(json, configFile, funcName)) {
             if(!CopyCheckValidNumParm(json["volume"], temp, sizeof(temp), 0, T_V_MAX, DEFAULT_VOLUME)) {
                 uint8_t ncv = atoi(temp);
-                if((ncv >= 0 && ncv <= 19) || ncv == T_V_MAX) {
+                if(ncv <= 19 || ncv == T_V_MAX) {
                     curSoftVol = ncv;
                 } 
             }
@@ -1094,7 +1095,6 @@ bool check_if_default_audio_present()
     uint8_t dbuf[16];
     File file;
     size_t ts;
-    int i;
 
     ic = false;
     
@@ -1482,8 +1482,6 @@ static bool writeFileToFS(const char *fn, uint8_t *buf, int len)
 
 static char *allocateUploadFileName(const char *fn, int idx)
 {
-    char *t = NULL;
-
     if(uploadFileNames[idx]) {
         free(uploadFileNames[idx]);
     }

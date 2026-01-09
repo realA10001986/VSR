@@ -1,7 +1,7 @@
 /*
  * -------------------------------------------------------------------
  * Voltage Systems Regulator
- * (C) 2024-2025 Thomas Winischhofer (A10001986)
+ * (C) 2024-2026 Thomas Winischhofer (A10001986)
  * https://github.com/realA10001986/VSR
  * https://vsr.out-a-ti.me
  *
@@ -73,10 +73,6 @@ Pushwheel_I2C vsrControls(1,
             (uint8_t[1*2]){ MCP23017_ADDR, PW_MCP23017,
                           });
 
-static unsigned long timeNow = 0;
-
-static unsigned long lastKeyPressed = 0;
-
 static uint32_t prevKeyPlayed = 0;
 
 enum {
@@ -97,8 +93,6 @@ static const char *bmodesText[NUM_BM+1] = {
     "ADM",
     "---"
 };
-
-static unsigned long enterDelay = 0;
 
 static void controlsEvent(int idx, ButState bstate);
 

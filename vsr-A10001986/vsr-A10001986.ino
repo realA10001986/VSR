@@ -1,7 +1,7 @@
 /*
  * -------------------------------------------------------------------
  * Voltage Systems Regulator
- * (C) 2024-2025 Thomas Winischhofer (A10001986)
+ * (C) 2024-2026 Thomas Winischhofer (A10001986)
  * https://github.com/realA10001986/VSR
  * https://vsr.out-a-ti.me
  *
@@ -119,6 +119,12 @@
 
 /*  Changelog
  *
+ *  2026/01/09 (A10001986) [1.24]
+ *    - IO14 is now mirror of the TCD's TT-OUT (in its original function); goes HIGH 
+ *      on start of temporal displacement, LOW on re-entry. There is no lead time.
+ *      IO14 also switches if VSR is set up to ignore BTTFN-wide time travels.
+ *    - BTTFN enhancements in sync with TCD capabilities
+ *    - Code refinements
  *  2025/11/26 (A10001986) [1.23]
  *    - Prevent P1-speed from becoming the reason to switch to adapting to
  *      TCD-provided speed in speedo-less time-travel sequences
@@ -192,8 +198,8 @@
  *    - Minor code optim (settings)
  *    - WM: More event-based waiting instead of delays
  *  2025/10/15 (A10001986)  
- *    - Some more WM changes. Number of scanned networks listed is now restricted in 
- *      order not to run out of memory.
+ *    - Some more WM changes. Number of scanned networks listed is now restricted 
+ *      in order not to run out of memory.
  *  2025/10/14 (A10001986) [1.19.2]
  *    - WM: Do not garble UTF8 SSID; skip SSIDs with non-printable characters
  *    - Fix regression in CP ("show password")

@@ -1,7 +1,7 @@
 /*
  * -------------------------------------------------------------------
  * Voltage Systems Regulator
- * (C) 2024-2025 Thomas Winischhofer (A10001986)
+ * (C) 2024-2026 Thomas Winischhofer (A10001986)
  * https://github.com/realA10001986/VSR
  * https://vsr.out-a-ti.me
  *
@@ -444,7 +444,7 @@ void vsrDisplay::show()
 // Write given text to buffer
 void vsrDisplay::setText(const char *text)
 {
-    int idx = 0, pos = 0, dgt = 0;
+    int idx = 0, pos = 0;
     int temp = 0;
 
     clearBuf();
@@ -524,14 +524,13 @@ void vsrDisplay::setSpeed(int speed)
 void vsrDisplay::setTemperature(float temp)
 {
     char buf[8];
-    char alignBuf[20];
-    int t, strlenBuf = 0;
+    int t;
     const char *myNan = "---";
 
-    if((temp == -32768.0) || isnan(temp)) setText(myNan);
-    else if(temp <= -100.0)               setText("LOW");
-    else if(temp >= 1000.0)               setText("HI");
-    else if(temp >= 100.0 || temp <= -10.0) {
+    if(isnan(temp))          setText(myNan);
+    else if(temp <= -100.0f) setText("LOW");
+    else if(temp >= 1000.0f) setText("HI");
+    else if(temp >= 100.0f || temp <= -10.0f) {
         t = (int)roundf(temp);
         sprintf(buf, "%d", t);
         setText(buf);

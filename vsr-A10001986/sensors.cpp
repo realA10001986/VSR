@@ -1,7 +1,7 @@
 /*
  * -------------------------------------------------------------------
  * Voltage Systems Regulator
- * (C) 2024-2025 Thomas Winischhofer (A10001986)
+ * (C) 2024-2026 Thomas Winischhofer (A10001986)
  * https://github.com/realA10001986/VSR
  * https://vsr.out-a-ti.me
  *
@@ -304,7 +304,6 @@ bool tempSensor::begin(unsigned long powerupTime, void (*myDelay)(unsigned long)
     bool foundSt = false;
     uint8_t temp, timeOut = 20;
     uint16_t t16 = 0;
-    size_t i2clen;
     uint8_t buf[8];
     unsigned long millisNow = millis();
     
@@ -527,7 +526,7 @@ bool tempSensor::begin(unsigned long powerupTime, void (*myDelay)(unsigned long)
         // Read t prom data
         _address = MS8607_ADDR_T;
         _MS8607_C5 = (int32_t)((uint16_t)read16(0xaa) << 8);
-        _MS8607_FA = (float)((uint16_t)read16(0xac)) / 8388608.0F;
+        _MS8607_C6 = (uint32_t)read16(0xac);
         // Trigger conversion t
         write8(MS8607_DUMMY, 0x54); // OSR 1024  (0x50=256..0x52..0x54..0x5a=8192)
         // Set rH user register
@@ -586,8 +585,8 @@ float tempSensor::readTemp(bool celsius)
     case MCP9808:
         t = read16(MCP9808_REG_AMBIENT_TEMP);
         if(t != 0xffff) {
-            temp = ((float)(t & 0x0fff)) / 16.0;
-            if(t & 0x1000) temp = 256.0 - temp;
+            temp = ((float)(t & 0x0fff)) / 16.0f;
+            if(t & 0x1000) temp = 256.0f - temp;
         }
         break;
 
@@ -606,8 +605,8 @@ float tempSensor::readTemp(bool celsius)
 
     case SHT40:
         if(readAndCheck6(buf, t, h, SHT40_CRC_INIT, SHT40_CRC_POLY)) {
-            temp = ((175.0 * (float)t) / 65535.0) - 45.0;
-            _hum = (int8_t)(((125.0 * (float)h) / 65535.0) - 6.0);
+            temp = (((float)(175 * t)) / 65535.0f) - 45.0f;
+            _hum = (int8_t)((int32_t)(125 * h) / 65535) - 6;
            if(_hum < 0) _hum = 0;
         }
         write8(SHT40_DUMMY, SHT40_CMD_RTEMPM);    // Trigger new measurement
@@ -618,7 +617,7 @@ float tempSensor::readTemp(bool celsius)
             for(uint8_t i = 0; i < 3; i++) buf[i] = Wire.read();
             if(crc8(SI7021_CRC_INIT, SI7021_CRC_POLY, 2, buf) == buf[2]) {
                 t = (buf[0] << 8) | buf[1];
-                _hum = (int8_t)(((125.0 * (float)t) / 65536.0) - 6.0);
+                _hum = (int8_t)((int32_t)((125 * t) >> 16)) - 6;
                 if(_hum < 0) _hum = 0;
             }
         }
@@ -626,7 +625,7 @@ float tempSensor::readTemp(bool celsius)
         if(Wire.requestFrom(_address, (uint8_t)2) == 2) {
             for(uint8_t i = 0; i < 2; i++) buf[i] = Wire.read();
             t = (buf[0] << 8) | buf[1];
-            temp = ((175.72 * (float)t) / 65536.0) - 46.85;
+            temp = ((175.72f * (float)t) / 65536.0f) - 46.85f;
         }
         write8(SI7021_DUMMY, SI7021_CMD_RHUM);    // Trigger new measurement
         break;
@@ -634,7 +633,7 @@ float tempSensor::readTemp(bool celsius)
     case TMP117:
         t = read16(TMP117_REG_TEMP);
         if(t != 0x8000) {
-            temp = (float)((int16_t)t) / 128.0;
+            temp = (float)((int16_t)t) / 128.0f;
         }
         break;
 
@@ -642,8 +641,8 @@ float tempSensor::readTemp(bool celsius)
         if(Wire.requestFrom(_address, (uint8_t)7) == 7) {
             for(uint8_t i = 0; i < 7; i++) buf[i] = Wire.read();
             if(crc8(AHT20_CRC_INIT, AHT20_CRC_POLY, 6, buf) == buf[6]) {
-                _hum = ((uint32_t)((buf[1] << 12) | (buf[2] << 4) | (buf[3] >> 4))) * 100 >> 20; // / 1048576;
-                temp = ((float)((uint32_t)(((buf[3] & 0x0f) << 16) | (buf[4] << 8) | buf[5]))) * 200.0 / 1048576.0 - 50.0;
+                _hum = (((uint32_t)((buf[1] << 12) | (buf[2] << 4) | (buf[3] >> 4))) * 100) >> 20;
+                temp = ((((float)((uint32_t)(((buf[3] & 0x0f) << 16) | (buf[4] << 8) | buf[5]))) * 200.0f) / 1048576.0f) - 50.0f;
             }
         }
         write16(0xac, 0x3300);    // Trigger new measurement
@@ -652,9 +651,8 @@ float tempSensor::readTemp(bool celsius)
     case HTU31:
         write8(HTU31_DUMMY, HTU31_READTRH);  // Read t+rh
         if(readAndCheck6(buf, t, h, HTU31_CRC_INIT, HTU31_CRC_POLY)) {
-            temp = ((165.0 * (float)t) / 65535.0) - 40.0;
-            _hum = (int8_t)((100.0 * (float)h) / 65535.0);
-            if(_hum < 0) _hum = 0;
+            temp = (((float)(165 * t)) / 65535.0f) - 40.0f;
+            _hum = (int8_t)(((float)(100 * h)) / 65535.0f);
         }
         write8(HTU31_DUMMY, HTU31_CONV);  // Trigger new conversion
         break;
@@ -664,9 +662,9 @@ float tempSensor::readTemp(bool celsius)
         write8(MS8607_DUMMY, 0x00);
         if(Wire.requestFrom(_address, (uint8_t)3) == 3) {
             int32_t dT = 0;
-            for(uint8_t i = 0; i < 3; i++) { dT<<=8; dT |= Wire.read(); }
+            for(int i = 0; i < 3; i++) { dT<<=8; dT |= Wire.read(); }
             dT -= _MS8607_C5;
-            temp = (2000.0F + ((float)dT * _MS8607_FA)) / 100.0F;
+            temp = (2000.0f + (((float)(dT * _MS8607_C6)) / 8388608.0f)) / 100.0f;
         }
         // Trigger new conversion t
         write8(MS8607_DUMMY, 0x54);
@@ -676,9 +674,9 @@ float tempSensor::readTemp(bool celsius)
             t |= Wire.read();
             t &= ~0x03;
             Wire.read();
-            _hum = (int8_t)(((((float)t * (12500.0 / 65536.0))) - 600.0F) / 100.0F);
-            //if(temp > 0.0F && temp <= 85.0F) {
-            //    _hum += ((int8_t)((float)(20.0F - temp) * -0.18F));   // rh compensated; not worth the computing time
+            _hum = (int8_t)(((int32_t)(t * 12500 / 65536) - 600) / 100);
+            //if(temp > 0.0f && temp <= 85.0f) {
+            //    _hum += ((int8_t)((float)(20.0f - temp) * -0.18f));   // rh compensated; not worth the computing time
             //}
             if(_hum < 0) _hum = 0;
         }
@@ -688,9 +686,8 @@ float tempSensor::readTemp(bool celsius)
 
     case HDC302X:
         if(readAndCheck6(buf, t, h, HDC302x_CRC_INIT, HDC302x_CRC_POLY)) {
-            temp = ((175.0 * (float)t) / 65535.0) - 45.0;
-            _hum = (int8_t)((100.0 * (float)h) / 65535.0);
-            if(_hum < 0) _hum = 0;
+            temp = (((float)(175 * t)) / 65535.0f) - 45.0f;
+            _hum = (int8_t)((uint32_t)(100 * h) / 65535);
         }
         write16(HDC302x_DUMMY, HDC302x_TRIGGER);  // Trigger new conversion
         break;
@@ -699,7 +696,7 @@ float tempSensor::readTemp(bool celsius)
     _tempReadNow = millis();
 
     if(!isnan(temp)) {
-        if(!celsius) temp = temp * 9.0 / 5.0 + 32.0;
+        if(!celsius) temp = temp * 9.0f / 5.0f + 32.0f;
         temp += _userOffset;
         _lastTempNan = false;
     } else {
@@ -754,7 +751,7 @@ float tempSensor::BMx280_CalcTemp(uint32_t ival, uint32_t hval)
         _hum = temp >> 22;
     }
     
-    return (float)((fine_t * 5 + 128) / 256) / 100.0;
+    return (float)((fine_t * 5 + 128) / 256) / 100.0f;
 }
 
 void tempSensor::HDC302x_setDefault(uint16_t reg, uint8_t val1, uint8_t val2)

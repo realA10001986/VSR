@@ -1,7 +1,7 @@
 /*
  * -------------------------------------------------------------------
  * Voltage Systems Regulator
- * (C) 2024-2025 Thomas Winischhofer (A10001986)
+ * (C) 2024-2026 Thomas Winischhofer (A10001986)
  * https://github.com/realA10001986/VSR
  * https://vsr.out-a-ti.me
  *
@@ -137,7 +137,7 @@ class tempSensor : tcSensor {
         };
         union {
             int32_t  _BMx280_CD_H6;
-            float    _MS8607_FA;
+            uint32_t _MS8607_C6;
         };
 
         unsigned long _tempReadNow = 0;

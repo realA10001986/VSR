@@ -1,7 +1,7 @@
 /*
  * -------------------------------------------------------------------
  * Voltage Systems Regulator
- * (C) 2024-2025 Thomas Winischhofer (A10001986)
+ * (C) 2024-2026 Thomas Winischhofer (A10001986)
  * https://github.com/realA10001986/VSR
  * https://vsr.out-a-ti.me
  *
@@ -294,7 +294,6 @@ bool Pushwheel_I2C::doScan()
 int8_t Pushwheel_I2C::getPinWheelVal(int idx, uint16_t pins)
 {    
     uint16_t temp = 0;
-    uint16_t j;
 
     switch(_st) {
     case PW_MCP23017:

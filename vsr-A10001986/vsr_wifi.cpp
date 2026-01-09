@@ -1,7 +1,7 @@
 /*
  * -------------------------------------------------------------------
  * Voltage Systems Regulator
- * (C) 2024-2025 Thomas Winischhofer (A10001986)
+ * (C) 2024-2026 Thomas Winischhofer (A10001986)
  * https://github.com/realA10001986/VSR
  * https://vsr.out-a-ti.me
  *
@@ -340,7 +340,6 @@ static void gpCallback(int);
 static bool preWiFiScanCallback();
 
 static void setupStaticIP();
-static void ipToString(char *str, IPAddress ip);
 static IPAddress stringToIp(char *str);
 
 static void getParam(String name, char *destBuf, size_t length, int defaultVal);
@@ -611,7 +610,6 @@ void wifi_setup2()
     if(useMQTT) {
 
         uint16_t mqttPort = 1883;
-        bool mqttRes = false;
         char *t;
         int tt;
 
@@ -1029,7 +1027,17 @@ static void wifiOff(bool force)
         }
     }
 
-    wm.disableWiFi();
+    // Parm for disableWiFi() is "waitForOFF"
+    // which should be true if we stop in AP
+    // mode and immediately re-connect, without
+    // process()ing for a while after this call.
+    // "force" is true if we want to try to
+    // reconnect after disableWiFi(), false if 
+    // we disconnect upon timer expiration, 
+    // so it matches the purpose.
+    // "false" also does not cause any delays,
+    // while "true" may take up to 2 seconds.
+    wm.disableWiFi(force);
 }
 
 void wifiOn(unsigned long newDelay, bool alsoInAPMode, bool deferCP)
@@ -1088,7 +1096,8 @@ void wifiOn(unsigned long newDelay, bool alsoInAPMode, bool deferCP)
 
         }
 
-    }
+    } else
+        return;
 
     // (Re)connect
     wifiConnect(deferCP);
@@ -1937,12 +1946,6 @@ bool isIp(char *str)
     return false;
 }
 
-// IPAddress to string
-static void ipToString(char *str, IPAddress ip)
-{
-    sprintf(str, "%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
-}
-
 // String to IPAddress
 static IPAddress stringToIp(char *str)
 {
@@ -2105,7 +2108,7 @@ static void mqttCallback(char *topic, byte *payload, unsigned int length)
         case 1:
             // Trigger Time Travel (if not running already)
             // Ignore command if TCD is connected by wire
-            if(!ignTT && !TCDconnected && !TTrunning && !vsrBusy) {
+            if(!TCDconnected && !TTrunning && !TTrunningIOonly && !vsrBusy) {
                 networkTimeTravel = true;
                 networkTCDTT = true;
                 networkReentry = false;
@@ -2122,14 +2125,14 @@ static void mqttCallback(char *topic, byte *payload, unsigned int length)
         case 2:   // Re-entry
             // Start re-entry (if TT currently running)
             // Ignore command if TCD is connected by wire
-            if(!ignTT && !TCDconnected && TTrunning && networkTCDTT) {
+            if(!TCDconnected && (TTrunning || TTrunningIOonly) && networkTCDTT) {
                 networkReentry = true;
             }
             break;
         case 3:   // Abort TT (TCD fake-powered down during TT)
             // Ignore command if TCD is connected by wire
             // (mainly because this is no network-triggered TT)
-            if(!ignTT && !TCDconnected && TTrunning && networkTCDTT) {
+            if(!TCDconnected && (TTrunning || TTrunningIOonly) && networkTCDTT) {
                 networkAbort = true;
             }
             break;

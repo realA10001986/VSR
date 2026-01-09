@@ -1,7 +1,7 @@
 /*
  * -------------------------------------------------------------------
  * Voltage Systems Regulator
- * (C) 2024-2025 Thomas Winischhofer (A10001986)
+ * (C) 2024-2026 Thomas Winischhofer (A10001986)
  * https://github.com/realA10001986/VSR
  * https://vsr.out-a-ti.me
  *
@@ -15,8 +15,8 @@
  ***                          Version Strings                          ***
  *************************************************************************/
 
-#define VSR_VERSION "V1.23"
-#define VSR_VERSION_EXTRA "NOV262025"
+#define VSR_VERSION "V1.24"
+#define VSR_VERSION_EXTRA "JAN092026"
 
 //#define VSR_DBG              // debug output on Serial
 
@@ -81,7 +81,7 @@
 // -------- Buttons and LEDs
 
 #define TT_IN_PIN         13      // Time Travel button (or TCD tt trigger input) (has internal PU/PD) (PD on CB)
-#define YET_UNUSED_PIN    14      // Accessible GPIO, yet unused                  (has internal PU/PD)
+#define TT_OUT_PIN        14      // Time Travel output                           (has internal PU/PD)
 
 #define BUTTON1_IO_PIN    15      // Button GPIO pins (if not via I2C)            (has internal PU)
 #define BUTTON2_IO_PIN    27      //                                              (has internal PU)

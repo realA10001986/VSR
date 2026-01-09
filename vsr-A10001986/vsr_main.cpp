@@ -1,7 +1,7 @@
 /*
  * -------------------------------------------------------------------
  * Voltage Systems Regulator
- * (C) 2024-2025 Thomas Winischhofer (A10001986)
+ * (C) 2024-2026 Thomas Winischhofer (A10001986)
  * https://github.com/realA10001986/VSR
  * https://vsr.out-a-ti.me
  *
@@ -167,7 +167,7 @@ static int16_t TCDtemperature  = -32768;
 static bool    TCDtempIsC      = false;
 bool           haveTCDTemp     = false;
 static float   temperature     = NAN;
-static float   prevTemperature = -32767.0;
+static float   prevTemperature = -32767.0f;
 
 // Temperature update intervals
 #define TEMP_UPD_INT_L (2*60*1000)
@@ -199,6 +199,7 @@ bool doWakeup = false;
 // Time travel status flags etc.
 #define RELAY_AHEAD  1000                // Relay-click ahead of reaching 88 (in ms) (used for sync'd tts only)
 bool                 TTrunning = false;  // TT sequence is running
+bool                 TTrunningIOonly = false;
 static bool          extTT = false;      // TT was triggered by TCD
 static unsigned long TTstart = 0;
 static unsigned long P0duration = ETTO_LEAD;
@@ -208,8 +209,7 @@ static bool          TTP1 = false;
 static bool          TTP2 = false;
 static unsigned long TTFInt = 0;
 static unsigned long TTFDelay = 0;
-static int           TTcnt = 0;
-#define TT_V_LEV     0.7
+#define TT_V_LEV     0.7f
 
 bool         TCDconnected = false;
 static bool  noETTOLead = false;
@@ -236,10 +236,21 @@ bool                 blockScan = false;
 // BTTF network
 #define BTTFN_VERSION              1
 #define BTTFN_SUP_MC            0x80
+#define BTTFN_SUP_ND            0x40
 #define BTTF_PACKET_SIZE          48
 #define BTTF_DEFAULT_LOCAL_PORT 1338
 #define BTTFN_POLL_INT          1100
 #define BTTFN_POLL_INT_FAST      700
+#define BTTFN_RESPONSE_TO        700
+#define BTTFN_KA_INTERVAL  (71*1000)
+#define BTTFN_DATA_TO          18600
+#define BTTFN_TYPE_ANY     0    // Any, unknown or no device
+#define BTTFN_TYPE_FLUX    1    // Flux Capacitor
+#define BTTFN_TYPE_SID     2    // SID
+#define BTTFN_TYPE_PCG     3    // Dash Gauges
+#define BTTFN_TYPE_VSR     4    // VSR
+#define BTTFN_TYPE_AUX     5    // Aux (user custom device)
+#define BTTFN_TYPE_REMOTE  6    // Futaba remote control
 #define BTTFN_NOT_PREPARE  1
 #define BTTFN_NOT_TT       2
 #define BTTFN_NOT_REENTRY  3
@@ -253,14 +264,9 @@ bool                 blockScan = false;
 #define BTTFN_NOT_AUX_CMD  11
 #define BTTFN_NOT_VSR_CMD  12
 #define BTTFN_NOT_SPD      15
-#define BTTFN_NOT_BUSY     16
-#define BTTFN_TYPE_ANY     0    // Any, unknown or no device
-#define BTTFN_TYPE_FLUX    1    // Flux Capacitor
-#define BTTFN_TYPE_SID     2    // SID
-#define BTTFN_TYPE_PCG     3    // Dash Gauges
-#define BTTFN_TYPE_VSR     4    // VSR
-#define BTTFN_TYPE_AUX     5    // Aux (user custom device)
-#define BTTFN_TYPE_REMOTE  6    // Futaba remote control
+#define BTTFN_NOT_INFO     16
+#define BTTFN_NOT_DATA     128  // bit only, not value
+#define BTTFN_REMCMD_KEEPALIVE 101
 #define BTTFN_SSRC_NONE         0
 #define BTTFN_SSRC_GPS          1
 #define BTTFN_SSRC_ROTENC       2
@@ -268,6 +274,12 @@ bool                 blockScan = false;
 #define BTTFN_SSRC_P0           4
 #define BTTFN_SSRC_P1           5
 #define BTTFN_SSRC_P2           6
+#define BTTFN_TCDI1_NOREM   0x0001
+#define BTTFN_TCDI1_NOREMKP 0x0002
+#define BTTFN_TCDI1_EXT     0x0004
+#define BTTFN_TCDI1_OFF     0x0008
+#define BTTFN_TCDI1_NM      0x0010
+#define BTTFN_TCDI2_BUSY    0x0001
 static const uint8_t BTTFUDPHD[4] = { 'B', 'T', 'T', 'F' };
 static bool          useBTTFN = false;
 static WiFiUDP       bttfUDP;
@@ -278,36 +290,58 @@ static byte          BTTFUDPBuf[BTTF_PACKET_SIZE];
 static byte          BTTFUDPTBuf[BTTF_PACKET_SIZE];
 static unsigned long BTTFNUpdateNow = 0;
 static unsigned long bttfnVSRPollInt = BTTFN_POLL_INT;
-static unsigned long BTFNTSAge = 0;
 static unsigned long BTTFNTSRQAge = 0;
+static unsigned long BTTFNLastCmdSent = 0;
 static bool          BTTFNPacketDue = false;
 static bool          BTTFNWiFiUp = false;
 static uint8_t       BTTFNfailCount = 0;
 static uint32_t      BTTFUDPID = 0;
 static unsigned long lastBTTFNpacket = 0;
+static unsigned long lastBTTFNKA = 0;
+static unsigned long bttfnLastNotData = 0;
 static bool          BTTFNBootTO = false;
 static bool          haveTCDIP = false;
 static IPAddress     bttfnTcdIP;
 static uint32_t      bttfnTCDSeqCnt = 0;
+static uint32_t      bttfnTCDDataSeqCnt = 0;
 static uint8_t       bttfnReqStatus = 0x56; // Request capabilities, status, temperature, speed
+static bool          TCDSupportsNOTData = false;
+static bool          bttfnDataNotEnabled = false;
 static uint32_t      tcdHostNameHash = 0;
 static byte          BTTFMCBuf[BTTF_PACKET_SIZE];
 static IPAddress     bttfnMcIP(224, 0, 0, 224);
+static uint32_t      bttfnSeqCnt = 1;
 
 static int      iCmdIdx = 0;
 static int      oCmdIdx = 0;
 static uint32_t commandQueue[16] = { 0 };
 
+#ifdef ESP32
+/*  "warning: taking address of packed member of 'struct <anonymous>' may 
+ *  result in an unaligned pointer value"
+ *  "GCC will issue this warning when accessing an unaligned member of 
+ *  a packed struct due to the incurred penalty of unaligned memory 
+ *  access. However, all ESP chips (on both Xtensa and RISC-V 
+ *  architectures) allow for unaligned memory access and incur no extra 
+ *  penalty."
+ *  https://docs.espressif.com/projects/esp-idf/en/v5.1/esp32s3/migration-guides/release-5.x/5.0/gcc.html
+ */
+#define GET32(a,b)    *((uint32_t *)((a) + (b)))
+#define SET32(a,b,c)  *((uint32_t *)((a) + (b))) = c
+#else
 #define GET32(a,b)          \
     (((a)[b])            |  \
     (((a)[(b)+1]) << 8)  |  \
     (((a)[(b)+2]) << 16) |  \
-    (((a)[(b)+3]) << 24))
+    (((a)[(b)+3]) << 24))   
 #define SET32(a,b,c)                        \
     (a)[b]       = ((uint32_t)(c)) & 0xff;  \
     ((a)[(b)+1]) = ((uint32_t)(c)) >> 8;    \
     ((a)[(b)+2]) = ((uint32_t)(c)) >> 16;   \
-    ((a)[(b)+3]) = ((uint32_t)(c)) >> 24;  
+    ((a)[(b)+3]) = ((uint32_t)(c)) >> 24; 
+#endif
+
+static void setTTOUT(uint8_t stat);
 
 static void execute_remote_command();
 
@@ -333,7 +367,7 @@ static void bttfn_setup();
 static void bttfn_loop_quick();
 static bool bttfn_checkmc();
 static void BTTFNCheckPacket();
-static bool BTTFNTriggerUpdate();
+static bool BTTFNSendRequest();
 static void BTTFNPreparePacketTemplate();
 static void BTTFNSendPacket();
 
@@ -346,6 +380,10 @@ void main_boot2()
 {
     // Init LED segment display
     int temp = 0;
+
+    // Reset TT-OUT
+    pinMode(TT_OUT_PIN, OUTPUT);
+    digitalWrite(TT_OUT_PIN, LOW);
 
     if(!vsrdisplay.begin(temp)) {
         Serial.println("Display not found");
@@ -382,9 +420,7 @@ void main_boot2()
 }
 
 void main_setup()
-{
-    unsigned long now = millis();
-    
+{   
     Serial.println("Voltage Systems Regulator version " VSR_VERSION " " VSR_VERSION_EXTRA);
 
     updateConfigPortalBriValues();
@@ -402,7 +438,7 @@ void main_setup()
     if(check_allow_CPA()) {
         showWaitSequence();
         if(prepareCopyAudioFiles()) {
-            play_file("/_installing.mp3", PA_ALLOWSD, 1.0);
+            play_file("/_installing.mp3", PA_ALLOWSD, 1.0f);
             waitAudioDone();
         }
         doCopyAudioFiles();
@@ -548,11 +584,13 @@ void main_loop()
             stopAudio();
             
             if(TTrunning) {
+                TTrunning = false;
                 // Reset to idle
                 vsrdisplay.setBrightness(255);
                 // ...
             }
-            TTrunning = false;
+            TTrunningIOonly = false;
+            setTTOUT(LOW);
             
             // Display OFF
             vsrdisplay.off();
@@ -680,8 +718,10 @@ void main_loop()
         // Check for BTTFN/MQTT-induced TT
         if(networkTimeTravel) {
             networkTimeTravel = false;
-            ssEnd();
-            timeTravel(networkTCDTT, networkLead, networkP1);
+            if(!networkAbort) {
+                /*if(!ignTT)*/ ssEnd();
+                timeTravel(networkTCDTT, networkLead, networkP1);
+            }
         }
     }
 
@@ -727,6 +767,8 @@ void main_loop()
                 } else {
 
                     if(!networkAbort) {
+
+                        setTTOUT(HIGH);
 
                         // If we have missed P0, play it now
                         if(TTFInt) {
@@ -781,6 +823,8 @@ void main_loop()
                     TTP1 = false;
                     TTP2 = true;
 
+                    setTTOUT(LOW);
+
                     if(playTTsounds) {
                         play_file("/ttend.mp3", PA_INTRMUS|PA_ALLOWSD, TT_V_LEV);
                     }
@@ -826,6 +870,8 @@ void main_loop()
                     TTP0 = false;
                     TTP1 = true;
 
+                    setTTOUT(HIGH);
+
                     vsrdisplay.setText("1.21");
                     vsrdisplay.show();
                     
@@ -842,6 +888,8 @@ void main_loop()
                      // Wait...
                     
                 } else {
+
+                    setTTOUT(LOW);
 
                     TTP1 = false;
                     TTP2 = true; 
@@ -871,12 +919,32 @@ void main_loop()
 
     } else {    // No TT currently
 
+        if(TTrunningIOonly) {
+            if(TTP0) {
+                if(networkAbort) {
+                    TTP0 = false;
+                    TTrunningIOonly = false;
+                } else if(now - TTstart >= P0duration) {
+                    setTTOUT(HIGH);
+                    TTP0 = false;
+                    TTP1 = true;
+                    TTstart = now;
+                }
+            }
+            if(TTP1) {
+                if(networkReentry || networkAbort || (millis() - TTstart >= P1_maxtimeout)) {
+                    setTTOUT(LOW);
+                    TTrunningIOonly = false;
+                }
+            }
+        }
+
         if(networkAlarm) {
 
             ssEnd();
 
             if(atoi(settings.playALsnd) > 0) {
-                play_file("/alarm.mp3", PA_INTRMUS|PA_ALLOWSD|PA_DYNVOL, 1.0);
+                play_file("/alarm.mp3", PA_INTRMUS|PA_ALLOWSD|PA_DYNVOL, 1.0f);
             }
 
             if(!FPBUnitIsOn) {
@@ -1031,25 +1099,25 @@ void main_loop()
                     #ifdef VSR_HAVETEMP
                     if(haveTempSens) {
                         temperature = tempSens.readLastTemp();
-                    } else {
-                        float t = (float)TCDtemperature / 100.0;
-                        if(TCDtemperature != -32768) {
-                            if(tempUnit) {
-                                if(!TCDtempIsC) {
-                                    t = (t - 32.0) * 5.0 / 9.0;
-                                }
-                            } else {
-                                if(TCDtempIsC) {
-                                    t = t * 9.0 / 5.0 + 32.0;
-                                }
+                    } else if(haveTCDTemp) {
+                        float t = (float)TCDtemperature / 100.0f;
+                        if(tempUnit) {
+                            if(!TCDtempIsC) {
+                                t = (t - 32.0f) * 5.0f / 9.0f;
                             }
-                            temperature = t;
                         } else {
-                            temperature = NAN;
+                            if(TCDtempIsC) {
+                                t = t * 9.0f / 5.0f + 32.0f;
+                            }
                         }
+                        temperature = t;
+                    } else {
+                        temperature = NAN;
                     }
                     #endif
-                    if(forceDispUpd || (temperature != prevTemperature)) {
+                    if(forceDispUpd || 
+                       (isnan(temperature) != isnan(prevTemperature)) || 
+                       (temperature != prevTemperature)) {
                         vsrdisplay.setTemperature(temperature);
                         vsrdisplay.show();
                         prevTemperature = temperature;
@@ -1118,8 +1186,9 @@ void main_loop()
     
     // If network is interrupted, return to stand-alone
     if(useBTTFN) {
-        if( (lastBTTFNpacket && (now - lastBTTFNpacket > 30*1000)) ||
-            (!BTTFNBootTO && !lastBTTFNpacket && (now - powerupMillis > 60*1000)) ) {
+        if( !bttfnDataNotEnabled &&
+            ((lastBTTFNpacket && (now - lastBTTFNpacket > 30*1000)) ||
+             (!BTTFNBootTO && !lastBTTFNpacket && (now - powerupMillis > 60*1000))) ) {
             tcdNM = false;
             tcdFPO = false;
             gpsSpeed = -1;
@@ -1209,9 +1278,18 @@ void timeTravel(bool TCDtriggered, uint16_t P0Dur, uint16_t P1Dur)
     flushDelayedSave();
 
     nmOverruled = false;
-        
-    TTrunning = true;
+
+    setTTOUT(LOW);
+
     TTstart = millis();
+
+    if(TCDtriggered && ignTT) {
+        TTrunningIOonly = true;
+    } else {
+        TTrunning = true;
+        TTrunningIOonly = false;
+    }
+
     TTP0 = true;   // phase 0
     TTP1 = TTP2 = false;
 
@@ -1253,7 +1331,7 @@ void timeTravel(bool TCDtriggered, uint16_t P0Dur, uint16_t P1Dur)
     
     #ifdef VSR_DBG
     Serial.printf("P0 duration is %d\n", P0duration);
-    Serial.printf("TTFDelay %d  TTFInt %d  TTcnt %d\n", TTFDelay, TTFInt, TTcnt);
+    Serial.printf("TTFDelay %d  TTFInt %d\n", TTFDelay, TTFInt);
     #endif
 }
 
@@ -1276,7 +1354,7 @@ static void play_startup()
 
     blockScan = true;
 
-    play_file("/startup.mp3", PA_ALLOWSD, 1.0);
+    play_file("/startup.mp3", PA_ALLOWSD, 1.0f);
 
     while(!checkAudioDone() || !j) {
         vsrdisplay.setText((char *)intro[i++]);
@@ -1316,11 +1394,6 @@ static void setNightMode(bool nmode)
     vsrNM = nmode;
 }
 
-void toggleNightMode()
-{
-    setNightMode(!vsrNM);
-}
-
 void allOff()
 {
     vsrdisplay.off();
@@ -1331,6 +1404,8 @@ void prepareReboot()
 {
     mp_stop();
     stopAudio();
+
+    setTTOUT(LOW);
     
     allOff();
     
@@ -1441,6 +1516,14 @@ void wakeup()
     ssEnd();
 
     doWakeup = false;
+}
+
+static void setTTOUT(uint8_t stat)
+{
+    digitalWrite(TT_OUT_PIN, stat);
+    #ifdef VSR_DBG
+    Serial.printf("Setting TT_OUT %d\n", stat);
+    #endif
 }
 
 static void execute_remote_command()
@@ -1788,7 +1871,7 @@ static void updateTemperature(bool force)
         tui = 5 * 1000;
     }
     
-    if(force || (millis() - tempReadNow >= tempUpdInt)) {
+    if(force || (millis() - tempReadNow >= tui)) {
         tempSens.readTemp(tempUnit);
         tempReadNow = millis();
     }
@@ -1824,6 +1907,20 @@ void mydelay(unsigned long mydel)
  * Basic Telematics Transmission Framework (BTTFN)
  */
 
+static bool check_packet(uint8_t *buf)
+{
+    // Basic validity check
+    if(memcmp(buf, BTTFUDPHD, 4))
+        return false;
+
+    uint8_t a = 0;
+    for(int i = 4; i < BTTF_PACKET_SIZE - 1; i++) {
+        a += buf[i] ^ 0x55;
+    }
+
+    return (buf[BTTF_PACKET_SIZE - 1] == a);
+}
+
 void addCmdQueue(uint32_t command)
 {
     if(!command) return;
@@ -1833,82 +1930,40 @@ void addCmdQueue(uint32_t command)
     iCmdIdx &= 0x0f;
 }
 
-static void bttfn_setup()
+static void bttfn_eval_response(uint8_t *buf, bool checkCaps)
 {
-    useBTTFN = false;
-
-    // string empty? Disable BTTFN.
-    if(!settings.tcdIP[0])
-        return;
-
-    haveTCDIP = isIp(settings.tcdIP);
+    if(checkCaps && (buf[5] & 0x40)) {
+        bttfnReqStatus &= ~0x40;     // Do no longer poll capabilities
+        if(buf[31] & 0x01) {
+            bttfnReqStatus &= ~0x02; // Do no longer poll speed, comes over multicast
+        }
+        if(buf[31] & 0x10) {
+            TCDSupportsNOTData = true;
+        }
+    }
     
-    if(!haveTCDIP) {
-        tcdHostNameHash = 0;
-        unsigned char *s = (unsigned char *)settings.tcdIP;
-        for ( ; *s; ++s) tcdHostNameHash = 37 * tcdHostNameHash + tolower(*s);
+    if(buf[5] & 0x02) {
+        gpsSpeed = (int16_t)(buf[18] | (buf[19] << 8));
+        if(gpsSpeed > 88) gpsSpeed = 88;
+        spdIsRotEnc = !!(buf[26] & (0x80|0x20));    // Speed is from RotEnc or Remote
+    }
+
+    if(buf[5] & 0x04) {
+        TCDtemperature = (int16_t)(buf[20] | (buf[21] << 8));
+        haveTCDTemp = (TCDtemperature != -32768);
+        TCDtempIsC = !!(buf[26] & 0x40);
     } else {
-        bttfnTcdIP.fromString(settings.tcdIP);
+        haveTCDTemp = false;
     }
-    
-    vsrUDP = &bttfUDP;
-    vsrUDP->begin(BTTF_DEFAULT_LOCAL_PORT);
 
-    vsrMcUDP = &bttfMcUDP;
-    vsrMcUDP->beginMulticast(bttfnMcIP, BTTF_DEFAULT_LOCAL_PORT + 2);
-
-    BTTFNPreparePacketTemplate();
-    
-    BTTFNfailCount = 0;
-    useBTTFN = true;
-}
-
-void bttfn_loop()
-{
-    int t = 100;
-    
-    if(!useBTTFN)
-        return;
-
-    while(bttfn_checkmc() && t--) {}
-
-    BTTFNCheckPacket();
-    
-    if(!BTTFNPacketDue) {
-        // If WiFi status changed, trigger immediately
-        if(!BTTFNWiFiUp && (WiFi.status() == WL_CONNECTED)) {
-            BTTFNUpdateNow = 0;
-        }
-        if((!BTTFNUpdateNow) || (millis() - BTTFNUpdateNow > bttfnVSRPollInt)) {
-            BTTFNTriggerUpdate();
-        }
+    if(buf[5] & 0x10) {
+        tcdNM  = !!(buf[26] & 0x01);
+        tcdFPO = !!(buf[26] & 0x02);
+        tcdIsBusy = !!(buf[26] & 0x10); 
+    } else {
+        tcdNM = false;
+        tcdFPO = false;
     }
-}
-
-static void bttfn_loop_quick()
-{
-    int t = 100;
-    
-    if(!useBTTFN)
-        return;
-
-    while(bttfn_checkmc() && t--) {}
-}
-
-static bool check_packet(uint8_t *buf)
-{
-    // Basic validity check
-    if(memcmp(BTTFUDPBuf, BTTFUDPHD, 4))
-        return false;
-
-    uint8_t a = 0;
-    for(int i = 4; i < BTTF_PACKET_SIZE - 1; i++) {
-        a += BTTFUDPBuf[i] ^ 0x55;
-    }
-    if(BTTFUDPBuf[BTTF_PACKET_SIZE - 1] != a)
-        return false;
-
-    return true;
 }
 
 static void handle_tcd_notification(uint8_t *buf)
@@ -1920,6 +1975,26 @@ static void handle_tcd_notification(uint8_t *buf)
     // that are evaluated synchronously (=later).
     // Do not stuff that messes with display, input,
     // etc.
+
+    if(buf[5] & BTTFN_NOT_DATA) {
+        if(TCDSupportsNOTData) {
+            bttfnDataNotEnabled = true;
+            bttfnLastNotData = millis();
+            seqCnt = GET32(buf, 6);
+            if(seqCnt > bttfnTCDDataSeqCnt || seqCnt == 1) {
+                #ifdef VSR_DBG
+                Serial.println("Valid NOT_DATA packet received");
+                #endif
+                bttfn_eval_response(buf, false);
+            } else {
+                #ifdef VSR_DBG
+                Serial.printf("Out-of-sequence NOT_DATA packet received %d %d\n", seqCnt, bttfnTCDDataSeqCnt);
+                #endif
+            }
+            bttfnTCDDataSeqCnt = seqCnt;
+        }
+        return;
+    }
     
     switch(buf[5]) {
     case BTTFN_NOT_SPD:
@@ -1963,26 +2038,26 @@ static void handle_tcd_notification(uint8_t *buf)
     case BTTFN_NOT_TT:
         // Trigger Time Travel (if not running already)
         // Ignore command if TCD is connected by wire
-        if(!ignTT && !TCDconnected && !TTrunning && !vsrBusy) {
-            networkTimeTravel = true;
-            networkTCDTT = true;
-            networkReentry = false;
-            networkAbort = false;
+        if(!TCDconnected && !TTrunning && !TTrunningIOonly && !vsrBusy) {
             networkLead = buf[6] | (buf[7] << 8);
             networkP1 = buf[8] | (buf[9] << 8);
+            networkReentry = false;
+            networkAbort = false;
+            networkTimeTravel = true;
+            networkTCDTT = true;
         }
         break;
     case BTTFN_NOT_REENTRY:
         // Start re-entry (if TT currently running)
         // Ignore command if TCD is connected by wire
-        if(!ignTT && !TCDconnected && TTrunning && networkTCDTT) {
+        if(!TCDconnected && (TTrunning || TTrunningIOonly || networkTimeTravel) && networkTCDTT) {
             networkReentry = true;
         }
         break;
     case BTTFN_NOT_ABORT_TT:
         // Abort TT (if TT currently running)
         // Ignore command if TCD is connected by wire
-        if(!ignTT && !TCDconnected && TTrunning && networkTCDTT) {
+        if(!TCDconnected && (TTrunning || TTrunningIOonly || networkTimeTravel) && networkTCDTT) {
             networkAbort = true;
         }
         break;
@@ -1997,12 +2072,21 @@ static void handle_tcd_notification(uint8_t *buf)
     case BTTFN_NOT_WAKEUP:
         doWakeup = true;
         break;
-    case BTTFN_NOT_BUSY:
-        tcdIsBusy = !!(buf[8]);
+    case BTTFN_NOT_INFO:
+        {
+            uint16_t tcdi1 = buf[6] | (buf[7] << 8);
+            uint16_t tcdi2 = buf[8] | (buf[9] << 8);
+            if(tcdi1 & BTTFN_TCDI1_EXT) {
+                tcdNM  = !!(tcdi1 & BTTFN_TCDI1_NM);
+                tcdFPO = !!(tcdi1 & BTTFN_TCDI1_OFF);
+            }
+            tcdIsBusy = !!(tcdi2 & BTTFN_TCDI2_BUSY);
+        }
         break;
     }
 }
 
+// Check for pending MC packet and parse it
 static bool bttfn_checkmc()
 {
     int psize = vsrMcUDP->parsePacket();
@@ -2050,8 +2134,8 @@ static void BTTFNCheckPacket()
     
     int psize = vsrUDP->parsePacket();
     if(!psize) {
-        if(BTTFNPacketDue) {
-            if((mymillis - BTTFNTSRQAge) > 700) {
+        if(!bttfnDataNotEnabled && BTTFNPacketDue) {
+            if((mymillis - BTTFNTSRQAge) > BTTFN_RESPONSE_TO) {
                 // Packet timed out
                 BTTFNPacketDue = false;
                 // Immediately trigger new request for
@@ -2105,61 +2189,14 @@ static void BTTFNCheckPacket()
                 Serial.println("Internal error - received unexpected DISCOVER response");
                 #endif
             }
-        }
-
-        if(BTTFUDPBuf[5] & 0x02) {
-            gpsSpeed = (int16_t)(BTTFUDPBuf[18] | (BTTFUDPBuf[19] << 8));
-            if(gpsSpeed > 88) gpsSpeed = 88;
-            spdIsRotEnc = (BTTFUDPBuf[26] & (0x80|0x20)) ? true : false;    // Speed is from RotEnc or Remote
-        }
-
-        if(BTTFUDPBuf[5] & 0x04) {
-            TCDtemperature = (int16_t)(BTTFUDPBuf[20] | (BTTFUDPBuf[21] << 8));
-            haveTCDTemp = (TCDtemperature != -32768);
-            TCDtempIsC = !!(BTTFUDPBuf[26] & 0x40);
-        }
-
-        if(BTTFUDPBuf[5] & 0x10) {
-            tcdNM  = (BTTFUDPBuf[26] & 0x01) ? true : false;
-            tcdFPO = (BTTFUDPBuf[26] & 0x02) ? true : false;   // 1 means fake power off
-            tcdIsBusy = (BTTFUDPBuf[26] & 0x10) ? true : false; 
         } else {
-            tcdNM = false;
-            tcdFPO = false;
-        }
-
-        if(BTTFUDPBuf[5] & 0x40) {
-            bttfnReqStatus &= ~0x40;     // Do no longer poll capabilities
-            if(BTTFUDPBuf[31] & 0x01) {
-                bttfnReqStatus &= ~0x02; // Do no longer poll speed, comes over multicast
-            }
+            lastBTTFNKA = mymillis;
         }
 
         lastBTTFNpacket = mymillis;
+
+        bttfn_eval_response(BTTFUDPBuf, true);
     }
-}
-
-// Send a new data request
-static bool BTTFNTriggerUpdate()
-{
-    BTTFNPacketDue = false;
-
-    BTTFNUpdateNow = millis();
-
-    if(WiFi.status() != WL_CONNECTED) {
-        BTTFNWiFiUp = false;
-        return false;
-    }
-
-    BTTFNWiFiUp = true;
-
-    // Send new packet
-    BTTFNSendPacket();
-    BTTFNTSRQAge = millis();
-    
-    BTTFNPacketDue = true;
-    
-    return true;
 }
 
 static void BTTFNPreparePacketTemplate()
@@ -2176,8 +2213,8 @@ static void BTTFNPreparePacketTemplate()
 
     BTTFUDPTBuf[10+13] = BTTFN_TYPE_VSR;
 
-    // Version, MC-marker
-    BTTFUDPTBuf[4] = BTTFN_VERSION | BTTFN_SUP_MC;
+    // Version, MC-marker, ND-marker
+    BTTFUDPTBuf[4] = BTTFN_VERSION | BTTFN_SUP_MC | BTTFN_SUP_ND;
 }
 
 static void BTTFNPreparePacket()
@@ -2197,7 +2234,7 @@ static void BTTFNDispatch()
         vsrUDP->beginPacket(bttfnTcdIP, BTTF_DEFAULT_LOCAL_PORT);       
     } else {
         #ifdef VSR_DBG
-        //Serial.printf("Sending multicast (hostname hash %x)\n", tcdHostNameHash);
+        Serial.printf("Sending multicast (hostname hash %x)\n", tcdHostNameHash);
         #endif
         vsrUDP->beginPacket(bttfnMcIP, BTTF_DEFAULT_LOCAL_PORT + 1);
     }
@@ -2205,8 +2242,21 @@ static void BTTFNDispatch()
     vsrUDP->endPacket();
 }
 
-static void BTTFNSendPacket()
+// Send a new data request
+static bool BTTFNSendRequest()
 {
+    BTTFNPacketDue = false;
+
+    BTTFNUpdateNow = millis();
+
+    if(WiFi.status() != WL_CONNECTED) {
+        BTTFNWiFiUp = false;
+        return false;
+    }
+
+    BTTFNWiFiUp = true;
+
+    // Send new packet
     BTTFNPreparePacket();
     
     // Serial
@@ -2222,9 +2272,15 @@ static void BTTFNSendPacket()
     }
 
     BTTFNDispatch();
+
+    BTTFNTSRQAge = millis();
+    
+    BTTFNPacketDue = true;
+    
+    return true;
 }
 
-static bool BTTFNConnected()
+static bool bttfn_connected()
 {
     if(!useBTTFN)
         return false;
@@ -2243,7 +2299,7 @@ static bool BTTFNConnected()
 
 bool bttfn_trigger_tt()
 {
-    if(!BTTFNConnected())
+    if(!bttfn_connected())
         return false;
 
     if(TTrunning || tcdIsBusy)
@@ -2256,9 +2312,118 @@ bool bttfn_trigger_tt()
 
     BTTFNDispatch();
 
+    return true;
+}
+
+static bool bttfn_send_command(uint8_t cmd, uint8_t p1, uint8_t p2)
+{
+    if(cmd != BTTFN_REMCMD_KEEPALIVE)
+        return false;
+        
+    if(!bttfn_connected())
+        return false;
+
+    BTTFNPreparePacket();
+    
+    //BTTFUDPBuf[5] = 0x00; // 0 already
+
+    SET32(BTTFUDPBuf, 6, bttfnSeqCnt);         // Seq counter
+    bttfnSeqCnt++;
+    if(!bttfnSeqCnt) bttfnSeqCnt++;
+
+    BTTFUDPBuf[25] = cmd;                      // Cmd + parms
+    BTTFUDPBuf[26] = p1;
+    BTTFUDPBuf[27] = p2;
+
+    BTTFNDispatch();
+
     #ifdef VSR_DBG
-    Serial.println("Triggered BTTFN-wide TT");
+    Serial.printf("Sent command %d\n", cmd);
     #endif
 
+    BTTFNLastCmdSent = millis();
+
     return true;
+}
+
+static void bttfn_setup()
+{
+    useBTTFN = false;
+
+    // string empty? Disable BTTFN.
+    if(!settings.tcdIP[0])
+        return;
+
+    haveTCDIP = isIp(settings.tcdIP);
+    
+    if(!haveTCDIP) {
+        tcdHostNameHash = 0;
+        unsigned char *s = (unsigned char *)settings.tcdIP;
+        for ( ; *s; ++s) tcdHostNameHash = 37 * tcdHostNameHash + tolower(*s);
+    } else {
+        bttfnTcdIP.fromString(settings.tcdIP);
+    }
+    
+    vsrUDP = &bttfUDP;
+    vsrUDP->begin(BTTF_DEFAULT_LOCAL_PORT);
+
+    vsrMcUDP = &bttfMcUDP;
+    vsrMcUDP->beginMulticast(bttfnMcIP, BTTF_DEFAULT_LOCAL_PORT + 2);
+
+    BTTFNPreparePacketTemplate();
+    
+    BTTFNfailCount = 0;
+    useBTTFN = true;
+}
+
+void bttfn_loop()
+{
+    if(!useBTTFN)
+        return;
+
+    int t = 100;
+    
+    while(bttfn_checkmc() && t--) {}
+
+    unsigned long now = millis();
+
+    BTTFNCheckPacket();   
+    
+    if(bttfnDataNotEnabled) {
+        if(now - lastBTTFNKA > BTTFN_KA_INTERVAL) {
+            if(!BTTFNLastCmdSent || (now - BTTFNLastCmdSent > (BTTFN_KA_INTERVAL/2))) {
+                bttfn_send_command(BTTFN_REMCMD_KEEPALIVE, 0, 0);
+            }
+            BTTFNLastCmdSent = 0;
+            do {
+                lastBTTFNKA += BTTFN_KA_INTERVAL;
+            } while(now - lastBTTFNKA > BTTFN_KA_INTERVAL);
+        }
+        if(now - bttfnLastNotData > BTTFN_DATA_TO) {
+            // Return to polling if no NOT_DATA for too long
+            bttfnDataNotEnabled = false;
+            bttfnTCDDataSeqCnt = lastBTTFNKA = 0;
+            #ifdef VSR_DBG
+            Serial.println("NOT_DATA timeout, returning to polling");
+            #endif
+        }
+    } else if(!BTTFNPacketDue) {
+        // If WiFi status changed, trigger immediately
+        if(!BTTFNWiFiUp && (WiFi.status() == WL_CONNECTED)) {
+            BTTFNUpdateNow = 0;
+        }
+        if((!BTTFNUpdateNow) || (millis() - BTTFNUpdateNow > bttfnVSRPollInt)) {
+            BTTFNSendRequest();
+        }
+    }
+}
+
+static void bttfn_loop_quick()
+{
+    if(!useBTTFN)
+        return;
+
+    int t = 100;
+    
+    while(bttfn_checkmc() && t--) {}
 }

@@ -1,7 +1,7 @@
 /*
  * -------------------------------------------------------------------
  * Voltage Systems Regulator
- * (C) 2024-2025 Thomas Winischhofer (A10001986)
+ * (C) 2024-2026 Thomas Winischhofer (A10001986)
  * https://github.com/realA10001986/VSR
  * https://vsr.out-a-ti.me
  *
@@ -90,6 +90,7 @@ extern bool FPBUnitIsOn;
 extern bool vsrNM;
 
 extern bool TTrunning;
+extern bool TTrunningIOonly;
 
 extern bool bttfnTT;
 extern bool ignTT;
@@ -124,8 +125,6 @@ void decreaseVolume();
 void timeTravel(bool TCDtriggered, uint16_t P0Dur = P0_DUR, uint16_t P1Dur = 0);
 
 void displaySysMsg(const char *msg, unsigned long timeout);
-
-void toggleNightMode();
 
 void ssEnd();
 void ssRestartTimer();
