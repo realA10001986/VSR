@@ -119,6 +119,8 @@
 
 /*  Changelog
  *
+ *  2026/01/09 (A10001986) [1.25]
+ *    - BTTFN: Fix keep-alive logic and re-connection after a TCD-reboot.
  *  2026/01/09 (A10001986) [1.24]
  *    - IO14 is now mirror of the TCD's TT-OUT (in its original function); goes HIGH 
  *      on start of temporal displacement, LOW on re-entry. There is no lead time.
