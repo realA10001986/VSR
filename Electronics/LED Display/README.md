@@ -23,7 +23,7 @@ To have [JCLPCB](https://jlcpcb.com) make your LED display:
 3) Upload the "Gerber" file from the I2CBP folder (.zip, do not decompress!); leave all options at their defaults. You can choose a PCB color though...
 4) Activate "PCB assembly", click "NEXT"
 5) Enjoy a view of the PCB, click "NEXT"
-6) Upload the BOM and "PickAndPlace" (CPL) files from the I2CBP, click "Process BOM & CPL"
+6) Upload the BOM and "PickAndPlace" (CPL) files from the I2CBP folder, click "Process BOM & CPL"
 8) Enjoy a nice 2D or 3D view of your future board, click "NEXT". (If the display stalls at "Processing files", click "NEXT" regardless).
 9) Select a "product description" (eg. "Movie prop") and click "Save to cart".
 10) Click "Order now" (top right on screen) to add the Tube holder PCB
