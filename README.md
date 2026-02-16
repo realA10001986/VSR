@@ -862,6 +862,15 @@ The firmware supports MQTT 3.1.1 and 5.0. There is no difference in features, so
 
 The username (and optionally the password) to be used when connecting to the broker. Can be left empty if the broker accepts anonymous logins.
 
+## Appendix B: Display messages
+
+- "ISP": Please install/update the [sound pack](#sound-pack-installation)
+- "ERR": Error while installing the sound-pack. Please try again.
+- "IP": IP address is going to be shown.
+- "RST": WiFi password cleared; static IP permanently deleted
+- "UPD": Firmware update available; shown briefly at power-up (optional).
+- "LOW": Temperature below -99 degrees.
+- "HI": Temperature above 999 degrees.
 
 ---
 _Text & images: (C) Thomas Winischhofer ("A10001986"). See LICENSE._ Source: https://vsr.out-a-ti.me  
