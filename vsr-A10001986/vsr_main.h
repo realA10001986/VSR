@@ -77,6 +77,8 @@ extern unsigned long powerupMillis;
 extern vsrDisplay vsrdisplay;
 extern vsrBLEDs vsrLEDs;
 
+extern bool showUpdAvail;
+
 extern bool signalBM;
 
 extern bool haveTCDTemp;

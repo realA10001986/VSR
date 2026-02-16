@@ -15,10 +15,8 @@
  ***                          Version Strings                          ***
  *************************************************************************/
 
-#define VSR_VERSION "V1.25"
-#define VSR_VERSION_EXTRA "JAN092026"
-
-//#define VSR_DBG              // debug output on Serial
+#define VSR_VERSION "V1.30"
+#define VSR_VERSION_EXTRA "FEB162026"
 
 /*************************************************************************
  ***             Configuration for hardware/peripherals                ***
@@ -49,6 +47,13 @@
 // Enable LED display test at boot
 //#define VSR_DIAG
 //#define VSR_DIAG2
+
+/*************************************************************************
+ ***                               Debug                               ***
+ *************************************************************************/
+
+//#define VSR_DBG               // Generic except below
+//#define VSR_DBG_NET           // Prop network related
 
 /*************************************************************************
  ***                  esp32-arduino version detection                  ***

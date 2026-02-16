@@ -101,7 +101,7 @@ static void controlsEvent(int idx, ButState bstate);
  */
 void controls_setup()
 {
-    signalBM = (atoi(settings.signalBM) > 0);
+    signalBM = evalBool(settings.signalBM);
     
     // Set up the pushwheels and buttons
     vsrControls.begin(50, BUTTON_HOLD_TIME, myCustomDelay_KP);
@@ -327,6 +327,7 @@ static void controlsEvent(int idx, ButState bstate)
                     }
                     udispchanged = true;
                     udispchgnow = millis();
+                    storeUDispMode();
                     break;
                 case VBM_MP:        // MP mode: Shuffle off/goto 0/shuffle on
                     if(signalBM) {
@@ -336,15 +337,15 @@ static void controlsEvent(int idx, ButState bstate)
                     }
                     switch(idx) {
                     case 0:
+                        mp_makeShuffle(false);
                         if(haveMusic) {
-                            mp_makeShuffle(false);
                             displaySysMsg("ORD", 1000);
                         } else 
                             play_button_bad();
                         break;
                     case 1:
+                        mp_makeShuffle(true);
                         if(haveMusic) {
-                            mp_makeShuffle(true);
                             displaySysMsg("SHU", 1000);
                         } else 
                             play_button_bad();

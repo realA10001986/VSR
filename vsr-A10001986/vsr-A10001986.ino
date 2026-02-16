@@ -119,6 +119,18 @@
 
 /*  Changelog
  *
+ *  2026/02/16 (A10001986) [1.30]
+ *    - New file format settings. This version of the firmware converts old to new.
+ *    - "Shuffle" setting changes through buttons are saved (SD required).
+ *      (Shuffle option removed from CP)
+ *    - Display mode and Button mode are now only saved if an SD card is
+ *      present.
+ *    - Display MAC address (STA) on WiFi Configuration Page
+ *    - Avoid falling back to stand-alone mode too early when TCD stops sending
+ *      packets
+ *    - Config files are now only written if actually changed which prolongs
+ *      Flash life-span.
+ *    - Code optimizations and fixes.
  *  2026/01/09 (A10001986) [1.25]
  *    - BTTFN: Fix keep-alive logic and re-connection after a TCD-reboot.
  *  2026/01/09 (A10001986) [1.24]
@@ -384,3 +396,7 @@ void loop()
     audio_loop();
     bttfn_loop();
 }
+
+#if defined(VSR_DBG) || defined(VSR_DBG_NET)
+#warning "Debug output is enabled. Binary not suitable for release."
+#endif

@@ -55,6 +55,7 @@
 extern bool haveFS;
 extern bool haveSD;
 extern bool FlashROMode;
+extern const char rspv[];
 
 extern bool haveAudioFiles;
 
@@ -79,8 +80,6 @@ extern uint8_t musFolderNum;
 #define DEF_SIG_BM          0     // Signal button mode by permanent button lights
 #define DEF_BRI             15    // Default display brightness
 #define DEF_SS_TIMER        0     // "Screen saver" timeout in minutes; 0 = ss off
-
-#define DEF_SHUFFLE         0     // Music Player: Do not shuffle by default
 
 #define DEF_DI_NM           0     // Night mode: display dimmed(0) or off(1)
 
@@ -117,13 +116,7 @@ struct Settings {
     char signalBM[4]        = MS(DEF_SIG_BM);
     char playTTsnds[4]      = MS(DEF_PLAY_TT_SND);
     char playALsnd[4]       = MS(DEF_PLAY_ALM_SND);
-    char Bri[6];
     char ssTimer[6]         = MS(DEF_SS_TIMER);
-
-    char Vol[6];
-
-    char musicFolder[6];
-    char shuffle[4]         = MS(DEF_SHUFFLE);
 
     char diNmOff[4]         = MS(DEF_DI_NM);
 
@@ -150,6 +143,11 @@ struct Settings {
 
     char CfgOnSD[4]         = MS(DEF_CFG_ON_SD);
     char sdFreq[4]          = MS(DEF_SD_FREQ);
+
+    // Kludges for CP
+    char Bri[6];
+    char upd[4];
+    char musicFolder[6];
 };
 
 struct IPSettings {
@@ -169,26 +167,37 @@ void unmount_fs();
 void write_settings();
 bool checkConfigExists();
 
-bool loadBrightness();
-void saveBrightness(bool useCache = true);
+bool evalBool(char *s);
 
-bool loadButtonMode();
-void saveButtonMode(bool useCache = true);
+void loadBrightness();
+void storeBrightness();
+void saveBrightness();
 
-bool loadUDispMode();
-void saveUDispMode(bool useCache = true);
+void loadCurVolume();
+void storeCurVolume();
+void saveCurVolume();
 
-bool loadCurVolume();
-void saveCurVolume(bool useCache = true);
+void saveUpdAvail();
 
-bool loadMusFoldNum();
+void saveAllSecCP();
+
+void loadButtonMode();
+void storeButtonMode();
+void saveButtonMode();
+
+void loadUDispMode();
+void storeUDispMode();
+void saveUDispMode();
+
+void loadMusFoldNum();
 void saveMusFoldNum();
+
+void loadShuffle();
+void saveShuffle();
 
 bool loadIpSettings();
 void writeIpSettings();
 void deleteIpSettings();
-
-void copySettings();
 
 bool check_if_default_audio_present();
 bool prepareCopyAudioFiles();
@@ -196,6 +205,8 @@ void doCopyAudioFiles();
 
 bool check_allow_CPA();
 void delete_ID_file();
+
+void moveSettings();
 
 #define MAX_SIM_UPLOADS 16
 #define UPL_OPENERR 1

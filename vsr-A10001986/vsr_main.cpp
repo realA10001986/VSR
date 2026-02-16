@@ -115,6 +115,8 @@ tempSensor tempSens(9,
 static bool isTTKeyPressed = false;
 static bool isTTKeyHeld = false;
 
+bool showUpdAvail = true;
+
 int                  userDispMode = LDM_WHEELS;
 static int           dispMode = LDM_WHEELS;
 static int           lastDispMode = -1;
@@ -447,28 +449,28 @@ void main_setup()
         // We never return here. The ESP is rebooted.
     }
 
-    smoothChg = (atoi(settings.smoothpw) > 0);
-    doFluct = (atoi(settings.fluct) > 0);
-    displayBM = (atoi(settings.displayBM) > 0);
+    smoothChg = evalBool(settings.smoothpw);
+    doFluct = evalBool(settings.fluct);
+    displayBM = evalBool(settings.displayBM);
     ssDelay = ssOrigDelay = atoi(settings.ssTimer) * 60 * 1000;
 
-    diNmOff = (atoi(settings.diNmOff) > 0);
+    diNmOff = evalBool(settings.diNmOff);
     vsrdisplay.setNMOff(diNmOff);
 
-    ignTT = (atoi(settings.ignTT) > 0);
-    playTTsounds = (atoi(settings.playTTsnds) > 0);
+    ignTT = evalBool(settings.ignTT);
+    playTTsounds = evalBool(settings.playTTsnds);
 
     // Determine if Time Circuits Display is connected
     // via wire, and is source of GPIO tt trigger
-    TCDconnected = (atoi(settings.TCDpresent) > 0);
-    noETTOLead = (atoi(settings.noETTOLead) > 0);
+    TCDconnected = evalBool(settings.TCDpresent);
+    noETTOLead = evalBool(settings.noETTOLead);
 
     // Eval other options
-    useNM = (atoi(settings.useNM) > 0);
-    useFPO = (atoi(settings.useFPO) > 0);
-    bttfnTT = (atoi(settings.bttfnTT) > 0);
+    useNM = evalBool(settings.useNM);
+    useFPO = evalBool(settings.useFPO);
+    bttfnTT = evalBool(settings.bttfnTT);
 
-    tempUnit = (atoi(settings.tempUnit) > 0);
+    tempUnit = evalBool(settings.tempUnit);
     #ifdef VSR_HAVETEMP
     if(tempSens.begin(powerupMillis, myCustomDelay_Sens)) {
         haveTempSens = true;
@@ -511,6 +513,13 @@ void main_setup()
         vsrdisplay.setText("ISP");
         vsrdisplay.show();
         delay(1000);
+        vsrdisplay.clearBuf();
+        vsrdisplay.show();
+    } else if(showUpdAvail && updateAvailable()) {
+        vsrdisplay.on();
+        vsrdisplay.setText("UPD");
+        vsrdisplay.show();
+        delay(750);
         vsrdisplay.clearBuf();
         vsrdisplay.show();
     }
@@ -945,7 +954,7 @@ void main_loop()
 
             ssEnd();
 
-            if(atoi(settings.playALsnd) > 0) {
+            if(evalBool(settings.playALsnd)) {
                 play_file("/alarm.mp3", PA_INTRMUS|PA_ALLOWSD|PA_DYNVOL, 1.0f);
             }
 
@@ -1131,6 +1140,7 @@ void main_loop()
                         vsrdisplay.show();
                         butchanged = (buttonMode != prevButtonMode);
                         butchgnow = millis();
+                        storeButtonMode();
                         prevButtonMode = buttonMode;
                     }
                     break;
@@ -1255,6 +1265,7 @@ static void chgVolume(int d)
 
     volchanged = true;
     volchgnow = millis();
+    storeCurVolume();
 }
 
 void increaseVolume()
@@ -1602,19 +1613,26 @@ static void execute_remote_command()
     } else if(command < 100) {                        // 80xx
 
         if(command >= 10 && command <= 19) {          // 8010-8012: Set display mode
+            bool dmc = false;
             switch(command - 10) {
             case 0:
                 userDispMode = LDM_WHEELS;
-                ssEnd();
+                dmc = true;
                 break;
             case 1:
                 userDispMode = LDM_TEMP;
-                ssEnd();
+                dmc = true;
                 break;
             case 2:
                 userDispMode = LDM_GPS;
-                ssEnd();
+                dmc = true;
                 break;
+            }
+            if(dmc) {
+                ssEnd();
+                udispchanged = true;
+                udispchgnow = millis();
+                storeUDispMode();
             }
 
         } else if(command == 90) {                    // 8090: Display IP address
@@ -1645,6 +1663,7 @@ static void execute_remote_command()
                 curSoftVol = command;
                 volchanged = true;
                 volchgnow = millis();
+                storeCurVolume();
             }
 
         } else if(command >= 400 && command <= 415) {
@@ -1655,6 +1674,7 @@ static void execute_remote_command()
                 vsrdisplay.setBrightness(command);
                 brichanged = true;
                 brichgnow = millis();
+                storeBrightness();
                 updateConfigPortalBriValues();
             }
 
@@ -1667,9 +1687,7 @@ static void execute_remote_command()
             switch(command) {
             case 222:                             // 8222/8555 Disable/enable shuffle
             case 555:
-                if(haveMusic) {
-                    mp_makeShuffle((command == 555));
-                }
+                mp_makeShuffle((command == 555));
                 break;
             case 888:                             // 8888 go to song #0
                 if(haveMusic) {
@@ -1721,6 +1739,11 @@ static void execute_remote_command()
     } else {
       
         switch(command) {
+        case 53281:                               // 8053281: Toggle "update available" signal at boot
+            showUpdAvail = !showUpdAvail;
+            saveUpdAvail();
+            updateConfigPortalUpdValues();
+            break;
         case 64738:                               // 8064738: reboot
             if(!injected) {
                 prepareReboot();
@@ -1831,6 +1854,8 @@ bool switchMusicFolder(uint8_t nmf, bool isSetup)
 void waitAudioDone()
 {
     int timeout = 400;
+
+    // Note: This only works for mp3, not wav.
 
     while(!checkAudioDone() && timeout--) {
         mydelay(10);
@@ -1990,12 +2015,12 @@ static void handle_tcd_notification(uint8_t *buf)
             bttfnSessionID = seqCnt;
             seqCnt = GET32(buf, 6);
             if(seqCnt > bttfnTCDDataSeqCnt || seqCnt == 1) {
-                #ifdef VSR_DBG
+                #ifdef VSR_DBG_NET
                 Serial.println("Valid NOT_DATA packet received");
                 #endif
                 bttfn_eval_response(buf, false);
             } else {
-                #ifdef VSR_DBG
+                #ifdef VSR_DBG_NET
                 Serial.printf("Out-of-sequence NOT_DATA packet received %d %d\n", seqCnt, bttfnTCDDataSeqCnt);
                 #endif
             }
@@ -2024,11 +2049,11 @@ static void handle_tcd_notification(uint8_t *buf)
             }
             gpsSpeed = (int16_t)(buf[6] | (buf[7] << 8));
             if(gpsSpeed > 88) gpsSpeed = 88;
-            #ifdef VSR_DBG
+            #ifdef VSR_DBG_NET
             Serial.printf("TCD sent speed %d\n", gpsSpeed);
             #endif
         } else {
-            #ifdef VSR_DBG
+            #ifdef VSR_DBG_NET
             Serial.printf("Out-of-sequence packet received from TCD %d %d\n", seqCnt, bttfnTCDSeqCnt);
             #endif
         }
@@ -2109,7 +2134,7 @@ static bool bttfn_checkmc()
     
     vsrMcUDP->read(BTTFMCBuf, BTTF_PACKET_SIZE);
 
-    #ifdef VSR_DBG
+    #ifdef VSR_DBG_NET
     Serial.printf("Received multicast packet from %s\n", vsrMcUDP->remoteIP().toString());
     #endif
 
@@ -2189,11 +2214,11 @@ static void BTTFNCheckPacket()
             if(!haveTCDIP) {
                 bttfnTcdIP = vsrUDP->remoteIP();
                 haveTCDIP = true;
-                #ifdef VSR_DBG
+                #ifdef VSR_DBG_NET
                 Serial.printf("Discovered TCD IP %d.%d.%d.%d\n", bttfnTcdIP[0], bttfnTcdIP[1], bttfnTcdIP[2], bttfnTcdIP[3]);
                 #endif
             } else {
-                #ifdef VSR_DBG
+                #ifdef VSR_DBG_NET
                 Serial.println("Internal error - received unexpected DISCOVER response");
                 #endif
             }
@@ -2241,7 +2266,7 @@ static void BTTFNDispatch()
     if(haveTCDIP) {
         vsrUDP->beginPacket(bttfnTcdIP, BTTF_DEFAULT_LOCAL_PORT);       
     } else {
-        #ifdef VSR_DBG
+        #ifdef VSR_DBG_NET
         Serial.printf("Sending multicast (hostname hash %x)\n", tcdHostNameHash);
         #endif
         vsrUDP->beginPacket(bttfnMcIP, BTTF_DEFAULT_LOCAL_PORT + 1);
@@ -2345,7 +2370,7 @@ static bool bttfn_send_command(uint8_t cmd, uint8_t p1, uint8_t p2)
 
     BTTFNDispatch();
 
-    #ifdef VSR_DBG
+    #ifdef VSR_DBG_NET
     Serial.printf("Sent command %d\n", cmd);
     #endif
 
@@ -2415,7 +2440,9 @@ void bttfn_loop()
             if(tcdHostNameHash) {
                 haveTCDIP = false;
             }
-            #ifdef VSR_DBG
+            // Avoid immediate return to stand-alone in main_loop()
+            lastBTTFNpacket = now;
+            #ifdef VSR_DBG_NET
             Serial.println("NOT_DATA timeout, returning to polling");
             #endif
         }

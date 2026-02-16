@@ -254,12 +254,13 @@ static const uint16_t font7segGeneric[47] = {
 
 static const struct dispConf {
     uint8_t  num_digs;       //   total number of digits/letters (max 4)
+    uint8_t  max_bufPos;     //   highest buffer position to update
     uint8_t  loffset;        //   Offset from left (0 or 1) if display has more than 3 digits
     uint8_t  bufPosArr[4];   //   The buffer positions of each of the digits from left to right
     uint8_t  bufShftArr[4];  //   Shift-value for each digit from left to right
     const uint16_t *fontSeg; //   Pointer to font
 } displays[VSR_DISP_NUM_TYPES] = {
-  { 3, 0, { 0, 1, 3 }, { 0, 0, 0 }, font7segGeneric },  // Native
+  { 3, 3, 0, { 0, 1, 3 }, { 0, 0, 0 }, font7segGeneric },  // Native
 };
 
 // Store i2c address
@@ -283,6 +284,7 @@ bool vsrDisplay::begin(int dispType)
 
         _dispType = dispType;
         _num_digs = displays[dispType].num_digs;
+        _max_buf = displays[dispType].max_bufPos;
         _loffs = displays[dispType].loffset;
         _bufPosArr = displays[dispType].bufPosArr;
         _bufShftArr = displays[dispType].bufShftArr;
@@ -425,7 +427,7 @@ void vsrDisplay::show()
         Wire.beginTransmission(_address);
         Wire.write(0x00);  // start address
     
-        for(i = 0; i < 8; i++) {
+        for(i = 0; i <= _max_buf; i++) {
             Wire.write(_displayBuffer[i] & 0xFF);
             Wire.write(_displayBuffer[i] >> 8);
         }
@@ -594,8 +596,9 @@ void vsrDisplay::clearDisplay()
         Wire.beginTransmission(_address);
         Wire.write(0x00);  // start address
     
-        for(int i = 0; i < 8*2; i++) {
-            Wire.write(0x0);
+        for(int i = 0; i <= _max_buf; i++) {
+            Wire.write(0x00);
+            Wire.write(0x00);
         }
     
         Wire.endTransmission();

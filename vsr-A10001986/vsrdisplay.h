@@ -183,7 +183,8 @@ class vsrDisplay {
         int     _oldnm = -1;
 
         int8_t   _dispType = -1;
-        uint8_t  _num_digs;         //      total number of digits/letters (max 4)
+        unsigned int  _num_digs;    //      total number of digits/letters (max 4)
+        unsigned int  _max_buf;     //      highest buffer position
         uint8_t  _loffs = 0;        //      offset
         const uint8_t *_bufPosArr;  //      Array of buffer positions for digits left->right
         const uint8_t *_bufShftArr; //      Array of shift values for each digit

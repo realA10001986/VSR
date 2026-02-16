@@ -99,6 +99,7 @@ extern bool audioMute;
 
 extern bool haveMusic;
 extern bool mpActive;
+extern bool mpShuffle;
 
 extern uint8_t curSoftVol;
 
