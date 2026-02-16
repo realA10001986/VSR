@@ -842,6 +842,8 @@ If you want copy settings from one SD card to another, do as follows:
 
 This procedure ensures that all your settings are copied from the old to the new SD card.
 
+---
+
 ### HA/MQTT Settings
 
 ##### &#9193; Home Assistant support (MQTT)
