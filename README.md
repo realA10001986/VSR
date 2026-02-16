@@ -864,6 +864,10 @@ The username (and optionally the password) to be used when connecting to the bro
 
 ## Appendix B: Display messages
 
+- "LGT": Button mode "Lights"
+- "OPR": Button mode "Operation"
+- "MUS": Button mode "Musicplayer"
+- "ADM": Button mode "Admin"
 - "ISP": Please install/update the [sound pack](#sound-pack-installation)
 - "ERR": Error while installing the sound-pack. Please try again.
 - "IP": IP address is going to be shown.
