@@ -152,13 +152,13 @@ In order to display temperature, a temperature sensor needs to be connected to e
 
 In order to display speed, a TCD with either a GPS receiver or a rotary encoder for speed is required, and your VSR needs to be connected to the TCD via BTTFN.
 
-Display modes are chosen by selecting the _Operation_ button mode, and then _holding_ a single button until two beeps are emitted from your VSR, as described below.
+Display modes are chosen by selecting the _Operation_ button mode, and then _holding_ a single button until two beeps are emitted from your VSR, as described below. If an SD card is present, the selected display mode is saved 10 seconds after its activation.
 
 ### Button modes
 
 >Buttons can be _pressed_, which means a brief press-and-release, or _held_, meaning pressing and holding the button for 2 seconds.
 
-There are four button modes: Light ("LGT"), Operation ("OPR"), Music Player ("MUS") and Admin ("ADM"). In order to select a button mode, two or three buttons must be _held_ simultaneously until the display shows the selected mode.
+There are four button modes: Light ("LGT"), Operation ("OPR"), Music Player ("MUS") and Admin ("ADM"). In order to select a button mode, two or three buttons must be _held_ simultaneously until the display shows the selected mode. If an SD card is present, the selected button mode is saved 10 seconds after its activation.
 
 <table>
     <tr>
@@ -295,7 +295,7 @@ Your VSR can also display speed, provided a TCD is connected through [BTTFN](#bt
 
 Preface note on SD cards: For unknown reasons, some SD cards simply do not work with this device. For instance, I had no luck with Sandisk Ultra 32GB and  "Intenso" cards. If your SD card is not recognized, check if it is formatted in FAT32 format (not exFAT!). Also, the size must not exceed 32GB (as larger cards cannot be formatted with FAT32). Transcend, Sandisk Industrial, Verbatim Premium and Samsung Pro Endurance SDHC cards work fine in my experience.
 
-The SD card, apart from being required for [installing](#sound-pack-installation) of the sound-pack, can be used for substituting built-in sound effects and for music played back by the [Music player](#the-music-player). Also, it is _strongly recommended_ to store [secondary settings](#-save-secondary-settings-on-sd) on the SD card to minimize [Flash Wear](#flash-wear).
+The SD card, apart from being required for [installing](#sound-pack-installation) of the sound-pack, can be used for substituting built-in sound effects and for music played back by the [Music player](#the-music-player). Also, it is _strongly recommended_ to store [secondary settings](#-save-secondary-settings-on-sd) on the SD card to minimize [Flash Wear](#flash-wear). Button and display modes are only saved on SD; if no SD card is present, they are reset to default upon power-up.
 
 Note that the SD card must be inserted before powering up the device. It is not recognized if inserted while the VSR is running. Furthermore, do not remove the SD card while the device is powered.
 
@@ -343,7 +343,7 @@ Since manually renaming mp3 files is somewhat cumbersome, the firmware can do th
 
 To start and stop music playback, press button "10" while in _MusicPlayer_ [button mode](#button-modes). Pressing "9" jumps to the previous song, pressing "4C" to the next one. (The same can be achieved by entering codes on the TCD's keypad: 8002 = previous song, 8005 = play/stop, 8008 = next song).
 
-By default, the songs are played in order, starting at 000.mp3, followed by 001.mp3 and so on. _Holding_ button "10" enables Shuffle mode, button "9" disables Shuffle mode. _Holding_ "4C" restarts the player at song number 0. The power-up Shuffle mode can be set up in the Config Portal.
+By default, the songs are played in order, starting at 000.mp3, followed by 001.mp3 and so on. _Holding_ button "10" enables Shuffle mode, button "9" disables Shuffle mode. The selected shuffle mode is saved and persistent. _Holding_ "4C" restarts the player at song number 0.
 
 See [here](#music-player-mode) and [here](#tcd-remote-command-reference) for a list of controls of the music player.
 
@@ -763,12 +763,6 @@ Selects the current music folder, can be 0 through 9.
 
 This can also be set/changed through a TCD keypad via BTTFN (8050 - 8059). Such a change will be saved immediately.
 
-##### &#9193; Shuffle at startup
-
-When checked, songs are shuffled when the device is booted. When unchecked, songs will be played in order.
-
-Shuffle mode can be changed at any time through the VSR's buttons in _MusicPlayer_ [button mode](#music-player-mode) or via TCD (8222/8555); however, a change through buttons or TCD is not saved.
-
 #### <ins>Settings for Night Mode</ins>
 
 ##### &#9193; Display off
@@ -841,6 +835,10 @@ If you want copy settings from one SD card to another, do as follows:
 - Power-up the VSR, enter the Config Portal, re-enable _Save secondary settings on SD_, and click "SAVE".
 
 This procedure ensures that all your settings are copied from the old to the new SD card.
+
+##### &#9193; Show update notifications on power-up
+
+If this option is checked and a new firmware version is available, the VSR will briefly show "UPD" upon power-up. If this option is unchecked, this message will not show up.
 
 ---
 
