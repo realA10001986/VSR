@@ -149,6 +149,7 @@ void waitAudioDone();
 
 void myCustomDelay_KP(unsigned long mydel);
 void mydelay(unsigned long mydel);
+unsigned long millisNonZero();
 
 void addCmdQueue(uint32_t command);
 void bttfn_loop();

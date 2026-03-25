@@ -277,7 +277,7 @@ void play_file(const char *audio_file, uint32_t flags, float volumeFactor)
     buf[0] = 0;
 
     if(haveSD && ((flags & PA_ALLOWSD) || FlashROMode) && mySD0L->open(audio_file)) {
-        mySD0L->setPlayLoop((flags & PA_LOOP));
+        mySD0L->setPlayLoop(!!(flags & PA_LOOP));
 
         if(flags & PA_WAV) {
             wav->begin(mySD0L, out);
@@ -300,7 +300,7 @@ void play_file(const char *audio_file, uint32_t flags, float volumeFactor)
       else if(haveFS && myFS0L->open(audio_file))
     #endif
     {
-        myFS0L->setPlayLoop((flags & PA_LOOP));
+        myFS0L->setPlayLoop(!!(flags & PA_LOOP));
         
         if(flags & PA_WAV) {
             wav->begin(myFS0L, out);
@@ -409,6 +409,15 @@ bool checkAudioDone()
     // when this is called, and if "humm" is playing,
     // it is looped and will for ever return true.
     if(mp3->isRunning()) return false;
+    return true;
+}
+
+bool checkAudioReallyDone()
+{
+    // No need to check for wav; probably never played
+    // when this is called, and if "humm" is playing,
+    // it is looped and will for ever return true.
+    if(mp3->isRunning() || wav->isRunning()) return false;
     return true;
 }
 

@@ -68,7 +68,6 @@ extern uint8_t musFolderNum;
 
 #define DEF_HOSTNAME        "vsr"
 #define DEF_WIFI_RETRY      3     // 1-10; Default: 3 retries
-#define DEF_WIFI_TIMEOUT    7     // 7-25; Default: 7 seconds
 #define DEF_AP_CHANNEL      1     // 1-13; 0 = random(1-13)
 #define DEF_WIFI_APOFFDELAY 0
 
@@ -101,53 +100,53 @@ extern uint8_t musFolderNum;
 struct Settings {
     char ssid[34]           = "";
     char pass[66]           = "";
+    char bssid[18]          = "";
 
     char hostName[32]       = DEF_HOSTNAME;
     char wifiConRetries[4]  = MS(DEF_WIFI_RETRY);
-    char wifiConTimeout[4]  = MS(DEF_WIFI_TIMEOUT);
     char systemID[8]        = "";
     char appw[10]           = "";
     char apChnl[4]          = MS(DEF_AP_CHANNEL);
     char wifiAPOffDelay[4]  = MS(DEF_WIFI_APOFFDELAY);
     
-    char smoothpw[4]        = MS(DEF_SMOOTHPW);
-    char fluct[4]           = MS(DEF_FLUCT);
-    char displayBM[4]       = MS(DEF_DISP_BM);
-    char signalBM[4]        = MS(DEF_SIG_BM);
-    char playTTsnds[4]      = MS(DEF_PLAY_TT_SND);
-    char playALsnd[4]       = MS(DEF_PLAY_ALM_SND);
-    char ssTimer[6]         = MS(DEF_SS_TIMER);
+    char smoothpw[2]        = MS(DEF_SMOOTHPW);
+    char fluct[2]           = MS(DEF_FLUCT);
+    char displayBM[2]       = MS(DEF_DISP_BM);
+    char signalBM[2]        = MS(DEF_SIG_BM);
+    char playTTsnds[2]      = MS(DEF_PLAY_TT_SND);
+    char playALsnd[2]       = MS(DEF_PLAY_ALM_SND);
+    char ssTimer[4]         = MS(DEF_SS_TIMER);
 
-    char diNmOff[4]         = MS(DEF_DI_NM);
+    char diNmOff[2]         = MS(DEF_DI_NM);
 
-    char tempUnit[4]        = MS(DEF_TEMP_UNIT);
+    char tempUnit[2]        = MS(DEF_TEMP_UNIT);
     #ifdef VSR_HAVETEMP
     char tempOffs[6]        = MS(DEF_TEMP_OFFS);
     #endif
 
     char tcdIP[32]          = DEF_TCD_IP;
-    char useNM[4]           = MS(DEF_USE_NM);
-    char useFPO[4]          = MS(DEF_USE_FPO);
-    char bttfnTT[4]         = MS(DEF_BTTFN_TT);
-    char ignTT[4]           = MS(DEF_IGN_TT);
+    char useNM[2]           = MS(DEF_USE_NM);
+    char useFPO[2]          = MS(DEF_USE_FPO);
+    char bttfnTT[2]         = MS(DEF_BTTFN_TT);
+    char ignTT[2]           = MS(DEF_IGN_TT);
+
+    char TCDpresent[2]      = MS(DEF_TCD_PRES);
+    char noETTOLead[2]      = MS(DEF_NO_ETTO_LEAD);
+
+    char CfgOnSD[2]         = MS(DEF_CFG_ON_SD);
+    char sdFreq[2]          = MS(DEF_SD_FREQ);
 
 #ifdef VSR_HAVEMQTT  
-    char useMQTT[4]         = "0";
-    char mqttVers[4]        = "0"; // 0 = 3.1.1, 1 = 5.0
+    char useMQTT[2]         = "0";
+    char mqttVers[2]        = "0"; // 0 = 3.1.1, 1 = 5.0
     char mqttServer[80]     = "";  // ip or domain [:port]  
     char mqttUser[128]      = "";  // user[:pass] (UTF8)
 #endif
 
-    char TCDpresent[4]      = MS(DEF_TCD_PRES);
-    char noETTOLead[4]      = MS(DEF_NO_ETTO_LEAD);
-
-    char CfgOnSD[4]         = MS(DEF_CFG_ON_SD);
-    char sdFreq[4]          = MS(DEF_SD_FREQ);
-
     // Kludges for CP
-    char Bri[6];
-    char upd[4];
-    char musicFolder[6];
+    char Bri[4];
+    char upd[2];
+    char musicFolder[2];
 };
 
 struct IPSettings {
@@ -178,6 +177,9 @@ void storeCurVolume();
 void saveCurVolume();
 
 void saveUpdAvail();
+
+void loadUpdVers(int &v, int& r);
+void saveUpdVers(int v, int r);
 
 void saveAllSecCP();
 

@@ -78,6 +78,7 @@ void     play_volchg_sound();
 
 bool check_file_SD(const char *audio_file);
 bool checkAudioDone();
+bool checkAudioReallyDone();
 bool checkMP3Running();
 void stopAudio();
 void stopAudioAtLoopEnd();

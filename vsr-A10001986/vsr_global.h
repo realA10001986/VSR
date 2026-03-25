@@ -15,8 +15,8 @@
  ***                          Version Strings                          ***
  *************************************************************************/
 
-#define VSR_VERSION "V1.30"
-#define VSR_VERSION_EXTRA "FEB162026"
+#define VSR_VERSION "V1.31"                 // Do NOT change format.
+#define VSR_VERSION_EXTRA "MAR252026"
 
 /*************************************************************************
  ***             Configuration for hardware/peripherals                ***
