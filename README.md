@@ -601,7 +601,7 @@ In order to reduce the number of write operations and thereby prolong the life o
 
 ## Firmware Installation / Firmware Update
 
-If a previous version of the VSR firmware is installed on your device, you can update easily using the pre-compiled binary. Enter the [Config Portal](#the-config-portal), click on "Update", select the pre-compiled binary file ("**vsr-A10001986.ino.nodemcu-32s.bin**") provided in the [Release package](https://github.com/realA10001986/VSR/releases), and click on *Update*.
+If a previous version of the VSR firmware is installed on your device, you can update easily using the pre-compiled binary. Enter the [Config Portal](#the-config-portal), click on "Update", select the pre-compiled binary file ("**vsr-A10001986-Vx.xx.bin**") provided in the [Release package](https://github.com/realA10001986/VSR/releases), and click on *Update*.
 
 <details>
 <summary>Installing on a fresh ESP32...</summary>
@@ -651,7 +651,7 @@ This leads to the [HomeAssistant/MQTT Settings page](#hamqtt-settings).
 
 This leads to the firmware update and audio upload page.
 
-In order to upload a new firmware, such as published in the [Release packages](https://github.com/realA10001986/VSR/releases), select the "**vsr-A10001986.ino.nodemcu-32s.bin**" file as contained in the Release package in the _top_ file selector and click *Update*.
+In order to upload a new firmware, such as published in the [Release packages](https://github.com/realA10001986/VSR/releases), select the "**vsr-A10001986-Vx.xx.bin**" file as contained in the Release package in the _top_ file selector and click *Update*.
 
 You can also install the VSR's sound-pack on this page; download the sound-pack (which is included in every [Release package](https://github.com/realA10001986/VSR/releases)), extract it and select the resulting VSRA.bin file in the bottom file selector. Finally, click *Upload*. Note that an SD card is required for this operation.
 
