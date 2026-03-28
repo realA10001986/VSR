@@ -75,7 +75,7 @@ If the VSR fails to connect, it falls back to AP-mode. You can trigger another c
 
 #### Places without a WiFi network
 
-In this case and with no [Time Circuits Display](https://tcd.out-a-ti.me) at hand, keep your VSR operating in AP-mode.
+In this case and with no [Time Circuits Display](https://circuitsetup.us/product/complete-time-circuits-display-kit/) at hand, keep your VSR operating in AP-mode.
 
 If you have a TCD, you can connect your VSR to the TCD's own WiFi network. 
 
