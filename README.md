@@ -811,11 +811,9 @@ This offset, which can range from -3.0 to 3.0, is added to the sensor measuremen
 
 #### <ins>Settings for BTTFN communication</ins>
 
-##### &#9193; IP address or hostname of TCD
+##### &#9193; Hostname or IP address of TCD
 
-If you want to have your VSR to communicate with a Time Circuits Display wirelessly ("BTTF-Network"), enter the TCD's hostname - usually 'timecircuits' - or IP address here.
-
-If you connect your VSR to the TCD's access point ("TCD-AP"), the TCD's IP address is 192.168.4.1.
+If you want to have your VSR to communicate with a Time Circuits Display wirelessly ("BTTF-Network"), enter the TCD's hostname - usually 'timecircuits' - or IP address here. Hostname is preferred because it makes the setup independent of the network environment.
 
 ##### &#9193; Follow TCD night-mode
 
