@@ -337,9 +337,11 @@ The TCD can communicate with the VSR wirelessly, via the built-in "**B**asic-**T
 |:--:|
 | Click to watch the video |
 
-BTTFN requires the props all to be connected to the same network, such as, for example, your home WiFi network. BTTFN does not work over the Internet.
+BTTFN requires the props all to be connected to the same network, such as, for example, your home WiFi network, or the TCD acting as access point. BTTFN does not work over the Internet.
 
-![STAmode-bttfn](img/stamode-bttfn.png)
+![STAmode-home](img/stamode-home.png)
+
+![STAmode-car](img/stamode-car.png)
 
 <details>
 <summary>More...</summary>
@@ -348,7 +350,7 @@ BTTFN requires the props all to be connected to the same network, such as, for e
 
 </details>
 
-In order to connect your VSR to the TCD using BTTFN, just enter the TCD's IP address or hostname in the **_IP address or hostname of TCD_** field in the VSR's Config Portal. On the TCD, no special configuration is required. 
+In order to connect your VSR to the TCD using BTTFN, just enter the TCD's hostname - usually "timecircuits" - in the **_Hostname or IP address of TCD_** field in the VSR's Config Portal. On the TCD, no special configuration is required. 
   
 Afterwards, the VSR and the TCD can communicate wirelessly and 
 - play time travel sequences in sync,
