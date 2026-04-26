@@ -455,7 +455,15 @@ You can use BTTF-Network and MQTT at the [same time](#receive-commands-from-time
     <tr>
      <td align="left">Display current IP address</td>
      <td align="left">8090&#9166;</td>
-    </tr>   
+    </tr>
+     <tr>
+     <td align="left">Disable <a href="#">Car mode</a><sup>1</sup></td>
+     <td align="left">8990&#9166;</td>
+    </tr>
+    <tr>
+     <td align="left">Enable <a href="#">Car mode</a><sup>1</sup></td>
+     <td align="left">8991&#9166;</td>
+    </tr>
     <tr>
      <td align="left">Reboot the device<sup>1</sup></td>
      <td align="left">8064738&#9166;</td>
@@ -559,29 +567,33 @@ Limitations: TLS/SSL not supported; ".local" domains (MDNS) not supported; serve
 
 ## Car setup
 
-If your VSR, along with a [Time Circuits Display](https://tcd.out-a-ti.me/), is mounted in a car, the following network configuration is recommended:
+If your VSR, along with a [Time Circuits Display](https://tcd.out-a-ti.me/), is mounted in a car or other places without a local WiFi network, the following network configuration is recommended:
 
 ![STAmode-car](img/stamode-car2.png)
 
+This configuration can easily achieved by putting both the TCD and the VSR in *Car Mode*:
+
 #### TCD
 
-- Run your TCD in [*car mode*](https://tcd.out-a-ti.me/#car-mode);
-- disable WiFi power-saving on the TCD by setting **_Power save timer_** to 0 (zero) in the "AP-mode settings" section on the WiFi Configuration page.
+- Set **_Power save timer_** to 0 (zero) in the "AP-mode settings" section on the *WiFi Configuration* page
+- Put your TCD in [*Car Mode*](https://tcd.out-a-ti.me/#car-mode) by issuing keypad command 991.
 
 #### VSR
 
-Enter the Config Portal on the VSR, click on *Setup* and
-  - enter *192.168.4.1* into the field **_IP address or hostname of TCD_** under BTTFN settings;
-  - click on *Save*.
+One-time configuratin steps:
 
-After the VSR has restarted, re-enter the VSR's Config Portal (while the TCD is powered and in *car mode*) and
-  - click on *WiFi Configuration*,
-  - select the TCD's access point name in the list at the top ("TCD-AP"; if there is no list, click on "Scan for networks") or enter *TCD-AP* into the *Network name (SSID)* field; if you password-protected your TCD's AP, enter this password in the *password* field. Leave all other fields empty,
-  - click on *Save*.
+Enter the Config Portal on the VSR, click on *Settings* and check that the hostname of the TCD (usually "timecircuits") is present in the  **_Hostname or IP address of TCD_** under *Wireless communication (BTTF-Network)* settings; do not use an IP address.
 
-In order to access the VSR's Config Portal in your car, connect your handheld or computer to the TCD's WiFi access point ("TCD-AP"), and direct your browser to http://vsr.local ; if that does not work, go to the TCD's keypad menu, press ENTER until "BTTFN CLIENTS" is shown, hold ENTER, and look for the VSR's IP address there; then direct your browser to that IP by using the URL http://a.b.c.d (a-d being the IP address displayed on the TCD display).
+Furthermore, on the *WiFi Configuration* page, check that the TCD's WiFi network name (SSID; usually "TCD-AP") and password (if the TCD is configured with a password) is present under *Car mode settings*.
 
-This "car setup" can also be used in a home setup with no local WiFi network present.
+If everthing is in place, you can enable *Car Mode* on the VSR by holding button "9" in Admin button mode for 2 seconds. The VSR will reboot and attempt to connect to the TCD's AP.
+
+You can switch between your "normal" (home, iPhone, ..) WiFi connection and Car Mode by holding button "9" in Admin button mode.
+
+In order to access the VSR's Config Portal in *Car mode*, connect your handheld or computer to the TCD's WiFi network ("TCD-AP"), and direct your browser to http://vsr.local.
+
+<details><summary>If that fails...</summary>
+>If connecting to http://vsr.local fails due to a name resolution error, go to the TCD's keypad menu, navigate to "BTTFN CLIENTS", and look for the VSR's IP address there; then direct your browser to that IP by using the URL http://a.b.c.d (a-d being the IP address displayed on the TCD display)</details>
 
 ## WiFi power saving features
 
