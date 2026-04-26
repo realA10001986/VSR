@@ -586,7 +586,7 @@ This configuration can easily achieved by putting both the TCD and the VSR in *C
 
 One-time configuration steps:
 - Enter the Config Portal on the VSR, click on *Settings* and check that the hostname of the TCD (usually "timecircuits") is present in the  **_Hostname or IP address of TCD_** under *Wireless communication (BTTF-Network)* settings; do not use an IP address.
-- Furthermore, on the *WiFi Configuration* page, check that the TCD's WiFi network name (SSID; usually "TCD-AP") and password (if the TCD is configured with a password) is present under *Car mode settings*.
+- Furthermore, on the *WiFi Configuration* page, check that the TCD's WiFi network name (SSID; usually "TCD-AP") and password (if the TCD is configured with a password) are present under *Car mode settings*.
 
 If everthing is in place, you can enable *Car Mode* on the VSR by holding button "9" in Admin button mode for 2 seconds. The VSR will reboot and attempt to connect to the TCD's AP.
 
