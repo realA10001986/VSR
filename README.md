@@ -341,7 +341,7 @@ BTTFN requires the props all to be connected to the same network, such as, for e
 
 ![STAmode-home](img/stamode-home.png)
 
-<p></p>
+<p>&nbsp;</p>
 
 ![STAmode-car](img/stamode-car.png)
 
