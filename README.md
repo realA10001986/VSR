@@ -197,13 +197,13 @@ In this mode, the buttons light up when briefly pressed, and stay lit after _hol
   <table>
     <tr><td></td><td>Brief press</td><td>Hold</td></tr>
     <tr>
-     <td align="center"><img src="img/b9.png"></td><td>Volume up</td><td>Display IP address</td>
+     <td align="center"><img src="img/b9.png"></td><td>Volume up</td><td>Toggle <a href='#car-setup'>Car mode</a></td>
     </tr>
     <tr>
      <td align="center"><img src="img/b10.png"></td><td>Volume down</td><td><a href="#wifi-power-saving-features">Re-enable WiFi</a> or re-try to <a href="#home-setup-with-a-pre-existing-local-wifi-network">connect to WiFi</a></td>
     </tr>
     <tr>
-     <td align="center"><img src="img/b4c.png"></td><td></td><td>Delete static IP and AP password</td>
+     <td align="center"><img src="img/b4c.png"></td><td>Display IP address</td><td>Delete static IP and AP password</td>
     </tr>
 </table>
 
@@ -580,7 +580,7 @@ This configuration can easily achieved by putting both the TCD and the VSR in *C
 
 #### VSR
 
-One-time configuratin steps:
+One-time configuration steps:
 - Enter the Config Portal on the VSR, click on *Settings* and check that the hostname of the TCD (usually "timecircuits") is present in the  **_Hostname or IP address of TCD_** under *Wireless communication (BTTF-Network)* settings; do not use an IP address.
 - Furthermore, on the *WiFi Configuration* page, check that the TCD's WiFi network name (SSID; usually "TCD-AP") and password (if the TCD is configured with a password) is present under *Car mode settings*.
 
