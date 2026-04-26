@@ -457,11 +457,11 @@ You can use BTTF-Network and MQTT at the [same time](#receive-commands-from-time
      <td align="left">8090&#9166;</td>
     </tr>
      <tr>
-     <td align="left">Disable <a href="#">Car mode</a><sup>1</sup></td>
+     <td align="left">Disable <a href="#car-setup">Car mode</a><sup>1</sup></td>
      <td align="left">8990&#9166;</td>
     </tr>
     <tr>
-     <td align="left">Enable <a href="#">Car mode</a><sup>1</sup></td>
+     <td align="left">Enable <a href="#car-setup">Car mode</a><sup>1</sup></td>
      <td align="left">8991&#9166;</td>
     </tr>
     <tr>
@@ -581,10 +581,8 @@ This configuration can easily achieved by putting both the TCD and the VSR in *C
 #### VSR
 
 One-time configuratin steps:
-
-Enter the Config Portal on the VSR, click on *Settings* and check that the hostname of the TCD (usually "timecircuits") is present in the  **_Hostname or IP address of TCD_** under *Wireless communication (BTTF-Network)* settings; do not use an IP address.
-
-Furthermore, on the *WiFi Configuration* page, check that the TCD's WiFi network name (SSID; usually "TCD-AP") and password (if the TCD is configured with a password) is present under *Car mode settings*.
+- Enter the Config Portal on the VSR, click on *Settings* and check that the hostname of the TCD (usually "timecircuits") is present in the  **_Hostname or IP address of TCD_** under *Wireless communication (BTTF-Network)* settings; do not use an IP address.
+- Furthermore, on the *WiFi Configuration* page, check that the TCD's WiFi network name (SSID; usually "TCD-AP") and password (if the TCD is configured with a password) is present under *Car mode settings*.
 
 If everthing is in place, you can enable *Car Mode* on the VSR by holding button "9" in Admin button mode for 2 seconds. The VSR will reboot and attempt to connect to the TCD's AP.
 
@@ -688,6 +686,16 @@ If there are several APs with identical SSID in your area, you can select a spec
 ##### &#9193; Forget Saved WiFi Network
 
 Checking this box (and clicking SAVE) deletes the currently saved WiFi network (SSID and password as well as static IP data) and reboots the device; it will restart in "access point" (AP) mode. See [here](#connecting-to-a-wifi-network).
+
+##### Car mode settings
+
+In *Car mode*, the device connects to the TCD-AP as configured here instead of the WiFi network configured above. 
+
+Enter your TCD's SSID (usually "TCD-AP") in **_Network name (SSID) of TCD-AP_**, the TCD's AP password (if configured on the TCD) in **_Password for TCD-AP_**. 
+
+In the unlikely case, multiple TCD's are in range, you can single out your TCD by its BSSID. The TCD displays its BSSID on its *WiFi Configuration* page (starting version 3.23).
+
+If you want to enter Car mode immediately, check **_Enable car mode_**. You can also later toggle between Car mode and normal WiFi connection by holding button "9" in Admin button mode.
 
 ##### &#9193; Hostname
 
