@@ -27,6 +27,8 @@ For information on updating the firmware on your VSR, see [here](#firmware-insta
 
 >The following instructions only need to be followed once, on fresh VSRs. They do not need to be repeated after a firmware update.
 
+>Buttons can be _pressed_, which means a brief press-and-release, or _held_, meaning pressing and holding the button for 2 seconds.
+
 The first step is to establish access to the VSR's configuration web site ("Config Portal") in order to configure your VSR:
 
 - Power up the VSR and wait until it has finished booting.
@@ -67,11 +69,11 @@ Click on "WiFi Configuration" and either select a network from the top of the pa
 
 >If there are several APs with identical SSID in your area, you can select a specific AP to use by its BSSID (AP's MAC address). You can either manually find out your AP's BSSID and enter it, or have it filled out automatically: Click "Scan for networks", then "Show all". If you click on an AP, its BSSID will be copied into BSSID field in the form below. To see which AP is which, hover over the name to see its BSSID as a tooltip.
 
->Your VSR requests an IP address via DHCP, unless you entered valid data in the fields for static IP addresses (IP, gateway, netmask, DNS). If the device is inaccessible as a result of incorrect static IPs, wait until the VSR has completed its startup sequence, then hold all three buttons until "ADM" is displayed, then _hold_ button "4C". After "RST" has been displayed, power-down the VSR. Upon power-up, the device is reset to DHCP.
+>Your VSR requests an IP address via DHCP, unless you entered valid data in the fields for static IP addresses (IP, gateway, netmask, DNS). If the device is inaccessible as a result of incorrect static IPs, wait until the VSR has completed its startup sequence, then _hold_ all three buttons until "ADM" is displayed, then _hold_ button "4C". After "RST" has been displayed, power-down the VSR. Upon power-up, the device is reset to DHCP.
 
 </details>
 
-If the VSR fails to connect, it falls back to AP-mode. You can trigger another connection attempt by holding button "10" in [Admin button mode](#admin-mode).
+If the VSR fails to connect, it falls back to AP-mode. You can trigger another connection attempt by _holding_ button "10" in [Admin button mode](#admin-mode).
 
 #### Places without a WiFi network
 
@@ -108,7 +110,7 @@ It can be accessed as follows:
 
   >Accessing the Config Portal through this address requires the operating system of your handheld/computer to support Bonjour/mDNS: Windows 10 version TH2     (1511) [other sources say 1703] and later, Android 13 and later; MacOS and iOS since the dawn of time.
 
-  >If connecting to http://vsr.local fails due to a name resolution error, you need to find out your VSR's IP address: Hold all three buttons until "ADM" is displayed, release all buttons and afterwards _hold_ button "9". Your VSR will display its current IP address (a. - b. - c. - d). Then, on your handheld or computer, navigate to http://a.b.c.d (a.b.c.d being the IP address as displayed on your VSR) in order to enter the Config Portal.</details>
+  >If connecting to http://vsr.local fails due to a name resolution error, you need to find out your VSR's IP address: _Hold_ all three buttons until "ADM" is displayed, release all buttons and afterwards press button "4C". Your VSR will display its current IP address (a. - b. - c. - d). Then, on your handheld or computer, navigate to http://a.b.c.d (a.b.c.d being the IP address as displayed on your VSR) in order to enter the Config Portal.</details>
 
 In the main menu, click on "Settings" to configure your VSR. 
 
@@ -211,7 +213,7 @@ In this mode, the buttons light up when briefly pressed, and stay lit after _hol
 
 ## Time travel
 
-To trigger a "time travel" stand-alone, select the _Operation_ [button mode](#button-modes), and press "9".
+To trigger a "time travel" stand-alone, select the _Operation_ [button mode](#button-modes), and press button "9".
 
 You can also connect a dedicated time travel button to your VSR; the button must connect "TT" to "3.3V" on the "Time Travel" connector. Pressing this button briefly will trigger a time travel.
 
@@ -271,7 +273,7 @@ Your VSR can also display speed, provided a TCD is connected through [BTTFN](#bt
 
 ## SD card
 
-Preface note on SD cards: For unknown reasons, some SD cards simply do not work with this device. For instance, I had no luck with Sandisk Ultra 32GB and  "Intenso" cards. If your SD card is not recognized, check if it is formatted in FAT32 format (not exFAT!). Also, the size must not exceed 32GB (as larger cards cannot be formatted with FAT32). Transcend, Sandisk Industrial, Verbatim Premium and Samsung Pro Endurance SDHC cards work fine in my experience.
+>Preface note on SD cards: For unknown reasons, some SD cards simply do not work with this device. For instance, I had no luck with Sandisk Ultra 32GB and  "Intenso" cards. If your SD card is not recognized, check if it is formatted in FAT32 format (not exFAT!). Also, the size must not exceed 32GB (as larger cards cannot be formatted with FAT32). Transcend, Sandisk Industrial, Verbatim Premium and Samsung Pro Endurance SDHC cards work fine in my experience.
 
 The SD card, apart from being required for [installing](#sound-pack-installation) of the sound-pack, can be used for substituting built-in sound effects and for music played back by the [Music player](#the-music-player). Also, it is _strongly recommended_ to store [secondary settings](#-save-secondary-settings-on-sd) on the SD card to minimize [Flash Wear](#flash-wear). Button and display modes are only saved on SD; if no SD card is present, they are reset to default upon power-up.
 
@@ -321,7 +323,7 @@ Since manually renaming mp3 files is somewhat cumbersome, the firmware can do th
 
 To start and stop music playback, press button "10" while in _MusicPlayer_ [button mode](#button-modes). Pressing "9" jumps to the previous song, pressing "4C" to the next one. (The same can be achieved by entering codes on the TCD's keypad: 8002 = previous song, 8005 = play/stop, 8008 = next song).
 
-By default, the songs are played in order, starting at 000.mp3, followed by 001.mp3 and so on. _Holding_ button "10" enables Shuffle mode, button "9" disables Shuffle mode. The selected shuffle mode is saved and persistent. _Holding_ "4C" restarts the player at song number 0.
+By default, the songs are played in order, starting at 000.mp3, followed by 001.mp3 and so on. _Holding_ button "10" enables Shuffle mode, button "4C" disables Shuffle mode. The selected shuffle mode is saved and persistent. _Holding_ "9" restarts the player at song number 0.
 
 See [here](#music-player-mode) and [here](#tcd-remote-command-reference) for a list of controls of the music player.
 
@@ -903,6 +905,8 @@ The username (and optionally the password) to be used when connecting to the bro
 - "UPD": Firmware update available; shown briefly at power-up (optional).
 - "LOW": Temperature below -99 degrees.
 - "HI": Temperature above 999 degrees.
+- "SHU": Shuffle mode enabled
+- "ORD": Shuffle mode disabled
 
 ---
 _Text & images: (C) Thomas Winischhofer ("A10001986"). See LICENSE._ Source: https://vsr.out-a-ti.me  
