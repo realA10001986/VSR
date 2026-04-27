@@ -16,7 +16,7 @@
  * Via HT16K33 (addr 0x70)
  * 
  * -------------------------------------------------------------------
- * License: MIT NON-AI
+ * License: Modified MIT NON-AI
  * 
  * Permission is hereby granted, free of charge, to any person 
  * obtaining a copy of this software and associated documentation 
@@ -28,6 +28,9 @@
  *
  * The above copyright notice and this permission notice shall be 
  * included in all copies or substantial portions of the Software.
+ * 
+ * Links inside the Software pointing to the original source must not 
+ * be changed or removed.
  *
  * In addition, the following restrictions apply:
  * 
@@ -181,6 +184,8 @@ class vsrDisplay {
         bool    _nightmode = false;
         bool    _nmOff = false;
         int     _oldnm = -1;
+
+        bool    _haveDisp = false;
 
         int8_t   _dispType = -1;
         unsigned int  _num_digs;    //      total number of digits/letters (max 4)

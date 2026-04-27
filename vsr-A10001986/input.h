@@ -8,7 +8,7 @@
  * Pushwheel_I2C Class, VSRButton Class: I2C-Keypad and Button handling
  * 
  * -------------------------------------------------------------------
- * License: MIT NON-AI
+ * License: Modified MIT NON-AI
  * 
  * Permission is hereby granted, free of charge, to any person 
  * obtaining a copy of this software and associated documentation 
@@ -20,6 +20,9 @@
  *
  * The above copyright notice and this permission notice shall be 
  * included in all copies or substantial portions of the Software.
+ * 
+ * Links inside the Software pointing to the original source must not 
+ * be changed or removed.
  *
  * In addition, the following restrictions apply:
  * 
@@ -87,10 +90,10 @@ class VSRButton {
         void attachLongPressStop(void (*newFunction)(int, ButState));   // released after "hold" (=long)
 
         void scan(int idx = 0);
+        void reset(void);
 
     private:
 
-        void reset(void);
         void transitionTo(ButState nextState);
 
         void (*_pressDownFunc)(int, ButState) = NULL;
@@ -133,6 +136,8 @@ class Pushwheel_I2C {
         void addEventListener(void (*listener)(int, ButState));
 
         bool scanControls();
+
+        void resetButtons();
 
         void getValues(int& num1, int& num2, int& num3);
 

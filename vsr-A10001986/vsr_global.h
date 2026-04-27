@@ -15,8 +15,8 @@
  ***                          Version Strings                          ***
  *************************************************************************/
 
-#define VSR_VERSION "V1.31"                 // Do NOT change format.
-#define VSR_VERSION_EXTRA "MAR252026"
+#define VSR_VERSION "V1.32"                 // Do NOT change format.
+#define VSR_VERSION_EXTRA "APR272026"
 
 /*************************************************************************
  ***             Configuration for hardware/peripherals                ***
@@ -92,8 +92,8 @@
 #define BUTTON2_IO_PIN    27      //                                              (has internal PU)
 #define BUTTON3_IO_PIN    32      //                                              (has no internal PU?; PU on CB)
 
-#define BUTTON1_PWM_PIN   12      // Button LEDs
-#define BUTTON2_PWM_PIN   16
-#define BUTTON3_PWM_PIN   17
+#define BUTTON1_LED_PIN   12      // Button LEDs
+#define BUTTON2_LED_PIN   16
+#define BUTTON3_LED_PIN   17
 
 #endif

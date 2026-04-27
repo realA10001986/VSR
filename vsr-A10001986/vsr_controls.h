@@ -8,7 +8,7 @@
  * Input controls handling
  *
  * -------------------------------------------------------------------
- * License: MIT NON-AI
+ * License: Modified MIT NON-AI
  * 
  * Permission is hereby granted, free of charge, to any person 
  * obtaining a copy of this software and associated documentation 
@@ -20,6 +20,9 @@
  *
  * The above copyright notice and this permission notice shall be 
  * included in all copies or substantial portions of the Software.
+ * 
+ * Links inside the Software pointing to the original source must not 
+ * be changed or removed.
  *
  * In addition, the following restrictions apply:
  * 
@@ -52,6 +55,17 @@
 #ifndef _VSR_CONTROLS_H
 #define _VSR_CONTROLS_H
 
+void controls_setup();
+
+void resetBLEDandBState();
+
+bool scanControls();
+void resetButtons();
+
+const char *getBMString();
+
+void prepareReboot();
+
 // Button usage modes
 #define NUM_BM 4
 enum {
@@ -65,15 +79,5 @@ extern uint8_t buttonMode;
 
 #include "input.h"
 extern Pushwheel_I2C vsrControls;
-
-void controls_setup();
-
-void resetBLEDandBState();
-
-bool scanControls();
-
-const char *getBMString();
-
-void prepareReboot();
 
 #endif

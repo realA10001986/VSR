@@ -8,7 +8,7 @@
  * Input controls handling
  *
  * -------------------------------------------------------------------
- * License: MIT NON-AI
+ * License: Modified MIT NON-AI
  * 
  * Permission is hereby granted, free of charge, to any person 
  * obtaining a copy of this software and associated documentation 
@@ -20,6 +20,9 @@
  *
  * The above copyright notice and this permission notice shall be 
  * included in all copies or substantial portions of the Software.
+ * 
+ * Links inside the Software pointing to the original source must not 
+ * be changed or removed.
  *
  * In addition, the following restrictions apply:
  * 
@@ -117,12 +120,17 @@ bool scanControls()
     return vsrControls.scanControls();
 }
 
+void resetButtons()
+{
+    vsrControls.resetButtons();
+}
+
 /*
  *  The controls event handler: Only called for Buttons, not PW changes
  */
 static void controlsEvent(int idx, ButState bstate)
 {       
-    if(TTrunning) 
+    if(TTrunning || !FPBUnitIsOn) 
         return;
         
     ssRestartTimer();
@@ -236,7 +244,8 @@ static void controlsEvent(int idx, ButState bstate)
                         }
                         break;
                     case 2:
-                        // TODO
+                        display_ip();
+                        ssRestartTimer();
                         break;
                     }
                     break;
@@ -325,8 +334,7 @@ static void controlsEvent(int idx, ButState bstate)
                         userDispMode = LDM_GPS;
                         break;
                     }
-                    udispchanged = true;
-                    udispchgnow = millis();
+                    udispchgnow = millisNonZero();
                     storeUDispMode();
                     break;
                 case VBM_MP:        // MP mode: Shuffle off/goto 0/shuffle on
@@ -337,9 +345,8 @@ static void controlsEvent(int idx, ButState bstate)
                     }
                     switch(idx) {
                     case 0:
-                        mp_makeShuffle(false);
                         if(haveMusic) {
-                            displaySysMsg("ORD", 1000);
+                            mp_gotonum(0, mpActive);
                         } else 
                             play_button_bad();
                         break;
@@ -351,14 +358,15 @@ static void controlsEvent(int idx, ButState bstate)
                             play_button_bad();
                         break;
                     case 2:
+                        mp_makeShuffle(false);
                         if(haveMusic) {
-                            mp_gotonum(0, mpActive);
+                            displaySysMsg("ORD", 1000);
                         } else 
                             play_button_bad();
                         break;
                     }
                     break;
-                case VBM_ADMIN:     // Admin mode: Display IP / - / Delete IP config+Clear AP pw
+                case VBM_ADMIN:     // Admin mode: Toggle CM / Reconnect WiFI / Delete IP config+Clear AP pw
                     if(signalBM) {
                         vsrLEDs.setStates(buttonMode + 4);
                     } else {
@@ -366,8 +374,14 @@ static void controlsEvent(int idx, ButState bstate)
                     }
                     switch(idx) {
                     case 0:
-                        display_ip();
-                        ssRestartTimer();
+                        {
+                            bool ocm = carMode;
+                            carMode = !carMode;
+                            if(!*settings.cm_ssid) carMode = false;
+                            if(ocm != carMode) {
+                                cmChanged();
+                            }
+                        }
                         break;
                     case 1:
                         {

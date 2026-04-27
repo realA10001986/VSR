@@ -8,7 +8,7 @@
  * Main
  *
  * -------------------------------------------------------------------
- * License: MIT NON-AI
+ * License: Modified MIT NON-AI
  * 
  * Permission is hereby granted, free of charge, to any person 
  * obtaining a copy of this software and associated documentation 
@@ -20,6 +20,9 @@
  *
  * The above copyright notice and this permission notice shall be 
  * included in all copies or substantial portions of the Software.
+ * 
+ * Links inside the Software pointing to the original source must not 
+ * be changed or removed.
  *
  * In addition, the following restrictions apply:
  * 
@@ -216,13 +219,9 @@ static unsigned long TTFDelay = 0;
 bool         TCDconnected = false;
 static bool  noETTOLead = false;
 
-static bool          volchanged = false;
 static unsigned long volchgnow = 0;
-static bool          brichanged = false;
 static unsigned long brichgnow = 0;
-static bool          butchanged = false;
 static unsigned long butchgnow = 0;
-bool                 udispchanged = false;
 unsigned long        udispchgnow = 0;
 
 static unsigned long ssLastActivity = 0;
@@ -308,8 +307,12 @@ static IPAddress     bttfnTcdIP;
 static uint32_t      bttfnTCDSeqCnt = 0;
 static uint32_t      bttfnTCDDataSeqCnt = 0;
 static uint32_t      bttfnSessionID = 0;
+int                  bttfnHaveTCDSSID = 0;
+char                 TCDSSID[8] = { 0 };
+uint8_t              TCDpwMarker = 0;
 static uint8_t       bttfnReqStatus = 0x56; // Request capabilities, status, temperature, speed
 static bool          TCDSupportsNOTData = false;
+static bool          TCDSupportsSSID = false;
 static bool          bttfnDataNotEnabled = false;
 static uint32_t      tcdHostNameHash = 0;
 static byte          BTTFMCBuf[BTTF_PACKET_SIZE];
@@ -510,9 +513,15 @@ void main_setup()
         Serial.println("Current audio data not installed");
         #endif
         vsrdisplay.on();
-        vsrdisplay.setText("ISP");
+        vsrdisplay.setText("INS");
         vsrdisplay.show();
-        delay(1000);
+        delay(500);
+        vsrdisplay.setText("SND");
+        vsrdisplay.show();
+        delay(500);
+        vsrdisplay.setText("PCK");
+        vsrdisplay.show();
+        delay(500);
         vsrdisplay.clearBuf();
         vsrdisplay.show();
     } else if(showUpdAvail && updateAvailable()) {
@@ -586,7 +595,7 @@ void main_loop()
 
     // Follow TCD fake power
     if(useFPO && (tcdFPO != fpoOld)) {
-        if(tcdFPO) {
+        if((fpoOld = tcdFPO)) {
             // Power off:
             FPBUnitIsOn = false;
 
@@ -627,6 +636,7 @@ void main_loop()
 
             vsrLEDs.on();
 
+            TTKey.reset();
             isTTKeyHeld = isTTKeyPressed = false;
             networkTimeTravel = false;
 
@@ -634,6 +644,7 @@ void main_loop()
             play_startup();
 
             // Reset BLED states, button states
+            resetButtons();
             resetBLEDandBState();
 
             if(displayBM) {
@@ -649,7 +660,6 @@ void main_loop()
             // FIXME - anything else?
  
         }
-        fpoOld = tcdFPO;
     }
 
     // Eval flags set in handle_tcd_notification
@@ -734,6 +744,9 @@ void main_loop()
                 timeTravel(networkTCDTT, networkLead, networkP1);
             }
         }
+    } else {
+        isTTKeyHeld = isTTKeyPressed = false;
+        TTKey.reset();
     }
 
     now = millis();
@@ -1138,8 +1151,9 @@ void main_loop()
                     if(forceDispUpd || (buttonMode != prevButtonMode)) {
                         vsrdisplay.setText(getBMString());
                         vsrdisplay.show();
-                        butchanged = (buttonMode != prevButtonMode);
-                        butchgnow = millis();
+                        if(buttonMode != prevButtonMode) {
+                            butchgnow = millisNonZero();
+                        }
                         storeButtonMode();
                         prevButtonMode = buttonMode;
                     }
@@ -1213,17 +1227,17 @@ void main_loop()
 
     if(!TTrunning) {
         // Save secondary settings 10 seconds after last change
-        if(volchanged && (now - volchgnow > 10000)) {
-            volchanged = false;
+        if(volchgnow && (now - volchgnow > 10000)) {
+            volchgnow = 0;
             saveCurVolume();
-        } else if(brichanged && (now - brichgnow > 10000)) {
-            brichanged = false;
+        } else if(brichgnow && (now - brichgnow > 10000)) {
+            brichgnow = 0;
             saveBrightness();
-        } else if(butchanged && (now - butchgnow > 10000)) {
-            butchanged = false;
+        } else if(butchgnow && (now - butchgnow > 10000)) {
+            butchgnow = 0;
             saveButtonMode();
-        } else if(udispchanged && (now - udispchgnow > 10000)) {
-            udispchanged = false;
+        } else if(udispchgnow && (now - udispchgnow > 10000)) {
+            udispchgnow = 0;
             saveUDispMode();
         }
     }
@@ -1231,20 +1245,20 @@ void main_loop()
 
 void flushDelayedSave()
 {
-    if(brichanged) {
-        brichanged = false;
+    if(brichgnow) {
+        brichgnow = 0;
         saveBrightness();
     }
-    if(volchanged) {
-        volchanged = false;
+    if(volchgnow) {
+        volchgnow = 0;
         saveCurVolume();
     }
-    if(butchanged) {
-        butchanged = false;
+    if(butchgnow) {
+        butchgnow = 0;
         saveButtonMode();
     }
-    if(udispchanged) {
-        udispchanged = false;
+    if(udispchgnow) {
+        udispchgnow = 0;
         saveUDispMode();
     }
 }
@@ -1263,8 +1277,7 @@ static void chgVolume(int d)
     sprintf(buf, "%3d", nv);
     displaySysMsg(buf, 1000);
 
-    volchanged = true;
-    volchgnow = millis();
+    volchgnow = millisNonZero();
     storeCurVolume();
 }
 
@@ -1398,6 +1411,21 @@ void displaySysMsg(const char *msg, unsigned long timeout)
     sysMsgTimeout = timeout;
     sysMsg = true;
     sysMsgNow = millis();
+}
+
+void cmChanged()
+{
+    saveCarMode();
+    vsrdisplay.setText("CAR");
+    vsrdisplay.show();
+    vsrdisplay.on();
+    delay(500);
+    vsrdisplay.setText(carMode ? "ON " : "OFF");
+    vsrdisplay.show();
+    delay(500);
+    prepareReboot();
+    delay(500);
+    esp_restart();
 }
 
 static void setNightMode(bool nmode)
@@ -1630,8 +1658,7 @@ static void execute_remote_command()
             }
             if(dmc) {
                 ssEnd();
-                udispchanged = true;
-                udispchgnow = millis();
+                udispchgnow = millisNonZero();
                 storeUDispMode();
             }
 
@@ -1661,8 +1688,7 @@ static void execute_remote_command()
                 // nada
             } else if(command <= 19) {
                 curSoftVol = command;
-                volchanged = true;
-                volchgnow = millis();
+                volchgnow = millisNonZero();
                 storeCurVolume();
             }
 
@@ -1672,8 +1698,7 @@ static void execute_remote_command()
             if(!TTrunning) {
                 ssEnd();
                 vsrdisplay.setBrightness(command);
-                brichanged = true;
-                brichgnow = millis();
+                brichgnow = millisNonZero();
                 storeBrightness();
                 updateConfigPortalBriValues();
             }
@@ -1692,6 +1717,20 @@ static void execute_remote_command()
             case 888:                             // 8888 go to song #0
                 if(haveMusic) {
                     mp_gotonum(0, mpActive);
+                }
+                break;
+            case 990:                             // 990/991: Disable/enable car mode
+            case 991:
+                if(!injected) {
+                    bool ocm = carMode;          
+                    if(command == 991) {
+                        if(*settings.cm_ssid) carMode = true;
+                    } else {
+                        carMode = false;
+                    }
+                    if(ocm != carMode) {
+                        cmChanged();
+                    }
                 }
                 break;
             }
@@ -1973,6 +2012,7 @@ static void bttfn_eval_response(uint8_t *buf, bool checkCaps)
         }
         if(buf[31] & 0x10) {
             TCDSupportsNOTData = true;
+            TCDSupportsSSID = !!(buf[31] & 0x40);
         }
     }
     
@@ -1998,6 +2038,13 @@ static void bttfn_eval_response(uint8_t *buf, bool checkCaps)
         tcdNM = false;
         tcdFPO = false;
     }
+
+    if(!bttfnHaveTCDSSID && !checkCaps && TCDSupportsSSID) {
+        bttfnHaveTCDSSID = 1;
+        memcpy((void *)TCDSSID, (void *)&buf[41], 6);
+        TCDSSID[6] = buf[18];
+        TCDpwMarker = buf[19] & 0x01;
+    }
 }
 
 static void handle_tcd_notification(uint8_t *buf)
@@ -2018,6 +2065,7 @@ static void handle_tcd_notification(uint8_t *buf)
             if(bttfnSessionID && (bttfnSessionID != seqCnt)) {
                 lastBTTFNKA = bttfnLastNotData - BTTFN_KA_INTERVAL + (BTTFN_KA_OFFSET*1000);
                 bttfnTCDDataSeqCnt = 1;
+                bttfnHaveTCDSSID = 0;
             }
             bttfnSessionID = seqCnt;
             seqCnt = GET32(buf, 6);
@@ -2444,9 +2492,9 @@ void bttfn_loop()
             bttfnDataNotEnabled = false;
             bttfnTCDDataSeqCnt = 1;
             // Re-do DISCOVER, TCD might have got new IP address
-            if(tcdHostNameHash) {
-                haveTCDIP = false;
-            }
+            if(tcdHostNameHash) haveTCDIP = false;
+            // Don't assume TCD comes back with same SSID/pwMarker
+            bttfnHaveTCDSSID = 0;
             // Avoid immediate return to stand-alone in main_loop()
             lastBTTFNpacket = now;
             #ifdef VSR_DBG_NET

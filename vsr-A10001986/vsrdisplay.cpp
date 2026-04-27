@@ -16,7 +16,7 @@
  * Via HT16K33 (addr 0x70)
  * 
  * -------------------------------------------------------------------
- * License: MIT NON-AI
+ * License: Modified MIT NON-AI
  * 
  * Permission is hereby granted, free of charge, to any person 
  * obtaining a copy of this software and associated documentation 
@@ -28,6 +28,9 @@
  *
  * The above copyright notice and this permission notice shall be 
  * included in all copies or substantial portions of the Software.
+ * 
+ * Links inside the Software pointing to the original source must not 
+ * be changed or removed.
  *
  * In addition, the following restrictions apply:
  * 
@@ -116,9 +119,9 @@ void vsrBLEDs::begin(int numLEDs)
         _hwt =  BLHW_GPIO;
         _nLEDs = 3;
 
-        _lpins[0] = BUTTON1_PWM_PIN;
-        _lpins[1] = BUTTON2_PWM_PIN;
-        _lpins[2] = BUTTON3_PWM_PIN;
+        _lpins[0] = BUTTON1_LED_PIN;
+        _lpins[1] = BUTTON2_LED_PIN;
+        _lpins[2] = BUTTON3_LED_PIN;
 
         for(int i = 0; i < _nLEDs; i++) {
             pinMode(_lpins[i], OUTPUT);
@@ -272,26 +275,18 @@ vsrDisplay::vsrDisplay(uint8_t address)
 // Start the display
 bool vsrDisplay::begin(int dispType)
 {
-    bool ret = true;
-
     // Check for display on i2c bus
     Wire.beginTransmission(_address);
-    if(Wire.endTransmission(true)) {
+    _haveDisp = !Wire.endTransmission(true);
 
-        ret = false;
+    _dispType = dispType;
+    _num_digs = displays[dispType].num_digs;
+    _max_buf = displays[dispType].max_bufPos;
+    _loffs = displays[dispType].loffset;
+    _bufPosArr = displays[dispType].bufPosArr;
+    _bufShftArr = displays[dispType].bufShftArr;
 
-    } else {
-
-        _dispType = dispType;
-        _num_digs = displays[dispType].num_digs;
-        _max_buf = displays[dispType].max_bufPos;
-        _loffs = displays[dispType].loffset;
-        _bufPosArr = displays[dispType].bufPosArr;
-        _bufShftArr = displays[dispType].bufShftArr;
-
-        _fontXSeg = displays[dispType].fontSeg;
-
-    }
+    _fontXSeg = displays[dispType].fontSeg;
 
     directCmd(0x20 | 1); // turn on oscillator
 
@@ -300,7 +295,7 @@ bool vsrDisplay::begin(int dispType)
     clearDisplay();      // clear display RAM
     on();                // turn it on
 
-    return ret;
+    return _haveDisp;
 }
 
 // Turn on the display
@@ -385,7 +380,7 @@ void vsrDisplay::setNMOff(bool NMOff)
 #ifdef VSR_DIAG
 void vsrDisplay::lampTest()
 {
-    if(_dispType >= 0) {
+    if(_haveDisp) {
         Wire.beginTransmission(_address);
         Wire.write(0x00);  // start address
         for(int i = 0; i < 8; i++) {
@@ -403,8 +398,6 @@ void vsrDisplay::lampTest()
 // Show the buffer
 void vsrDisplay::show()
 {
-    int i;
-
     if(_nightmode) {
         if(_nmOff) {
             off();
@@ -423,11 +416,11 @@ void vsrDisplay::show()
         _oldnm = 0;
     }
 
-    if(_dispType >= 0) {
+    if(_haveDisp) {
         Wire.beginTransmission(_address);
         Wire.write(0x00);  // start address
     
-        for(i = 0; i <= _max_buf; i++) {
+        for(int i = 0; i <= _max_buf; i++) {
             Wire.write(_displayBuffer[i] & 0xFF);
             Wire.write(_displayBuffer[i] >> 8);
         }
@@ -451,17 +444,15 @@ void vsrDisplay::setText(const char *text)
 
     clearBuf();
 
-    if(_dispType >= 0) {
-        while(text[idx] && (pos < _num_digs)) {
-            temp = getLEDChar(text[idx]) << (*(_bufShftArr + pos));
+    while(text[idx] && (pos < _num_digs)) {
+        temp = getLEDChar(text[idx]) << (*(_bufShftArr + pos));
+        idx++;
+        if(text[idx] == '.') {
+            temp |= (getLEDChar('.') << (*(_bufShftArr + pos)));
             idx++;
-            if(text[idx] == '.') {
-                temp |= (getLEDChar('.') << (*(_bufShftArr + pos)));
-                idx++;
-            }
-            _displayBuffer[*(_bufPosArr + pos)] |= temp;
-            pos++;
         }
+        _displayBuffer[*(_bufPosArr + pos)] |= temp;
+        pos++;
     }
 }
 
@@ -477,18 +468,16 @@ void vsrDisplay::setNumbers(int num1, int num2, int num3)
     _curNums[1] = num2;
     _curNums[2] = num3;
 
-    if(_dispType >= 0) {
-        for(int i = 0; i < 3; i++) {
-            if(_curNums[i] < 0) {
-                b = *(_fontXSeg + 37);
-            } else if(_curNums[i] > 9) {
-                b = *(_fontXSeg + ('H' - 'A' + 10));
-            } else {
-                b = *(_fontXSeg + (_curNums[i] % 10));
-            }
-            _displayBuffer[*(_bufPosArr + s)] |= (b << (*(_bufShftArr + s)));
-            s++;
+    for(int i = 0; i < 3; i++) {
+        if(_curNums[i] < 0) {
+            b = *(_fontXSeg + 37);
+        } else if(_curNums[i] > 9) {
+            b = *(_fontXSeg + ('H' - 'A' + 10));
+        } else {
+            b = *(_fontXSeg + (_curNums[i] % 10));
         }
+        _displayBuffer[*(_bufPosArr + s)] |= (b << (*(_bufShftArr + s)));
+        s++;
     }
 }
 
@@ -579,7 +568,7 @@ uint16_t vsrDisplay::getLEDChar(uint8_t value)
 // (leave buffer intact, directly write to display)
 void vsrDisplay::directCol(int col, int segments)
 {
-    if(_dispType >= 0) {
+    if(_haveDisp) {
         Wire.beginTransmission(_address);
         Wire.write(col * 2);  // 2 bytes per col * position
         Wire.write(segments & 0xFF);
@@ -592,7 +581,7 @@ void vsrDisplay::directCol(int col, int segments)
 // Directly clear the display
 void vsrDisplay::clearDisplay()
 {
-    if(_dispType >= 0) {
+    if(_haveDisp) {
         Wire.beginTransmission(_address);
         Wire.write(0x00);  // start address
     
@@ -607,7 +596,7 @@ void vsrDisplay::clearDisplay()
 
 void vsrDisplay::directCmd(uint8_t val)
 {
-    if(_dispType >= 0) {
+    if(_haveDisp) {
         Wire.beginTransmission(_address);
         Wire.write(val);
         Wire.endTransmission();

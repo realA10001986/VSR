@@ -8,7 +8,7 @@
  * Main
  *
  * -------------------------------------------------------------------
- * License: MIT NON-AI
+ * License: Modified MIT NON-AI
  * 
  * Permission is hereby granted, free of charge, to any person 
  * obtaining a copy of this software and associated documentation 
@@ -20,6 +20,9 @@
  *
  * The above copyright notice and this permission notice shall be 
  * included in all copies or substantial portions of the Software.
+ * 
+ * Links inside the Software pointing to the original source must not 
+ * be changed or removed.
  *
  * In addition, the following restrictions apply:
  * 
@@ -52,6 +55,55 @@
 #ifndef _VSR_MAIN_H
 #define _VSR_MAIN_H
 
+// Durations of tt phases for *internal* tt
+#define P0_DUR          1000    // acceleration phase (stand-alone; only relay-click-lead)
+#define P1_DUR_TCD      6600    // time tunnel phase (synced; overruled by TCD network commands)
+#define P1_DUR          5000    // time tunnel phase (stand-alone)
+#define P2_DUR          3000    // re-entry phase
+
+void main_boot();
+void main_boot2();
+void main_setup();
+void main_loop();
+
+void flushDelayedSave();
+
+void increaseVolume();
+void decreaseVolume();
+
+void timeTravel(bool TCDtriggered, uint16_t P0Dur = P0_DUR, uint16_t P1Dur = 0);
+
+void displaySysMsg(const char *msg, unsigned long timeout);
+
+void cmChanged();
+
+void ssEnd();
+void ssRestartTimer();
+
+void showWaitSequence();
+void endWaitSequence();
+void showCopyError();
+void showNumber(int num);
+
+void allOff();
+void prepareReboot();
+
+void prepareTT();
+void wakeup();
+
+void display_ip();
+
+bool switchMusicFolder(uint8_t nmf, bool isSetup = false);
+void waitAudioDone();
+
+void myCustomDelay_KP(unsigned long mydel);
+void mydelay(unsigned long mydel);
+unsigned long millisNonZero();
+
+void addCmdQueue(uint32_t command);
+void bttfn_loop();
+bool bttfn_trigger_tt();
+
 // LED display modes
 enum {
    LDM_WHEELS = 0,    // display pushwheel values
@@ -63,14 +115,7 @@ enum {
 extern int userDispMode;
 #define NUM_UDM 3     // number of user-selectable display modes
 
-extern bool          udispchanged;
 extern unsigned long udispchgnow;
-
-// Durations of tt phases for *internal* tt
-#define P0_DUR          1000    // acceleration phase (stand-alone; only relay-click-lead)
-#define P1_DUR_TCD      6600    // time tunnel phase (synced; overruled by TCD network commands)
-#define P1_DUR          5000    // time tunnel phase (stand-alone)
-#define P2_DUR          3000    // re-entry phase
 
 extern unsigned long powerupMillis;
 
@@ -113,46 +158,9 @@ extern bool vsrBusy;
 extern bool ssActive;
 
 extern bool blockScan;
- 
-void main_boot();
-void main_boot2();
-void main_setup();
-void main_loop();
 
-void flushDelayedSave();
-
-void increaseVolume();
-void decreaseVolume();
-
-void timeTravel(bool TCDtriggered, uint16_t P0Dur = P0_DUR, uint16_t P1Dur = 0);
-
-void displaySysMsg(const char *msg, unsigned long timeout);
-
-void ssEnd();
-void ssRestartTimer();
-
-void showWaitSequence();
-void endWaitSequence();
-void showCopyError();
-void showNumber(int num);
-
-void allOff();
-void prepareReboot();
-
-void prepareTT();
-void wakeup();
-
-void display_ip();
-
-bool switchMusicFolder(uint8_t nmf, bool isSetup = false);
-void waitAudioDone();
-
-void myCustomDelay_KP(unsigned long mydel);
-void mydelay(unsigned long mydel);
-unsigned long millisNonZero();
-
-void addCmdQueue(uint32_t command);
-void bttfn_loop();
-bool bttfn_trigger_tt();
+extern int     bttfnHaveTCDSSID;
+extern char    TCDSSID[];
+extern uint8_t TCDpwMarker;
 
 #endif

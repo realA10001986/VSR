@@ -8,7 +8,7 @@
  * Pushwheel_I2C Class, VSRButton Class: I2C-Pushwheel and Button handling
  * 
  * -------------------------------------------------------------------
- * License: MIT NON-AI
+ * License: Modified MIT NON-AI
  * 
  * Permission is hereby granted, free of charge, to any person 
  * obtaining a copy of this software and associated documentation 
@@ -20,6 +20,9 @@
  *
  * The above copyright notice and this permission notice shall be 
  * included in all copies or substantial portions of the Software.
+ * 
+ * Links inside the Software pointing to the original source must not 
+ * be changed or removed.
  *
  * In addition, the following restrictions apply:
  * 
@@ -208,6 +211,13 @@ void Pushwheel_I2C::getValues(int& num1, int& num2, int& num3)
     num1 = _pushWheel[0];
     num2 = _pushWheel[1];
     num3 = _pushWheel[2];
+}
+
+void Pushwheel_I2C::resetButtons()
+{
+    for(int i = 0; i < 3; i++) {
+        _vsrbutton[i].reset();
+    }
 }
 
 /*
