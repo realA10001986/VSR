@@ -180,7 +180,7 @@ In this mode, the buttons light up when briefly pressed, and stay lit after _hol
      <tr><td></td><td>Brief press</td><td>Hold</td></tr>
     <tr>
      <td align="center"><img src="img/b9.png"></td><td>Previous song</td>
-      <td>Disable shuffle mode</td>
+      <td>Go to song #0</td>
     </tr>
     <tr>
      <td align="center"><img src="img/b10.png"></td><td>Play/Stop</td>
@@ -188,7 +188,7 @@ In this mode, the buttons light up when briefly pressed, and stay lit after _hol
     </tr>
     <tr>
      <td align="center"><img src="img/b4c.png"></td><td>Next song</td>
-      <td>Go to song #0</td>
+      <td>Disable shuffle mode</td>
     </tr>
 </table>
 
