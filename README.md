@@ -12,7 +12,7 @@ This [repository](https://vsr.out-a-ti.me) holds the most current firmware for a
 
 Features include
 
-- various display modes, selectable by buttons: Pushwheel values, temperature (from directly connected sensor, or from [Time Circuits Display](https://tcd.out-a-ti.me) via BTTFN), or speed (from a [CircuitSetup](https://circuitsetup.us) [Time Circuits Display](https://tcd.out-a-ti.me) via BTTFN)
+- various display modes, selectable by buttons: Pushwheel values, temperature (from directly connected sensor or from [CircuitSetup](https://circuitsetup.us) [Time Circuits Display](https://tcd.out-a-ti.me)), or speed (from a [Time Circuits Display](https://tcd.out-a-ti.me))
 - [Time Travel](#time-travel) sequence, triggered by button, [Time Circuits Display](https://tcd.out-a-ti.me) or via [MQTT](#home-assistant--mqtt)
 - [music player](#the-music-player): Play mp3 files located on an SD card, controlled by buttons, [Time Circuits Display](https://tcd.out-a-ti.me) keypad via BTTFN, or HA/MQTT
 - [SD card](#sd-card) support for custom audio files for effects, and music for the Music Player
