@@ -39,7 +39,7 @@ The first step is to establish access to the VSR's configuration web site ("Conf
 
 Your VSR knows two ways of WiFi operation: Either it creates its own WiFi network, or it connects to a pre-existing WiFi network.
 
-As long as the VSR is unconfigured, it creates its own WiFi network named "VSR-AP". This mode of operation is called "**Access point mode**", or "AP-mode". or **"AP-mode"**. In this mode, computers/handhelds can connect to your VSR in order to access the Config Portal, but ways of communication end right here. There is no inter-prop-communication ([BTTFN](#bttf-network-bttfn)) and no [HA/MQTT](#home-assistant--mqtt).
+As long as the VSR is unconfigured, it creates its own WiFi network named "VSR-AP". This mode of operation is called "**Access point mode**", or **"AP-mode"**. In this mode, computers/handhelds can connect to your VSR in order to access the Config Portal, but ways of communication end right here. There is no inter-prop-communication ([BTTFN](#bttf-network-bttfn)) and no [HA/MQTT](#home-assistant--mqtt).
 
 ![APmode](img/apmode.png)
 
