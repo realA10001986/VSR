@@ -13,7 +13,7 @@ This [repository](https://vsr.out-a-ti.me) holds the most current firmware for a
 Features include
 
 - various display modes, selectable by buttons: Pushwheel values, temperature (from directly connected sensor or from [CircuitSetup](https://circuitsetup.us) [Time Circuits Display](https://tcd.out-a-ti.me)), or speed (from a [Time Circuits Display](https://tcd.out-a-ti.me))
-- [Time Travel](#time-travel) sequence, triggered by button, [Time Circuits Display](https://tcd.out-a-ti.me) or via [MQTT](#home-assistant--mqtt)
+- [Time Travel](#time-travel) sequence, triggered by button, [Time Circuits Display](https://tcd.out-a-ti.me) or via [Home Assistant](#home-assistant--mqtt)
 - [Music player](#the-music-player): Play mp3 files located on an SD card, controlled by buttons, [Time Circuits Display](https://tcd.out-a-ti.me), or HomeAssistant
 - [SD card](#sd-card) support for custom audio files for effects and music for the Music Player
 - advanced network-accessible [Config Portal](#the-config-portal) for setup (http://vsr.local, hostname configurable)
@@ -211,7 +211,7 @@ In this mode, the buttons light up when briefly pressed, and stay lit after _hol
 
 [Here](https://github.com/realA10001986/VSR/blob/main/CheatSheet.pdf) is a cheat sheet for printing or screen-use. (Note that MacOS' preview application has a bug that scrambles the links in the document. Acrobat Reader does it correctly.)
 
-## Time travel
+## Time Travel
 
 To trigger a "time travel" stand-alone, select the _Operation_ [button mode](#button-modes), and press button "9".
 
@@ -219,7 +219,7 @@ You can also connect a dedicated time travel button to your VSR; the button must
 
 Other ways of triggering a time travel are available if a [Time Circuits Display](#connecting-a-time-circuits-display) is connected.
 
-## Temperature display
+## Temperature Display
 
 As mentioned above, your VSR can display temperature. The temperature value can come from either a connected temperature sensor, or from the TCD - if the latter has a sensor connected and is connected to your VSR via [BTTFN](#bttf-network-bttfn).
 
@@ -267,11 +267,11 @@ For longer cables, ie >50cm (>20in), I recommend using a twisted pair cable, and
 
 >Important: The VSR control board delivers and drives the i2c bus on 5V. Most sensors operate on 3.3V. Therefore, you cannot connect the chips directly to the VSR control board without a level-shifter. This goes for the power supply as well as the i2c bus signals (SDA, SCL). I only use readily available sensor breakout boards that include level-shifters.
 
-## Speed display
+## Speed Display
 
 Your VSR can also display speed, provided a TCD is connected through [BTTFN](#bttf-network-bttfn), and the TCD has either a GPS receiver, or a rotary encoder configured for speed. Please see [here](https://tcd.out-a-ti.me) for more information.
 
-## SD card
+## SD Card
 
 >Preface note on SD cards: For unknown reasons, some SD cards simply do not work with this device. For instance, I had no luck with Sandisk Ultra 32GB and  "Intenso" cards. If your SD card is not recognized, check if it is formatted in FAT32 format (not exFAT!). Also, the size must not exceed 32GB (as larger cards cannot be formatted with FAT32). Transcend, Sandisk Industrial, Verbatim Premium and Samsung Pro Endurance SDHC cards work fine in my experience.
 
@@ -571,7 +571,7 @@ If your broker does not allow anonymous logins, a username and password can be s
 
 Limitations: TLS/SSL not supported; ".local" domains (MDNS) not supported; server/broker must respond to PING (ICMP) echo requests. For proper operation with low latency, it is recommended that the broker is on your local network. MQTT is disabled when your VSR is operated in AP-mode or when connected to the TCD run in AP-Mode (TCD-AP).
 
-## Car setup
+## Car Setup
 
 If your VSR, along with a [Time Circuits Display](https://tcd.out-a-ti.me/), is mounted in a car or other places without a local WiFi network, the following network configuration is recommended:
 
@@ -599,7 +599,7 @@ In order to access the VSR's Config Portal in Car mode, connect your handheld or
   ><details><summary>If that fails...</summary>
   >If connecting to http://vsr.local fails due to a name resolution error, go to the TCD's keypad menu, navigate to "BTTFN CLIENTS", and look for the VSR's IP address there; then direct your browser to that IP by using the URL http://a.b.c.d (a-d being the IP address displayed on the TCD display)</details>
 
-## WiFi power saving features
+## WiFi Power Saving Features
 
 The Config Portal offers an option for WiFi power saving for AP-mode (ie when the device acts as an access point). This option configures a timer after whose expiration WiFi is switched off; the device is no longer transmitting or receiving data over WiFi.
 
