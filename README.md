@@ -128,9 +128,9 @@ By default, the display shows the value selected by the pushwheels, with slight 
 
 The three-digit display can be used for the pushwheel number, temperature or speed.
 
-In order to display temperature, a temperature sensor needs to be connected to either your VSR or your Time Circuits Display (TCD), and in the latter case your VSR needs to be connected to the TCD via BTTFN.
+To display temperature, a temperature sensor needs to be connected to either your VSR or your Time Circuits Display (TCD), and in the latter case your VSR needs to be connected to the TCD via BTTFN.
 
-In order to display speed, a TCD with either a GPS receiver or a rotary encoder for speed is required, and your VSR needs to be connected to the TCD via BTTFN.
+To display speed, a TCD with either a GPS receiver or a rotary encoder for speed is required, and your VSR needs to be connected to the TCD via BTTFN.
 
 Display modes are chosen by selecting the _Operation_ button mode, and then _holding_ a single button until two beeps are emitted from your VSR, as described below. If an SD card is present, the selected display mode is saved 10 seconds after its activation.
 
@@ -138,7 +138,7 @@ Display modes are chosen by selecting the _Operation_ button mode, and then _hol
 
 >Buttons can be _pressed_, which means a brief press-and-release, or _held_, meaning pressing and holding the button for 2 seconds.
 
-There are four button modes: Light ("LGT"), Operation ("OPR"), Music Player ("MUS") and Admin ("ADM"). In order to select a button mode, two or three buttons must be _held_ simultaneously until the display shows the selected mode. If an SD card is present, the selected button mode is saved 10 seconds after its activation.
+There are four button modes: Light ("LGT"), Operation ("OPR"), Music Player ("MUS") and Admin ("ADM"). To select a button mode, two or three buttons must be _held_ simultaneously until the display shows the selected mode. If an SD card is present, the selected button mode is saved 10 seconds after its activation.
 
 <table>
     <tr>
@@ -305,7 +305,7 @@ Replacements and custom sounds can either be copied to the SD card using a compu
 
 Uploading through the Config Portal works exactly like [installing the sound-pack](#sound-pack-installation); on the main menu, click "Update & Upload". Afterwards choose one or more mp3 files to upload using the bottom file selector, and click "UPLOAD". The firmware will store the uploaded mp3 files on the SD card.
 
-In order to delete a file from the SD card, upload a file whose name is prefixed with "delete-". For example: To delete "key3.mp3" from the SD card, upload a file named "delete-key3.mp3"; the file's contents does not matter, so it's easiest to use a newly created empty file. The firmware detects the "delete-" part and, instead of storing the uploaded file, it throws it away and deletes "key3.mp3" from the SD card.
+To delete a file from the SD card, upload a file whose name is prefixed with "delete-". For example: To delete "key3.mp3" from the SD card, upload a file named "delete-key3.mp3"; the file's contents does not matter, so it's easiest to use a newly created empty file. The firmware detects the "delete-" part and, instead of storing the uploaded file, it throws it away and deletes "key3.mp3" from the SD card.
 
 For technical reasons, the VSR must reboot after mp3 files are uploaded in this way.
 
@@ -315,7 +315,7 @@ Please remember that the maximum bitrate for mp3 files is 128kbps. Also note tha
 
 The firmware contains a simple music player to play mp3 files located on the SD card. 
 
-In order to be recognized, your mp3 files need to be organized in music folders named *music0* through *music9*. The folder number is 0 by default, ie the player starts searching for music in folder *music0*. This folder number can be changed in the Config Portal or through the TCD keypad (805x).
+To be recognized, your mp3 files need to be organized in music folders named *music0* through *music9*. The folder number is 0 by default, ie the player starts searching for music in folder *music0*. This folder number can be changed in the Config Portal or through the TCD keypad (805x).
 
 The names of the audio files must only consist of three-digit numbers, starting at 000.mp3, in consecutive order. No numbers should be left out. Each folder can hold up to 1000 files (000.mp3-999.mp3). *The maximum bitrate is 128kpbs.*
 
@@ -354,7 +354,7 @@ BTTFN requires the props all to be connected to the same network, such as, for e
 
 </details>
 
-In order to connect your VSR to the TCD, just enter the TCD's hostname - usually "timecircuits" - in the **_Hostname or IP address of TCD_** field in the VSR's Config Portal. On the TCD, no special configuration is required. 
+To connect your VSR to the TCD, just enter the TCD's hostname - usually "timecircuits" - in the **_Hostname or IP address of TCD_** field in the VSR's Config Portal. On the TCD, no special configuration is required. 
   
 Afterwards, the VSR and the TCD can communicate wirelessly and 
 - play time travel sequences in sync,
@@ -594,7 +594,7 @@ If everything is in place, you can enable Car mode on the VSR by holding button 
 
 You can switch between your "normal" (home, iPhone, ..) WiFi connection and Car mode by holding button "9" in Admin button mode.
 
-In order to access the VSR's Config Portal in Car mode, connect your handheld or computer to the TCD's WiFi network ("TCD-AP"), and direct your browser to http://vsr.local.
+To access the VSR's Config Portal in Car mode, connect your handheld or computer to the TCD's WiFi network ("TCD-AP"), and direct your browser to http://vsr.local.
 
   ><details><summary>If that fails...</summary>
   >If connecting to http://vsr.local fails due to a name resolution error, go to the TCD's keypad menu, navigate to "BTTFN CLIENTS", and look for the VSR's IP address there; then direct your browser to that IP by using the URL http://a.b.c.d (a-d being the IP address displayed on the TCD display)</details>
@@ -667,7 +667,7 @@ This leads to the [HomeAssistant/MQTT Settings page](#hamqtt-settings).
 
 This leads to the firmware update and audio upload page.
 
-In order to upload a new firmware, such as published in the [Release packages](https://github.com/realA10001986/VSR/releases), select the "**vsr-A10001986-Vx.xx.bin**" file as contained in the Release package in the _top_ file selector and click *Update*.
+To upload a new firmware, such as published in the [Release packages](https://github.com/realA10001986/VSR/releases), select the "**vsr-A10001986-Vx.xx.bin**" file as contained in the Release package in the _top_ file selector and click *Update*.
 
 You can also install the VSR's sound-pack on this page; download the sound-pack (which is included in every [Release package](https://github.com/realA10001986/VSR/releases)), extract it and select the resulting VSRA.bin file in the bottom file selector. Finally, click *Upload*. Note that an SD card is required for this operation.
 
@@ -683,7 +683,7 @@ Through this page you can either connect your VSR to your local WiFi network, or
 
 #### <ins>Connecting to an existing WiFi network</ins>
 
-In order to connect your VSR to your WiFi network, all you need to do is either to click on one of the networks listed at the top or to enter a __Network name (SSID)__, and optionally a __password__ (WPAx). If there is no list displayed, click on "Scan for Networks".
+To connect your VSR to your WiFi network, all you need to do is either to click on one of the networks listed at the top or to enter a __Network name (SSID)__, and optionally a __password__ (WPAx). If there is no list displayed, click on "Scan for Networks".
 
 >By default, the VSR requests an IP address via DHCP. However, you can also configure a static IP for the VSR by entering the IP, netmask, gateway and DNS server. All four fields must be filled for a valid static IP configuration. If you want to stick to DHCP, leave those four fields empty.
 
