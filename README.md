@@ -354,7 +354,7 @@ BTTFN requires the props all to be connected to the same network, such as, for e
 
 </details>
 
-In order to connect your VSR to the TCD using BTTFN, just enter the TCD's hostname - usually "timecircuits" - in the **_Hostname or IP address of TCD_** field in the VSR's Config Portal. On the TCD, no special configuration is required. 
+In order to connect your VSR to the TCD, just enter the TCD's hostname - usually "timecircuits" - in the **_Hostname or IP address of TCD_** field in the VSR's Config Portal. On the TCD, no special configuration is required. 
   
 Afterwards, the VSR and the TCD can communicate wirelessly and 
 - play time travel sequences in sync,
