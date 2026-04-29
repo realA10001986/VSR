@@ -12,9 +12,9 @@ This [repository](https://vsr.out-a-ti.me) holds the most current firmware for a
 
 Features include
 
-- various display modes, selectable by buttons: Pushwheel values, temperature (from directly connected sensor or from [CircuitSetup](https://circuitsetup.us) [Time Circuits Display](https://tcd.out-a-ti.me)), or speed (from a [Time Circuits Display](https://tcd.out-a-ti.me))
+- various display modes, selectable by buttons: Pushwheel values, temperature (from directly connected sensor or from [CircuitSetup](https://circuitsetup.us) [Time Circuits Display](https://tcd.out-a-ti.me)) or speed (from a [Time Circuits Display](https://tcd.out-a-ti.me))
 - [Time Travel](#time-travel) sequence, triggered by button, [Time Circuits Display](https://tcd.out-a-ti.me) or via [Home Assistant](#home-assistant--mqtt)
-- [Music player](#the-music-player): Play mp3 files located on an SD card, controlled by buttons, [Time Circuits Display](https://tcd.out-a-ti.me), or HomeAssistant
+- [Music player](#the-music-player): Play mp3 files located on an SD card, controlled by buttons, [Time Circuits Display](https://tcd.out-a-ti.me) or HomeAssistant
 - [SD card](#sd-card) support for custom audio files for effects and music for the Music Player
 - advanced network-accessible [Config Portal](#the-config-portal) for setup (http://vsr.local)
 - [wireless communication](#bttf-network-bttfn) with [Time Circuits Display](https://tcd.out-a-ti.me); used for synchronized time travels, alarm, night mode, fake power, temperature display and remote control through keypad
@@ -37,7 +37,7 @@ The first step is to establish access to the VSR's configuration web site ("Conf
 
 ### Connecting to a WiFi network
 
-Your VSR knows two ways of WiFi operation: Either it creates its own WiFi network, or it connects to a pre-existing WiFi network.
+Your VSR knows two ways of WiFi operation: Either it creates its own WiFi network or it connects to a pre-existing WiFi network.
 
 As long as the VSR is unconfigured, it creates its own WiFi network named "VSR-AP". This mode of operation is called "**Access point mode**", or **"AP-mode"**. In this mode, computers/handhelds can connect to your VSR in order to access the Config Portal, but ways of communication end right here. There is no inter-prop-communication ([BTTFN](#bttf-network-bttfn)) and no [HA/MQTT](#home-assistant--mqtt).
 
@@ -67,7 +67,7 @@ Click on "WiFi Configuration" and either select a network from the top of the pa
 <details>
 <summary>More...</summary>
 
->If there are several APs with identical SSID in your area, you can select a specific AP to use by its BSSID (AP's MAC address). You can either manually find out your AP's BSSID and enter it, or have it filled out automatically: Click "Scan for networks", then "Show all". If you click on an AP, its BSSID will be copied into BSSID field in the form below. To see which AP is which, hover over the name to see its BSSID as a tooltip.
+>If there are several APs with identical SSID in your area, you can select a specific AP to use by its BSSID (AP's MAC address). You can either manually find out your AP's BSSID and enter it or have it filled out automatically: Click "Scan for networks", then "Show all". If you click on an AP, its BSSID will be copied into BSSID field in the form below. To see which AP is which, hover over the name to see its BSSID as a tooltip.
 
 >Your VSR requests an IP address via DHCP, unless you entered valid data in the fields for static IP addresses (IP, gateway, netmask, DNS). If the device is inaccessible as a result of incorrect static IPs, wait until the VSR has completed its startup sequence, then _hold_ all three buttons until "ADM" is displayed, then _hold_ button "4C". After "RST" has been displayed, power-down the VSR. Upon power-up, the device is reset to DHCP.
 
@@ -221,7 +221,7 @@ Other ways of triggering a time travel are available if a [Time Circuits Display
 
 ## Temperature Display
 
-As mentioned above, your VSR can display temperature. The temperature value can come from either a connected temperature sensor, or from the TCD - if the latter has a sensor connected and is connected to your VSR via [BTTFN](#bttf-network-bttfn).
+As mentioned above, your VSR can display temperature. The temperature value can come from either a connected temperature sensor or from the TCD - if the latter has a sensor connected and is connected to your VSR via [BTTFN](#bttf-network-bttfn).
 
 The following sensor types are supported for direct (i2c) connection to your VSR: 
 - [MCP9808](https://www.adafruit.com/product/1782) (address 0x18 - non-default),
@@ -269,7 +269,7 @@ For longer cables, ie >50cm (>20in), I recommend using a twisted pair cable, and
 
 ## Speed Display
 
-Your VSR can also display speed, provided a TCD is connected through [BTTFN](#bttf-network-bttfn), and the TCD has either a GPS receiver, or a rotary encoder configured for speed. Please see [here](https://tcd.out-a-ti.me) for more information.
+Your VSR can also display speed, provided a TCD is connected through [BTTFN](#bttf-network-bttfn), and the TCD has either a GPS receiver or a rotary encoder configured for speed, or a [Futaba Remote Control](https://remote.out-a-ti.me) is present. Please see [here](https://tcd.out-a-ti.me) for more information.
 
 ## SD Card
 
@@ -301,7 +301,7 @@ Those files are not provided here. You can use any mp3, with a bitrate of 128kpb
 
 ### Installing Custom & Replacement Audio Files
 
-Replacements and custom sounds can either be copied to the SD card using a computer, or uploaded through the Config Portal.
+Replacements and custom sounds can either be uploaded through the Config Portal or copied to the SD card using a computer.
 
 Uploading through the Config Portal works exactly like [installing the sound-pack](#sound-pack-installation); on the main menu, click "Update & Upload". Afterwards choose one or more mp3 files to upload using the bottom file selector, and click "UPLOAD". The firmware will store the uploaded mp3 files on the SD card.
 
@@ -603,7 +603,7 @@ To access the VSR's Config Portal in Car mode, connect your handheld or computer
 
 The Config Portal offers an option for WiFi power saving for AP-mode (ie when the device acts as an access point). This option configures a timer after whose expiration WiFi is switched off; the device is no longer transmitting or receiving data over WiFi.
 
-The timer can be set to 0 (which disables it; WiFi is never switched off; this is the default), or 10-99 minutes. 
+The timer can be set to 0 (which disables it; WiFi is never switched off; this is the default) or 10-99 minutes. 
 
 After WiFi has been switched off due to timer expiration, it can be re-enabled by holding button "10" in [Admin button mode](#admin-mode), in which case the timers are restarted (ie WiFi is again switched off after timer expiration).
 
@@ -679,7 +679,7 @@ Finally, this page is also for uploading [custom or replacement sound files](#in
 
 ### WiFi Configuration
 
-Through this page you can either connect your VSR to your local WiFi network, or configure AP mode. 
+Through this page you can either connect your VSR to your local WiFi network or configure AP mode. 
 
 #### <ins>Connecting to an existing WiFi network</ins>
 
@@ -687,7 +687,7 @@ To connect your VSR to your WiFi network, all you need to do is either to click 
 
 >By default, the VSR requests an IP address via DHCP. However, you can also configure a static IP for the VSR by entering the IP, netmask, gateway and DNS server. All four fields must be filled for a valid static IP configuration. If you want to stick to DHCP, leave those four fields empty.
 
-If there are several APs with identical SSID in your area, you can select a specific AP to use by its BSSID (AP's MAC address). You can either manually find out your AP's BSSID and enter it, or have it filled out automatically: Click "Scan for networks", then "Show all". If you click on an AP, its BSSID will be copied into BSSID field in the form below. To see which AP is which, hover over the name to see its BSSID as a tooltip.
+If there are several APs with identical SSID in your area, you can select a specific AP to use by its BSSID (AP's MAC address). You can either manually find out your AP's BSSID and enter it or have it filled out automatically: Click "Scan for networks", then "Show all". If you click on an AP, its BSSID will be copied into BSSID field in the form below. To see which AP is which, hover over the name to see its BSSID as a tooltip.
 
 ##### &#9193; Forget Saved WiFi Network
 
@@ -729,7 +729,7 @@ If you forget this password and are thereby locked out of your VSR, select _Admi
 
 ##### &#9193; WiFi channel
 
-Here you can select one out of 11 channels, or have the VSR choose a random channel for you. The default channel is 1. Preferred are channels 1, 6 and 11.
+Here you can select one out of 11 channels or have the VSR choose a random channel for you. The default channel is 1. Preferred are channels 1, 6 and 11.
 
 WiFI channel selection is key for a trouble-free operation. Disturbed WiFi communication can lead to disrupted sequences, packet loss, hanging or freezing props, and other problems. A good article on WiFi channel selection is [here](https://community.ui.com/questions/Choosing-the-right-Wifi-Channel-on-2-4Ghz-Why-Conventional-Wisdom-is-Wrong/ea2ffae0-8028-45fb-8fbf-60569c6d026d).
 
@@ -829,7 +829,7 @@ If this option is checked, and your TCD is equipped with a fake power switch, th
 
 ##### &#9193; TT buttons trigger BTTFN-wide TT
 
-If the VSR is connected to a TCD through BTTFN, this option allows to trigger a synchronized time travel on all BTTFN-connected devices when pressing "9" in _Operation_ [button mode](#button-modes), or pressing the Time Travel button, just as if the time travel was triggered by the TCD. If this option is unchecked, these actions only trigger a time travel sequence on the VSR.
+If the VSR is connected to a TCD through BTTFN, this option allows to trigger a synchronized time travel on all BTTFN-connected devices when pressing "9" in _Operation_ [button mode](#button-modes) or pressing the Time Travel button, just as if the time travel was triggered by the TCD. If this option is unchecked, these actions only trigger a time travel sequence on the VSR.
 
 ##### &#9193; Ignore network-wide TTs
 
