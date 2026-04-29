@@ -16,7 +16,7 @@ Features include
 - [Time Travel](#time-travel) sequence, triggered by button, [Time Circuits Display](https://tcd.out-a-ti.me) or via [Home Assistant](#home-assistant--mqtt)
 - [Music player](#the-music-player): Play mp3 files located on an SD card, controlled by buttons, [Time Circuits Display](https://tcd.out-a-ti.me), or HomeAssistant
 - [SD card](#sd-card) support for custom audio files for effects and music for the Music Player
-- advanced network-accessible [Config Portal](#the-config-portal) for setup (http://vsr.local, hostname configurable)
+- advanced network-accessible [Config Portal](#the-config-portal) for setup (http://vsr.local)
 - [wireless communication](#bttf-network-bttfn) with [Time Circuits Display](https://tcd.out-a-ti.me); used for synchronized time travels, alarm, night mode, fake power, temperature display and remote control through keypad
 - [Home Assistant](#home-assistant--mqtt) (MQTT) support
 - built-in OTA installer for firmware updates and audio files
