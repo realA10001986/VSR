@@ -521,7 +521,7 @@ Next, head to the Config Portal and set the option **_TCD connected by wire_**. 
 
 ## Home Assistant / MQTT
 
-The VSR supports MQTT protocol versions 3.1.1 and 5.0 for the following features:
+The VSR supports MQTT protocol versions 3.1.1 and 5.0.
 
 ### Control the VSR via MQTT
 
@@ -550,12 +550,6 @@ To set volume level to 10 (8310), issue the following command: **INJECT_8310**
 To play "key2.mp3" (8502), issue **INJECT_8502**
 
 To select the 'music1' folder (8051), issue **INJECT_8051**
-
-### Receive commands from Time Circuits Display
-
-If both TCD and VSR are connected to the same broker, and the option **_Publish time travel and alarm events_** is checked on the TCD's side, the VSR will receive information on time travel and alarm and play their sequences in sync with the TCD. Unlike BTTFN, however, no other communication takes place.
-
-MQTT and BTTFN can co-exist. However, the TCD only sends out time travel and alarm notifications through either MQTT or BTTFN, never both. If you have other MQTT-aware devices listening to the TCD's public topic (bttf/tcd/pub) in order to react to time travel or alarm messages, use MQTT (ie check **_Publish time travel and alarm events_**). If only BTTFN-aware devices are to be used, uncheck this option to use BTTFN as it has less latency.
 
 ### Setup
 
