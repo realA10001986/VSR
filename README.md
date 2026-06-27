@@ -521,6 +521,8 @@ Next, head to the Config Portal and set the option **_TCD connected by wire_**. 
 
 ## Home Assistant / MQTT
 
+By means of MQTT, the VSR can be remote controlled through commands sent to **bttf/vsr/cmd**.
+
 The VSR supports MQTT protocol versions 3.1.1 and 5.0.
 
 ### Control the VSR via MQTT
