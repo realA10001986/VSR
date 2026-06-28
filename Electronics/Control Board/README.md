@@ -27,7 +27,7 @@ To have [JCLPCB](https://jlcpcb.com) make your Control Board:
 8) Enjoy a nice 2D or 3D view of your future board, click "NEXT". (If the display stalls at "Processing files", click "NEXT" regardless).
 9) Select a "product description" (eg. "Movie prop") and click "Save to cart". Then finalize your order.
 
-Since two pieces is the minimal order amount, [here](https://jb.out-a-ti.me) is an idea what to do with the second one.
+Since the minimum order amount is two pieces, [here](https://jb.out-a-ti.me) is an idea what to do with the second one.
 
 #### Remarks on BOM (Bill of Materials):
 
