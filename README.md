@@ -383,8 +383,8 @@ You can use BTTF-Network and MQTT at the [same time](#receive-commands-from-time
      <td align="left">8012&#9166;</td>
     </tr>
     <tr>
-     <td align="left">Set volume level (00-19)</td>
-     <td align="left">8300&#9166; - 8319&#9166;</td>
+     <td align="left">Set volume level (00-20)</td>
+     <td align="left">8300&#9166; - 8320&#9166;</td>
     </tr>
     <tr>
      <td align="left">Set brightness level (00-15)</td>
@@ -539,6 +539,9 @@ The VSR can be controlled through messages sent to topic **bttf/vsr/cmd**. Suppo
 - MP_SHUFFLE_ON: Enables shuffle mode in [Music Player](#the-music-player)
 - MP_SHUFFLE_OFF: Disables shuffle mode in [Music Player](#the-music-player)
 - MP_FOLDER_x: x being 0-9, set folder number for [Music Player](#the-music-player)
+- MP_REQSTATUS: Publish current [music player status](#-publish-music-player-status-to-bttfvsrmpstatus) to bttf/vsr/mpstatus
+- VOLUME_UP, VOLUME_DOWN: Increase/decrease volume by a notch
+- VOLUME_SET_x: Set volume to x% (x=0-100)
 - PLAYKEY_x: Play keyX.mp3 (from SD card), X being in the range from 1 to 9.
 - STOPKEY: Stop playback of keyX file. Does nothing if no keyX file is currently played back.
 - INJECT_x: See immediately below.
@@ -887,6 +890,26 @@ The firmware supports MQTT 3.1.1 and 5.0. There is no difference in features, so
 ##### &#9193; User[:Password]
 
 The username (and optionally the password) to be used when connecting to the broker. Can be left empty if the broker accepts anonymous logins.
+
+##### &#9193; Publish Music Player status to bttf/vsr/mpstatus
+
+This option enables the Music Player's backchannel. The backchannel carries feedback and status information on the Music Player which can be used to comfortably remote-control the VSR's Music Player through HomeAssistant/MQTT.
+
+This option should be left unchecked if not used.
+
+Backchannel data is sent to _bttf/vsr/mpstatus_ on every change. It can also be triggered at any point by sending __MP_REQSTATUS__ to _bttf/vsr/cmd_.
+
+The data published on the backchannel is a JSON object, containing the following keys:
+- __S__: State. _Value_ can be "P" for playing, "I" for idle, and "O" for off/busy. In 'off' state, the VSR does not take commands.
+- __C__: Current track. _Value_ is an unsigned integer >= 0 as a string.
+- __F__: First track. This tells the remote control where to start counting track numbers. _Value_ is always 0 (zero) as a string.
+- __L__: Last track. This tells the remote control the last and highest possible track number. _Value_ is an unsigned integer >= 0 and <= 999 as a string.
+- __V__: Volume. This is an integer as a string. If -1, volume control is unavailable. Otherwise 0-100.
+- __SH__: Shuffle. This is an integer as a string, either "0" for 'off', or "1" for 'on'.
+
+Example: __{"S":"I","C":"1","V":"20","F":"0","L":"67","SH":"0"}__
+
+The backchannel is used/required by the A10001986 [Lou's Cafe Jukebox](https://jb.out-a-ti.me).
 
 ## Appendix B: Display messages
 
