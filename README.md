@@ -933,4 +933,4 @@ The backchannel is used/required by the A10001986 [Lou's Cafe Jukebox](https://j
 
 ---
 _Text & images: (C) Thomas Winischhofer ("A10001986"). See LICENSE._ Source: https://vsr.out-a-ti.me  
-_Other props: [Time Circuits Display](https://tcd.out-a-ti.me) ... [Flux Capacitor](https://fc.out-a-ti.me) ... [SID](https://sid.out-a-ti.me) ... [Dash Gauges](https://dg.out-a-ti.me) ... [Remote Control](https://remote.out-a-ti.me) ... [TFC](https://tfc.out-a-ti.me)_
+_Other props: [Time Circuits Display](https://tcd.out-a-ti.me) ... [Flux Capacitor](https://fc.out-a-ti.me) ... [SID](https://sid.out-a-ti.me) ... [Dash Gauges](https://dg.out-a-ti.me) ... [Remote Control](https://remote.out-a-ti.me) ... [TFC](https://tfc.out-a-ti.me) ... [Jukebox](https://jb.out-a%2dti.me)_
