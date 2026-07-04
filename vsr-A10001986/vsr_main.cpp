@@ -363,6 +363,9 @@ static void TTKeyHeld(int i, ButState j);
 
 static void ssStart();
 
+static void prepareTT();
+static void wakeup();
+
 #ifdef VSR_HAVETEMP
 static void myCustomDelay_Sens(unsigned long mydel);
 static void updateTemperature(bool force = false);
@@ -444,6 +447,7 @@ void main_setup()
     #endif
     if(check_allow_CPA()) {
         showWaitSequence();
+        vsrBusy = true;  // Force MP "off" state, if state happens to be sent
         if(prepareCopyAudioFiles()) {
             play_file("/_installing.mp3", PA_ALLOWSD, 1.0f);
             waitAudioDone();
@@ -600,7 +604,7 @@ void main_loop()
             FPBUnitIsOn = false;
 
             // Stop musicplayer & audio in general
-            mp_stop();
+            mp_stop(true);
             stopAudio();
             
             if(TTrunning) {
@@ -654,6 +658,10 @@ void main_loop()
             ssRestartTimer();
             ssActive = false;
 
+            #ifdef VSR_HAVEMQTT
+            mp_sendStatus();
+            #endif
+
             // Force display update
             doForceDispUpd = true;
 
@@ -687,10 +695,17 @@ void main_loop()
     #endif
 
     // Need to call scan every time due to buttons
+    #ifdef VSR_PROFILER
+    unsigned long q = millis();
+    #endif
     if((wheelsChanged = scanControls())) {
         ssRestartTimer();
         // Not ssEnd(), ss will only end if display in pw mode
     }
+    #ifdef VSR_PROFILER
+    q = millis() - q;
+    if(q > 15) Serial.printf("scanControls took %d\n", q);
+    #endif
 
     // Handle pushwheel values
     if(wheelsChanged) {
@@ -1267,18 +1282,25 @@ static void chgVolume(int d)
 {
     char buf[8];
 
-    int nv = curSoftVol;
-    nv += d;
-    if(nv < 0 || nv > 19)
-        nv = curSoftVol;
-        
-    curSoftVol = nv;
+    int nv = aud_state.curVolume + d;
+
+    if(nv < 0 || nv > VOL_LEVELS - 1) {
+        nv = aud_state.curVolume;
+    }
 
     sprintf(buf, "%3d", nv);
     displaySysMsg(buf, 1000);
 
-    volchgnow = millisNonZero();
-    storeCurVolume();
+    if(aud_state.curVolume != nv) {
+        aud_state.curVolume = nv;
+
+        #ifdef VSR_HAVEMQTT
+        mp_sendStatus();
+        #endif
+    
+        volchgnow = millisNonZero();
+        storeCurVolume();
+    }
 }
 
 void increaseVolume()
@@ -1314,6 +1336,12 @@ void timeTravel(bool TCDtriggered, uint16_t P0Dur, uint16_t P1Dur)
     } else {
         TTrunning = true;
         TTrunningIOonly = false;
+    }
+
+    // All props stop the musicplayer on TT if playTTsounds is true
+    // (regardless of whether they are playing sound immediately or not)
+    if(playTTsounds) {
+        mp_stop();
     }
 
     TTP0 = true;   // phase 0
@@ -1424,7 +1452,7 @@ void cmChanged()
     vsrdisplay.show();
     delay(500);
     prepareReboot();
-    delay(500);
+    delay(1000);
     esp_restart();
 }
 
@@ -1443,7 +1471,8 @@ void allOff()
 
 void prepareReboot()
 {
-    mp_stop();
+    vsrBusy = true;
+    mp_stop(true);
     stopAudio();
 
     setTTOUT(LOW);
@@ -1540,10 +1569,12 @@ void showNumber(int num)
     doForceDispUpd = true;
 }
 
-void prepareTT()
+static void prepareTT()
 {
     ssEnd();
 
+    // Clear here since this is called from two
+    // places, no need to execute this twice
     doPrepareTT = false;
 }
 
@@ -1551,11 +1582,13 @@ void prepareTT()
 // return from tt, triggering delayed tt via ETT
 // For audio-visually synchronized behavior
 // Also called when RotEnc speed is changed
-void wakeup()
+static void wakeup()
 {
     // End screen saver
     ssEnd();
 
+    // Clear here since this is called from two
+    // places, no need to execute this twice
     doWakeup = false;
 }
 
@@ -1603,9 +1636,7 @@ static void execute_remote_command()
             play_key(1);
             break;
         case 2:                                       // 8002: Prev song
-            if(haveMusic) {
-                mp_prev(mpActive);
-            }
+            mp_prev(mpActive);
             break;
         case 3:                                       // 8003: play "key3.mp3"
             play_key(3);
@@ -1614,12 +1645,10 @@ static void execute_remote_command()
             play_key(4);
             break;
         case 5:                                       // 8005: Play/stop
-            if(haveMusic) {
-                if(mpActive) {
-                    mp_stop();
-                } else {
-                    mp_play();
-                }
+            if(mpActive) {
+                mp_stop();
+            } else {
+                mp_play();
             }
             break;
         case 6:                                       // 8006: Play "key6.mp3"
@@ -1629,9 +1658,7 @@ static void execute_remote_command()
             play_key(7);
             break;
         case 8:                                       // 8008: Next song
-            if(haveMusic) {
-                mp_next(mpActive);
-            }
+            mp_next(mpActive);
             break;
         case 9:                                       // 8009: play "key9.mp3"                   
             play_key(9);
@@ -1683,13 +1710,18 @@ static void execute_remote_command()
 
         if(command >= 300 && command <= 399) {
 
-            command -= 300;                       // 8300-8319/8399: Set fixed volume level / enable knob
+            command -= 300;                       // 8300-8320/8399: Set fixed volume level / enable knob
             if(command == 99) {
                 // nada
-            } else if(command <= 19) {
-                curSoftVol = command;
-                volchgnow = millisNonZero();
-                storeCurVolume();
+            } else if(command <= VOL_LEVELS - 1) {
+                if(aud_state.curVolume != command) {
+                    aud_state.curVolume = command;
+                    volchgnow = millisNonZero();
+                    storeCurVolume();
+                    #ifdef VSR_HAVEMQTT
+                    mp_sendStatus();
+                    #endif
+                }
             }
 
         } else if(command >= 400 && command <= 415) {
@@ -1716,7 +1748,7 @@ static void execute_remote_command()
                 break;
             case 888:                             // 8888 go to song #0
                 if(haveMusic) {
-                    mp_gotonum(0, mpActive);
+                    mp_gotonum(0, true);
                 }
                 break;
             case 990:                             // 990/991: Disable/enable car mode
@@ -1754,21 +1786,25 @@ static void execute_remote_command()
                 timeTravel(false, P0_DUR);    
                 break;
             case 7:    
-                if(haveMusic) mp_play();
+                mp_play();
                 break;
             case 8:
-                if(haveMusic && mpActive) {
-                    mp_stop();
-                }
+                mp_stop();
                 break;
             case 9:
-                if(haveMusic) mp_next(mpActive);
+                mp_next(mpActive);
                 break;
             case 10:
-                if(haveMusic) mp_prev(mpActive);
+                mp_prev(mpActive);
                 break;
             case 13:
                 stop_key();
+                break;
+            case 15:
+                increaseVolume();
+                break;
+            case 16:
+                decreaseVolume();
                 break;
             }
 
@@ -1786,7 +1822,7 @@ static void execute_remote_command()
         case 64738:                               // 8064738: reboot
             if(!injected) {
                 prepareReboot();
-                delay(500);
+                delay(1000);
                 esp_restart();
             }
             break;
@@ -1804,7 +1840,7 @@ static void execute_remote_command()
         default:                                  // 8888xxx: goto song #xxx
             if((command / 1000) == 888) {
                 uint16_t num = command - 888000;
-                num = mp_gotonum(num, mpActive);
+                num = mp_gotonum(num, true);
             }
             break;
         }
@@ -1847,21 +1883,17 @@ bool switchMusicFolder(uint8_t nmf, bool isSetup)
     bool waitShown = false;
 
     if(nmf > 9) return false;
-
-    vsrBusy = true;
     
     if((musFolderNum != nmf) || isSetup) {
 
-        blockScan = true;
+        vsrBusy = blockScan = true;
         
         if(!isSetup) {
             musFolderNum = nmf;
             // Initializing the MP can take a while;
             // need to stop all audio before calling
             // mp_init()
-            if(haveMusic && mpActive) {
-                mp_stop();
-            }
+            mp_stop(true);
             stopAudio();
         }
         if(haveSD) {
@@ -1875,17 +1907,16 @@ bool switchMusicFolder(uint8_t nmf, bool isSetup)
         }
         if(!isSetup) {
             saveMusFoldNum();
-            updateConfigPortalMFValues();
         }
         mp_init(isSetup);
         if(waitShown) {
             endWaitSequence();
         }
 
-        blockScan = false;
+        vsrBusy = blockScan = false;
     }
 
-    vsrBusy = false;
+    // Let audio_loop take care of updating MP status
 
     return waitShown;
 }

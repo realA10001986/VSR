@@ -88,9 +88,6 @@ void showNumber(int num);
 void allOff();
 void prepareReboot();
 
-void prepareTT();
-void wakeup();
-
 void display_ip();
 
 bool switchMusicFolder(uint8_t nmf, bool isSetup = false);

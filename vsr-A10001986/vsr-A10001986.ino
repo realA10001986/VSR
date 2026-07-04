@@ -122,6 +122,21 @@
 
 /*  Changelog
  *
+ *  2026/07/04 (A10001986) [1.33]
+ *    *********************************************************************************
+ *    ** If updating from below 1.30, please install 1.30 first to have your         **
+ *    ** settings converted. If 1.30 is skipped, some of your settings (static IP,   **
+ *    ** volume, brightness, button mode, display mode, music folder number) will be **
+ *    ** restored to default values. It suffices to install 1.30 and boot once; you  **
+ *    ** can then immediately update to a later version.                             **
+ *    ** https://github.com/realA10001986/VSR/releases/tag/V1.30                     **
+ *    *********************************************************************************
+ *    - MQTT: Add "VOLUME_UP"/"VOLUME_DOWN"/"VOLUME_SET_xxx" commands
+ *    - MQTT: Add publishing Music Player status to bttf/vsr/mpstatus
+ *    - MQTT: Don't queue and instead ignore (most) commands while fake-off or busy
+ *    - Music Player: Pre-scan folders and display status in Config Portal
+ *    - Music Player: Use new sorting algorithm as the old one caused a crash on a 
+ *      large number of already sorted files (due to excessive recursion).
  *  2026/04/27 (A10001986) [1.32]
  *    *********************************************************************************
  *    ** If updating from below 1.30, please install 1.30 first to have your         **
@@ -425,6 +440,9 @@ void setup()
     main_setup();
 }
 
+#ifdef VSR_PROFILER
+#include "zzProfiler.h"
+#else
 void loop()
 {
     audio_loop();
@@ -434,6 +452,7 @@ void loop()
     audio_loop();
     bttfn_loop();
 }
+#endif
 
 #if defined(VSR_DBG) || defined(VSR_DBG_NET)
 #warning "Debug output is enabled. Binary not suitable for release."

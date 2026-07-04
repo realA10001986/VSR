@@ -157,7 +157,7 @@ static void controlsEvent(int idx, ButState bstate)
                 if(butState[otherKey[idx][0]] == VSRB_IDLE && butState[otherKey[idx][1]] == VSRB_IDLE) {
                     // Ugly hack to avoid button sound for volume adjustment; in that
                     // case a sound is played AFTER changing the volume level
-                    if(buttonMode != VBM_ADMIN || curSoftVol == 255 || idx == 2) {
+                    if(buttonMode != VBM_ADMIN || aud_state.curVolume == 255 || idx == 2) {
                         prevKeyPlayed = play_button_sound();
                     }
                 }
@@ -387,10 +387,7 @@ static void controlsEvent(int idx, ButState bstate)
                         {
                             bool wasActiveM = false, waitShown = false;
                             if(wifiOnWillBlock()) {
-                                if(haveMusic && mpActive) {
-                                    mp_stop();
-                                    wasActiveM = true;
-                                }
+                                wasActiveM = mp_stop();
                                 stopAudio();
                                 showWaitSequence();
                                 waitShown = true;

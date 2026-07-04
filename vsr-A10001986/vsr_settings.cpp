@@ -65,13 +65,8 @@
 #include <SD.h>
 #include <SPI.h>
 #include <FS.h>
-#ifdef USE_SPIFFS
-#define MYNVS SPIFFS
-#include <SPIFFS.h>
-#else
 #define MYNVS LittleFS
 #include <LittleFS.h>
-#endif
 #include <Update.h>
 
 #include "vsrdisplay.h"
@@ -126,7 +121,7 @@ static char       *uploadRealFileNames[MAX_SIM_UPLOADS] = { NULL };
 // struct is saved as such. Append new stuff.
 static struct [[gnu::packed]] {
     uint8_t  brightness   = DEF_BRI;
-    uint8_t  curSoftVol   = DEFAULT_VOLUME;
+    uint8_t  curVolume    = DEFAULT_VOLUME;
     uint8_t  showUpdAvail = 1;
     uint8_t  updateV      = 0;
     uint8_t  updateR      = 0;
@@ -559,18 +554,19 @@ static bool read_settings(File configFile, int cfgReadCount)
         wd |= CopyCheckValidNumParm(json["bttfnTT"], settings.bttfnTT, sizeof(settings.bttfnTT), 0, 1, DEF_BTTFN_TT);
         wd |= CopyCheckValidNumParm(json["ignTT"], settings.ignTT, sizeof(settings.ignTT), 0, 1, DEF_IGN_TT);
 
-        #ifdef VSR_HAVEMQTT
-        wd |= CopyCheckValidNumParm(json["useMQTT"], settings.useMQTT, sizeof(settings.useMQTT), 0, 1, 0);
-        wd |= CopyTextParm(json["mqttServer"], settings.mqttServer, sizeof(settings.mqttServer));
-        wd |= CopyCheckValidNumParm(json["mqttV"], settings.mqttVers, sizeof(settings.mqttVers), 0, 1, 0);
-        wd |= CopyTextParm(json["mqttUser"], settings.mqttUser, sizeof(settings.mqttUser));
-        #endif
-
         wd |= CopyCheckValidNumParm(json["TCDpresent"], settings.TCDpresent, sizeof(settings.TCDpresent), 0, 1, DEF_TCD_PRES);
         wd |= CopyCheckValidNumParm(json["noETTOLead"], settings.noETTOLead, sizeof(settings.noETTOLead), 0, 1, DEF_NO_ETTO_LEAD);
         
         wd |= CopyCheckValidNumParm(json["CfgOnSD"], settings.CfgOnSD, sizeof(settings.CfgOnSD), 0, 1, DEF_CFG_ON_SD);
         //wd |= CopyCheckValidNumParm(json["sdFreq"], settings.sdFreq, sizeof(settings.sdFreq), 0, 1, DEF_SD_FREQ);
+
+        #ifdef VSR_HAVEMQTT
+        wd |= CopyCheckValidNumParm(json["useMQTT"], settings.useMQTT, sizeof(settings.useMQTT), 0, 1, 0);
+        wd |= CopyTextParm(json["mqttServer"], settings.mqttServer, sizeof(settings.mqttServer));
+        wd |= CopyCheckValidNumParm(json["mqttV"], settings.mqttVers, sizeof(settings.mqttVers), 0, 1, 0);
+        wd |= CopyTextParm(json["mqttUser"], settings.mqttUser, sizeof(settings.mqttUser));
+        wd |= CopyCheckValidNumParm(json["pMP"], settings.pubMP, sizeof(settings.pubMP), 0, 1, 0);
+        #endif
 
     } else {
 
@@ -634,19 +630,20 @@ void write_settings()
     json["useFPO"] = (const char *)settings.useFPO;
     json["bttfnTT"] = (const char *)settings.bttfnTT;
     json["ignTT"] = (const char *)settings.ignTT;
-    
-    #ifdef VSR_HAVEMQTT
-    json["useMQTT"] = (const char *)settings.useMQTT;
-    json["mqttServer"] = (const char *)settings.mqttServer;
-    json["mqttV"] = (const char *)settings.mqttVers;
-    json["mqttUser"] = (const char *)settings.mqttUser;
-    #endif
 
     json["TCDpresent"] = (const char *)settings.TCDpresent;
     json["noETTOLead"] = (const char *)settings.noETTOLead;
 
     json["CfgOnSD"] = (const char *)settings.CfgOnSD;
     //json["sdFreq"] = (const char *)settings.sdFreq;
+
+    #ifdef VSR_HAVEMQTT
+    json["useMQTT"] = (const char *)settings.useMQTT;
+    json["mqttServer"] = (const char *)settings.mqttServer;
+    json["mqttV"] = (const char *)settings.mqttVers;
+    json["mqttUser"] = (const char *)settings.mqttUser;
+    json["pMP"] = (const char *)settings.pubMP;
+    #endif
 
     writeJSONCfgFile(json, cfgName, FlashROMode, mainConfigHash, &mainConfigHash);
 }
@@ -826,8 +823,8 @@ void loadCurVolume()
         #ifdef VSR_DBG
         Serial.println("loadCurVolume: extracting from secSettings");
         #endif
-        if(secSettings.curSoftVol <= 19) {
-            curSoftVol = secSettings.curSoftVol;
+        if(secSettings.curVolume <= VOL_LEVELS - 1) {
+            aud_state.curVolume = secSettings.curVolume;
         }
     } else {
         #ifdef SETTINGS_TRANSITION
@@ -837,9 +834,9 @@ void loadCurVolume()
         if(openCfgFileRead(volCfgName, configFile)) {
             DECLARE_S_JSON(512,json);
             if(!readJSONCfgFile(json, configFile)) {
-                if(!CopyCheckValidNumParm(json["volume"], temp, sizeof(temp), 0, 19, DEFAULT_VOLUME)) {
+                if(!CopyCheckValidNumParm(json["volume"], temp, sizeof(temp), 0, VOL_LEVELS - 1, DEFAULT_VOLUME)) {
                     uint8_t ncv = atoi(temp);
-                    if(ncv <= 19) curSoftVol = ncv;
+                    if(ncv <= VOL_LEVELS - 1) aud_state.curVolume = ncv;
                 }
             } 
             configFile.close();
@@ -854,7 +851,7 @@ void storeCurVolume()
 {
     // Used to keep secSettings up-to-date in case
     // of delayed save
-    secSettings.curSoftVol = curSoftVol;
+    secSettings.curVolume = aud_state.curVolume;
 }
 
 void saveCurVolume()
@@ -1075,13 +1072,13 @@ void saveMusFoldNum()
 void loadShuffle()
 {
     if(haveSD && haveTerSettings) {
-        mpShuffle = !!terSettings.mpShuffle;
+        aud_state.mpShuffle = terSettings.mpShuffle;
     }
 }
 
 void saveShuffle()
 {
-    terSettings.mpShuffle = mpShuffle;
+    terSettings.mpShuffle = aud_state.mpShuffle;
     saveTerSettings(true);
 }
 
@@ -1306,7 +1303,7 @@ void doCopyAudioFiles()
     flushDelayedSave();
 
     unmount_fs();
-    delay(500);
+    delay(1000);
     
     esp_restart();
 }

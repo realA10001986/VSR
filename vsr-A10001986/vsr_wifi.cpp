@@ -128,6 +128,30 @@ static const char *apChannelCustHTMLSrc[14] = {
     ">11%s"
 };
 
+static const char *musFoldCustHTMLSrc[12] = {
+    "'>Music folder",
+    "mfol",
+    ">0%s%s1'",
+    ">1%s%s2'",
+    ">2%s%s3'",
+    ">3%s%s4'",
+    ">4%s%s5'",
+    ">5%s%s6'",
+    ">6%s%s7'",
+    ">7%s%s8'",
+    ">8%s%s9'",
+    ">9%s%s"
+};
+
+static const char *musFoldStates[6] = {
+    " No SD card",
+    " Not a folder",
+    " No audio files",
+    "", // (Needs processing)",
+    " Not found",
+    ""
+};
+
 #ifdef VSR_HAVEMQTT
 static const char *mqttpCustHTMLSrc[4] = {
     "'>Protocol version",
@@ -153,6 +177,7 @@ static const char *wmBuildTCDSSID(const char *dest, int op);
 static const char *wmBuildApChnl(const char *dest, int op);
 static const char *wmBuildBestApChnl(const char *dest, int op);
 
+static const char *wmBuildMusicFolder(const char *dest, int op);
 static const char *wmBuildHaveSD(const char *dest, int op);
 
 #ifdef VSR_HAVEMQTT
@@ -196,7 +221,7 @@ WiFiManagerParameter custom_ssidcm("ssidcm", "Network name (SSID) of TCD-AP", se
 WiFiManagerParameter custom_passcm("passcm", "Password for TCD-AP", settings.cm_pass, 8, "minlength='8' pattern='[A-Za-z0-9\\-]+'");
 WiFiManagerParameter custom_tcdssid(wmBuildTCDSSID);
 WiFiManagerParameter custom_bssidcm("bsidcm", "TCD-AP BSSID (optional)", settings.cm_bssid, 17, "pattern='^([0-9A-Fa-f]{2}[:]){5}([0-9A-Fa-f]{2})$' placeholder='XX:XX:XX:XX:XX:XX'");
-WiFiManagerParameter custom_ecm("ecm", "Enable Car Mode", settings.ecmKludge, "", WFM_LABEL_AFTER|WFM_IS_CHKBOX);
+WiFiManagerParameter custom_ecm("ecm", "Enable Car Mode now", settings.ecmKludge, "", WFM_LABEL_AFTER|WFM_IS_CHKBOX);
 
 #if defined(VSR_MDNS) || defined(WM_MDNS)
 #define HNTEXT "Hostname<br><span>The Config Portal is accessible at http://<i>hostname</i>.local<br>(Valid characters: a-z/0-9/-)</span>"
@@ -230,7 +255,7 @@ WiFiManagerParameter custom_Bri("Bri", "Brightness level (0-15)", settings.Bri, 
 WiFiManagerParameter custom_ssDelay("ssDel", "Screen saver timer (1-999[minutes]; 0=off)", settings.ssTimer, 3, "type='number' min='0' max='999' autocomplete='off'");
 
 WiFiManagerParameter custom_sectstart_mp("MusicPlayer", WFM_SECTS|WFM_HL);
-WiFiManagerParameter custom_musicFolder("mfol", "Music folder (0-9)", settings.musicFolder, 1, "type='number' min='0' max='9'");
+WiFiManagerParameter custom_musicFolder(wmBuildMusicFolder);
 
 WiFiManagerParameter custom_sectstart_nm("Night mode", WFM_SECTS|WFM_HL);
 WiFiManagerParameter custom_diNmOff("dinMOff", "Display off", settings.diNmOff, "title='Dimmed if unchecked' class='mt5'", WFM_LABEL_AFTER|WFM_IS_CHKBOX);
@@ -261,10 +286,11 @@ WiFiManagerParameter custom_useMQTT("uMQTT", "Home Assistant support (MQTT)", se
 WiFiManagerParameter custom_state(wmBuildMQTTstate);
 WiFiManagerParameter custom_mqttServer("ha_server", "Broker IP[:port] or domain[:port]", settings.mqttServer, 79, "pattern='[a-zA-Z0-9\\.:\\-]+' placeholder='Example: 192.168.1.5'");
 WiFiManagerParameter custom_mqttVers(wmBuildMQTTprot);
-WiFiManagerParameter custom_mqttUser("ha_usr", "User[:Password]", settings.mqttUser, 63, "placeholder='Example: ronald:mySecret'", WFM_LABEL_BEFORE|WFM_FOOT);
+WiFiManagerParameter custom_mqttUser("ha_usr", "User[:Password]", settings.mqttUser, 63, "placeholder='Example: ronald:mySecret'", WFM_LABEL_BEFORE);
+WiFiManagerParameter custom_pubMP("pMP", "Publish Music Player status to bttf/vsr/mpstatus", settings.pubMP, "class='mt5'", WFM_LABEL_AFTER|WFM_IS_CHKBOX|WFM_SECTS|WFM_FOOT);
 #endif // HAVEMQTT
 
-static const int8_t wifiMenu[] = { 
+static const int8_t wifiMenu[] = {
     WM_MENU_WIFI,
     WM_MENU_PARAM,
     #ifdef VSR_HAVEMQTT
@@ -338,7 +364,7 @@ static int  *opType = NULL;
 #define MQTT_SHORT_INT (30*1000)
 #define MQTT_LONG_INT  (5*60*1000)
 static const char    emptyStr[1] = { 0 };
-static bool          useMQTT = false;
+bool                 useMQTT = false;
 static char          *mqttUser = (char *)emptyStr;
 static char          *mqttPass = (char *)emptyStr;
 static char          *mqttServer = (char *)emptyStr;
@@ -353,6 +379,7 @@ static bool          mqttPingDone = false;
 static unsigned long mqttPingNow = 0;
 static unsigned long mqttPingInt = MQTT_SHORT_INT;
 static uint16_t      mqttPingsExpired = 0;
+bool                 pubMP = false;
 #endif
 
 static unsigned int wmLenBuf = 0;
@@ -485,6 +512,8 @@ void wifi_setup()
       &custom_mqttServer,
       &custom_mqttVers,
       &custom_mqttUser,
+
+      &custom_pubMP,
 
       NULL
     };
@@ -678,6 +707,8 @@ void wifi_setup()
 
         char *t;
 
+        pubMP = evalBool(settings.pubMP);
+
         // No WiFi power save if we're using MQTT
         origWiFiOffDelay = wifiOffDelay = 0;
 
@@ -777,12 +808,13 @@ void wifi_loop()
         carMode = !!(wifiLoopSaveAction & WLA_SET_CM_ON);
         if(!*settings.cm_ssid) carMode = false;
         if(carMode != ocm) {
-            mp_stop();
+            vsrBusy = true;  // Force MP "off" state
+            mp_stop(true);
             stopAudio();
             saveCarMode();
             if(!(wifiLoopSaveAction & WLA_SET)) {
                 prepareReboot();
-                delay(500);
+                delay(1000);
                 esp_restart();
             }
         }
@@ -793,7 +825,8 @@ void wifi_loop()
 
         int temp;
 
-        mp_stop();
+        vsrBusy = true;  // Force MP "off" state
+        mp_stop(true);
         stopAudio();
 
         // Save settings and restart esp32
@@ -857,18 +890,6 @@ void wifi_loop()
             // Note: Parameters that need to be grabbed from the server directly
             // through getServerParam() must be handled in saveParamsCallback()
 
-            // Save music folder number (SD)
-            if(haveSD) {
-                mystrcpy(settings.musicFolder, &custom_musicFolder);
-                if(*settings.musicFolder) {
-                    temp = atoi(settings.musicFolder);
-                    if(temp >= 0 && temp <= 9) {
-                        musFolderNum = temp;
-                        saveMusFoldNum();
-                    }
-                }
-            }
-            
             // Save settings saved as secSettings
             mystrcpy(settings.Bri, &custom_Bri);
             if(*settings.Bri) {
@@ -880,6 +901,17 @@ void wifi_loop()
             evalCB(settings.upd, &custom_upd);
             showUpdAvail = evalBool(settings.upd);
             saveAllSecCP();
+
+            // Extract settings saved only as terSettings
+            if(haveSD) {
+                if(*settings.musicFolder) {
+                    temp = atoi(settings.musicFolder);
+                    if(temp >= 0 && temp <= 9) {
+                        musFolderNum = temp;
+                        saveMusFoldNum();
+                    }
+                }
+            }
 
             evalCB(settings.smoothpw, &custom_smoothpw);
             evalCB(settings.fluct, &custom_fluct);
@@ -930,6 +962,7 @@ void wifi_loop()
             evalCB(settings.useMQTT, &custom_useMQTT);
             strcpytrim(settings.mqttServer, custom_mqttServer.getValue());
             strcpyutf8(settings.mqttUser, custom_mqttUser.getValue(), sizeof(settings.mqttUser));
+            evalCB(settings.pubMP, &custom_pubMP);
             #endif
 
         }
@@ -944,7 +977,7 @@ void wifi_loop()
         Serial.flush();
 
         prepareReboot();
-        delay(500);
+        delay(1000);
         esp_restart();
     }
 
@@ -1225,7 +1258,8 @@ bool wifiOnWillBlock()
             }
         }
     } else {            // We are in STA mode
-        if(!wifiIsOff) return false;
+        if(!wifiIsOff && (WiFi.status() == WL_CONNECTED)) 
+            return false;
     }
 
     return true;
@@ -1397,6 +1431,7 @@ static void saveParamsCallback(int paramspage)
 
     switch(paramspage) {
     case 1:
+        getServerParam("mfol", settings.musicFolder, 1, 0, 9, 0);
         break;
     case 2:
         #ifdef VSR_HAVEMQTT
@@ -1413,7 +1448,8 @@ static void preUpdateCallback()
     wifiAPOffDelay = 0;
     origWiFiOffDelay = 0;
 
-    mp_stop();
+    vsrBusy = true;    // Force MP "off" state
+    mp_stop(true);
     stopAudio();
 
     flushDelayedSave();
@@ -1533,24 +1569,19 @@ static void updateConfigPortalValues()
     setCBVal(&custom_uFPO, settings.useFPO);
     setCBVal(&custom_bttfnTT, settings.bttfnTT);
     setCBVal(&custom_ignTT, settings.ignTT);
-    
-    #ifdef VSR_HAVEMQTT
-    setCBVal(&custom_useMQTT, settings.useMQTT);
-    custom_mqttServer.setValue(settings.mqttServer);
-    custom_mqttUser.setValue(settings.mqttUser);
-    #endif
-    
+
     setCBVal(&custom_TCDpresent, settings.TCDpresent);
     setCBVal(&custom_noETTOL, settings.noETTOLead);
 
     setCBVal(&custom_CfgOnSD, settings.CfgOnSD);
     //setCBVal(&custom_sdFrq, settings.sdFreq);
-}
 
-void updateConfigPortalMFValues()
-{
-    sprintf(settings.musicFolder, "%d", musFolderNum);
-    custom_musicFolder.setValue(settings.musicFolder);
+    #ifdef VSR_HAVEMQTT
+    setCBVal(&custom_useMQTT, settings.useMQTT);
+    custom_mqttServer.setValue(settings.mqttServer);
+    custom_mqttUser.setValue(settings.mqttUser);
+    setCBVal(&custom_pubMP, settings.pubMP);
+    #endif
 }
 
 void updateConfigPortalBriValues()
@@ -1717,6 +1748,45 @@ static const char *wmBuildBestApChnl(const char *dest, int op)
     return NULL;
 }
 
+static const char *wmBuildMusicFolder(const char *dest, int op)
+{
+    if(op == WM_CP_DESTROY) {
+        if(dest) free((void *)dest);
+        return NULL;
+    }
+
+    sprintf(settings.musicFolder, "%1d", musFolderNum);
+
+    unsigned int l = calcSelectMenu(musFoldCustHTMLSrc, 12, settings.musicFolder);
+
+    for(int i = 0; i < 10; i++) {
+        l -= 2; // "%s"
+        l += strlen(musFoldStates[mfstatus[i] + 4]);
+    }
+
+    if(op == WM_CP_LEN) {
+        wmLenBuf = l;
+        return (const char *)&wmLenBuf;
+    }
+    
+    char *target = (char *)malloc(l);
+
+    strcpy(target, custHTMLHdr1);
+    strcat(target, custHTMLHdr2);
+    strcat(target, musFoldCustHTMLSrc[1]);
+    strcat(target, musFoldCustHTMLSrc[0]);
+    strcat(target, custHTMLSHdr);
+    strcat(target, settings.musicFolder);
+    sprintf(target + strlen(target), custHTMLSelFmt, musFoldCustHTMLSrc[1], musFoldCustHTMLSrc[1]);
+    for(int i = 0; i < 12 - 2; i++) {
+        if(musFolderNum == i) strcat(target, custHTMLSel);
+        sprintf(target + strlen(target), 
+            musFoldCustHTMLSrc[i+2], musFoldStates[mfstatus[i] + 4], (i == 12 - 3) ? osde : ooe);
+    }
+
+    return target;
+}
+
 static const char *wmBuildHaveSD(const char *dest, int op)
 {
     if(op == WM_CP_DESTROY) {
@@ -1834,7 +1904,7 @@ static void doReboot()
 {
     delay(1000);
     prepareReboot();
-    delay(500);
+    delay(1000);
     esp_restart();
 }
 
@@ -2304,21 +2374,25 @@ static void mqttCallback(char *topic, byte *payload, unsigned int length)
     int i = 0, j, ml = (length <= 255) ? length : 255;
     char tempBuf[256];
     static const char *cmdList[] = {
-      "TIMETRAVEL",       // 0
-      "DISPLAY_PW",       // 1
-      "DISPLAY_TEMP",     // 2
-      "DISPLAY_SPEED",    // 3
-      "WWW",              // 4 [Placeholder]
-      "MP_SHUFFLE_ON",    // 5 
-      "MP_SHUFFLE_OFF",   // 6
-      "MP_PLAY",          // 7
-      "MP_STOP",          // 8
-      "MP_NEXT",          // 9
-      "MP_PREV",          // 10
-      "MP_FOLDER_",       // 11  MP_FOLDER_0..MP_FOLDER_9
-      "PLAYKEY_",         // 12  PLAYKEY_1..PLAYKEY_9
-      "STOPKEY",          // 13
-      "INJECT_",          // 14
+      "\x01" "TIMETRAVEL",       // 0
+      "\x01" "DISPLAY_PW",       // 1
+      "\x01" "DISPLAY_TEMP",     // 2
+      "\x01" "DISPLAY_SPEED",    // 3
+      "\x01" "WWW",              // 4  [Placeholder]
+      "\x41" "MP_SHUFFLE_ON",    // 5   queued while busy
+      "\x41" "MP_SHUFFLE_OFF",   // 6   queued while busy
+      "\x01" "MP_PLAY",          // 7
+      "\x41" "MP_STOP",          // 8   queued while busy
+      "\x01" "MP_NEXT",          // 9
+      "\x01" "MP_PREV",          // 10
+      "\x01" "MP_FOLDER_",       // 11  MP_FOLDER_0..MP_FOLDER_9
+      "\x01" "PLAYKEY_",         // 12  PLAYKEY_1..PLAYKEY_9
+      "\x41" "STOPKEY",          // 13  queued while busy
+      "\x01" "INJECT_",          // 14
+      "\x01" "VOLUME_UP",        // 15
+      "\x01" "VOLUME_DOWN",      // 16
+      "\x01" "VOLUME_SET_",      // 17  VOLUME_SET_0..VOLUME_SET_100
+      "\xc1" "MP_REQSTATUS",     // 18  executed even while off or busy
       NULL
     };
     static const char *cmdList2[] = {
@@ -2410,13 +2484,17 @@ static void mqttCallback(char *topic, byte *payload, unsigned int length)
             break;
         }
        
-    } else if(!vsrBusy && !strcmp(topic, "bttf/vsr/cmd")) {
+    } else if(!strcmp(topic, "bttf/vsr/cmd")) {
 
         // User commands
+
+        int tblen = 0;
+        uint8_t k = 0;
         
         while(cmdList[i]) {
-            j = strlen(cmdList[i]);
-            if((length >= j) && !strncmp((const char *)tempBuf, cmdList[i], j)) {
+            k = (uint8_t)*cmdList[i];
+            j = strlen(cmdList[i] + 1);
+            if((length >= j) && !strncmp((const char *)tempBuf, cmdList[i] + 1, j)) {
                 break;
             }
             i++;          
@@ -2424,10 +2502,18 @@ static void mqttCallback(char *topic, byte *payload, unsigned int length)
 
         if(!cmdList[i]) return;
 
+        if(!FPBUnitIsOn && (!(k & 0x80)))
+            return;
+
+        if(vsrBusy && (!(k & 0x40)))
+            return;
+
         // What needs to be handled here:
         // - complete command parsing
         // - stuff to execute when fake power is off
         // All other stuff translated into command and queued
+
+        tblen = strlen(tempBuf);
         
         switch(i) {
         case 1:
@@ -2435,25 +2521,38 @@ static void mqttCallback(char *topic, byte *payload, unsigned int length)
         case 3:
             addCmdQueue(10 + i - 1);
             break;
+        case 4:
+            break;
         case 5:
         case 6:
             addCmdQueue((i == 5) ? 555 : 222);
             break;
         case 11:
-            if(strlen(tempBuf) > j && tempBuf[j] >= '0' && tempBuf[j] <= '9') {
+            if(tblen > j && tempBuf[j] >= '0' && tempBuf[j] <= '9') {
                 addCmdQueue(50 + (uint32_t)(tempBuf[j] - '0'));
             }
             break;
         case 12:
-            if(strlen(tempBuf) > j && tempBuf[j] >= '1' && tempBuf[j] <= '9') {
+            if(tblen > j && tempBuf[j] >= '1' && tempBuf[j] <= '9') {
                 addCmdQueue(500 + (uint32_t)(tempBuf[j] - '0'));
             }
             break;
         case 14:
-            if(strlen(tempBuf) > j) {
+            if(tblen > j) {
                 addCmdQueue(atoi(tempBuf+j) | 0x80000000);
             }
             break;
+        case 17:
+            if(tblen > j && tempBuf[j] >= '0' && tempBuf[j] <= '9') {
+                int p = atoi(tempBuf+j);
+                if(p >= 0 && p <= 100) {
+                    addCmdQueue(300 + ((VOL_LEVELS - 1) * p / 100));
+                }
+            }
+            break;
+        case 18:
+            mp_sendStatus(1);
+            break; 
         default:
             addCmdQueue(1000 + i);
         }
@@ -2560,20 +2659,26 @@ static void mqttSubscribe()
             Serial.println("MQTT: Failed to subscribe to command topics");
             #endif
         }
+
+        // Send out music player status as soon as possible
+        mp_sendStatus(1);
+        
         mqttSubAttempted = true;
     }
 }
 
-bool mqttState()
+bool mqttConnected()
 {
-    return (useMQTT && mqttClient.connected());
+    return (useMQTT && (mqttClient.state() == MQTT_CONNECTED));
 }
 
-void mqttPublish(const char *topic, const char *pl, unsigned int len)
+bool mqttPublish(const char *topic, const char *pl, unsigned int len)
 {
     if(useMQTT) {
-        mqttClient.publish(topic, (uint8_t *)pl, len, false);
+        return mqttClient.publish(topic, (uint8_t *)pl, len, false);
     }
+
+    return true;
 }           
 
 #endif

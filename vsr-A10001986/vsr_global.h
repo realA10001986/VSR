@@ -15,8 +15,8 @@
  ***                          Version Strings                          ***
  *************************************************************************/
 
-#define VSR_VERSION "V1.32"                 // Do NOT change format.
-#define VSR_VERSION_EXTRA "APR272026"
+#define VSR_VERSION "V1.33"                 // Do NOT change format.
+#define VSR_VERSION_EXTRA "JUL042026"
 
 /*************************************************************************
  ***             Configuration for hardware/peripherals                ***
@@ -40,9 +40,6 @@
 // without 5s lead" is set on the TCD, the VSR option "TCD signals without 
 // lead" must be set, too.
 #define ETTO_LEAD 5000
- 
-// Use SPIFFS (if defined) or LittleFS (if undefined; esp32-arduino >= 2.x)
-//#define USE_SPIFFS
 
 // Enable LED display test at boot
 //#define VSR_DIAG
@@ -54,6 +51,10 @@
 
 //#define VSR_DBG               // Generic except below
 //#define VSR_DBG_NET           // Prop network related
+
+#ifdef VSR_DBG
+//#define VSR_PROFILER
+#endif
 
 /*************************************************************************
  ***                  esp32-arduino version detection                  ***
