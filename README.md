@@ -209,7 +209,7 @@ In this mode, the buttons light up when briefly pressed, and stay lit after _hol
     </tr>
 </table>
 
-[Here](https://github.com/realA10001986/VSR/blob/main/CheatSheet.pdf) is a cheat sheet for printing or screen-use. (Note that MacOS' preview application has a bug that scrambles the links in the document. Acrobat Reader does it correctly.)
+[Here](https://github.com/realA10001986/VSR/blob/main/CheatSheet.pdf) is a cheat sheet for printing or screen-use.
 
 ## Time Travel
 
@@ -484,7 +484,7 @@ Afterwards, the VSR and the TCD can communicate wirelessly and
 
 1: Not supported through HA/MQTT [_INJECT_](#the-inject_x-command) command
 
-[Here](CheatSheet.pdf) is a cheat sheet for printing or screen-use. (Note that MacOS' preview application has a bug that scrambles the links in the document. Acrobat Reader does it correctly.)
+[Here](CheatSheet.pdf) is a cheat sheet for printing or screen-use.
 
 ### Connecting a TCD by wire
 
