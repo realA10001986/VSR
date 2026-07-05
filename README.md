@@ -277,7 +277,7 @@ Your VSR can also display speed, provided a TCD is connected through [BTTFN](#bt
 
 The SD card, apart from being required for [installing](#sound-pack-installation) of the sound-pack, can be used for substituting built-in sound effects and for music played back by the [Music player](#the-music-player). Also, it is _strongly recommended_ to store [secondary settings](#-save-secondary-settings-on-sd) on the SD card to minimize [Flash Wear](#flash-wear). Button and display modes are only saved on SD; if no SD card is present, they are reset to default upon power-up.
 
-Note that the SD card must be inserted before powering up the device. It is not recognized if inserted while the VSR is running. Furthermore, do not remove the SD card while the device is powered.
+The SD card must be inserted before powering up the device. It is not recognized if inserted while the VSR is running. Furthermore, do not remove the SD card while the device is powered.
 
 ### Sound substitution
 
@@ -309,7 +309,9 @@ To delete a file from the SD card, upload a file whose name is prefixed with "de
 
 For technical reasons, the VSR must reboot after mp3 files are uploaded in this way.
 
-Please remember that the maximum bitrate for mp3 files is 128kbps. Also note that the uploaded file is stored to the root folder of the SD card, so this way of uploading cannot be used to upload music files for the Music Player. 
+The maximum bitrate for mp3 files is 128kbps. 
+
+The uploaded files are stored to the root folder of the SD card, so this way of uploading cannot be used to upload music files for the Music Player. 
 
 ## The Music Player
 
@@ -488,7 +490,7 @@ Afterwards, the VSR and the TCD can communicate wirelessly and
 
 ### Connecting a TCD by wire
 
->Note that a wired connection only allows for synchronized time travel sequences, no other communication takes place. A wireless connection over BTTFN/WiFi is much more powerful and therefore recommended over a wired connection.
+>A wired connection only allows for synchronized time travel sequences, no other communication takes place. A wireless connection over BTTFN/WiFi is much more powerful and therefore recommended over a wired connection.
 
 For a connection by wire, connect GND and GPIO on the VSR's "Time Travel" connector to the TCD like in the table below:
 
@@ -631,7 +633,7 @@ If you are using a fresh ESP32, please go <a href="https://install.out-a-ti.me">
 
 The firmware comes with a sound-pack which needs to be installed separately. The sound-pack is not updated as often as the firmware itself. There will be a message in the Config Portal and the VSR will briefly display "INS"-"SND"-"PCK" during boot when/if the sound-pack needs to be updated.
 
-_Note that installing the sound-pack requires an [SD card](#sd-card)._
+_Installing the sound-pack requires an [SD card](#sd-card)._
 
 The first step is to extract "sound-pack-vrXX.zip" (which is included in every [Release package](https://github.com/realA10001986/VSR/releases)). It contains one file, named "VSRA.bin".
 
@@ -670,7 +672,7 @@ This leads to the firmware update and audio upload page.
 
 To upload a new firmware, such as published in the [Release packages](https://github.com/realA10001986/VSR/releases), select the "**vsr-A10001986-Vx.xx.bin**" file as contained in the Release package in the _top_ file selector and click *Update*.
 
-You can also install the VSR's sound-pack on this page; download the sound-pack (which is included in every [Release package](https://github.com/realA10001986/VSR/releases)), extract it and select the resulting VSRA.bin file in the bottom file selector. Finally, click *Upload*. Note that an SD card is required for this operation.
+You can also install the VSR's sound-pack on this page; download the sound-pack (which is included in every [Release package](https://github.com/realA10001986/VSR/releases)), extract it and select the resulting VSRA.bin file in the bottom file selector. Finally, click *Upload*. An SD card is required for this operation.
 
 See also [here](#firmware-installation--firmware-update).
 
@@ -769,7 +771,9 @@ If this is checked, the button lights permanently reflect the current [button mo
 
 ##### &#9193; Play time travel sounds
 
-If other props are connected, they might bring their own time travel sound effects. In this case, you can uncheck this to disable the VSR's own time travel sounds. Note that this only covers sounds played during time travel, not other sound effects.
+If other props are connected, they might bring their own time travel sound effects. In this case, you can uncheck this to disable the VSR's own time travel sounds. 
+
+This option only covers sounds played during time travel, not other sound effects.
 
 ##### &#9193; Play TCD-alarm sounds
 
@@ -883,7 +887,7 @@ If checked, the VSR will connect to the broker (if configured) and send and rece
 
 ##### &#9193; Broker IP[:port] or domain[:port]
 
-The broker server address. Can be a domain (eg. "myhome.me") or an IP address (eg "192.168.1.5"). The default port is 1883. If a different port is to be used, it can be specified after the domain/IP and a colon ":", for example: "192.168.1.5:1884". Specifying the IP address is preferred over a domain since the DNS call adds to the network overhead. Note that ".local" (MDNS) domains are not supported.
+The broker server address. Can be a domain (eg. "myhome.me") or an IP address (eg "192.168.1.5"). The default port is 1883. If a different port is to be used, it can be specified after the domain/IP and a colon ":", for example: "192.168.1.5:1884". Specifying the IP address is preferred over a domain since the DNS call adds to the network overhead. ".local" (MDNS) domains are not supported.
 
 ##### &#9193; Protocol version
 
