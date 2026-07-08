@@ -1,6 +1,6 @@
 # VSR (Delorean Time Machine)
 
-This [repository](https://vsr.out-a-ti.me) holds the most current firmware for a replica of the Voltage Systems Regulator ("VSR") known from the Delorean Time Machine, fully compatible with the [CircuitSetup](https://circuitsetup.us) line of props. A kit might perhaps be at some point available [here](https://movieprops.blog/shop/); you can, however, make your own circuit boards using the files in the [Electronics](https://github.com/realA10001986/VSR/tree/main/Electronics) folder.
+This [repository](https://vsr.out-a-ti.me) holds the most current firmware for a replica of the Voltage Systems Regulator ("VSR") known from the Delorean Time Machine, fully compatible with the [CircuitSetup](https://circuitsetup.us) line of props. A kit might perhaps be at some point available [here](https://movieprops.blog/shop/); you can, however, make your own circuit boards using the files in the [Electronics](https://github.com/realA10001986/VSR/tree/master/Electronics) folder.
 
 [<img src="img/myvsr1s.jpg">](img/myvsr1b.jpg)
 [<img src="img/myvsr3s.jpg">](img/myvsr3b.jpg)
@@ -209,7 +209,7 @@ In this mode, the buttons light up when briefly pressed, and stay lit after _hol
     </tr>
 </table>
 
-[Here](https://github.com/realA10001986/VSR/blob/main/CheatSheet.pdf) is a cheat sheet for printing or screen-use.
+[Here](https://github.com/realA10001986/VSR/blob/CheatSheet.pdf) is a cheat sheet for printing or screen-use.
 
 ## Time Travel
 
@@ -624,7 +624,7 @@ If a previous version of the VSR firmware is installed on your device, you can u
 
 <details>
 <summary>Installing on a fresh ESP32...</summary>
-If you are using a fresh ESP32, please go <a href="https://install.out-a-ti.me">here</a> and follow the instructions, or - if you are a nerd and want to deal with source code, compilers'n'stuff - see <a href="https://github.com/realA10001986/VSR/blob/main/vsr-A10001986/vsr-A10001986.ino">vsr-A10001986.ino</a> for detailed build and upload information.
+If you are using a fresh ESP32, please go <a href="https://install.out-a-ti.me">here</a> and follow the instructions, or - if you are a nerd and want to deal with source code, compilers'n'stuff - see <a href="https://github.com/realA10001986/VSR/blob/master/vsr-A10001986/vsr-A10001986.ino">vsr-A10001986.ino</a> for detailed build and upload information.
 </details>
   
 *After a firmware update, the "wait" symbol might be shown a bit longer while booting. Do NOT unplug the device during this time.*
