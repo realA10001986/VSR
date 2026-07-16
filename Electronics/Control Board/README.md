@@ -35,7 +35,7 @@ Since the minimum order amount is two pieces, [here](https://jb.out-a-ti.me) is 
 2) When clicking "Next", JLCPCB will complain about "unselected parts". Click "Do not place".
 
 #### You additionally need:
-- 1x NodeMCU ESP32 devboard, preferably with CP2102 USB-to-UART converter. 38pin, 25mm wide. For example: [This one](https://www.waveshare.com/nodemcu-32s.htm)
+- 1x NodeMCU ESP32 devboard, preferably with CP2102 USB-to-UART converter. 38pin, 25mm wide. [Specs](https://wiki.geekworm.com/NodeMCU-32S)
 - If out of stock at JLCPCB: 2x 19pin femals headers, 8.5mm high, 2.54mm pitch (LCSC part number C7509529 or C2932678). If you can't get them for exactly 19 pins, get some longer ones and cut them.
 - Screw terminals and XH connector on the back of the Control Board:
   - 2x DG308-2.54-02P-14-00A(H) (LCSC part number C699496) (or [any other](https://www.mouser.com/ProductDetail/Amphenol-Anytek/VN02A1500000G?qs=Mv7BduZupUgf8d3Xo6xdxw%3D%3D); 2.54mm pitch, 2 pins) for 5V and 12V connectors;
