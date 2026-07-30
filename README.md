@@ -21,7 +21,7 @@ Features include
 - [Home Assistant](#home-assistant--mqtt) (MQTT) support
 - built-in OTA installer for firmware updates and audio files
 
-For information on updating the firmware on your VSR, see [here](#firmware-installation--firmware-update).
+For information on updating the firmware of your VSR, see [here](#firmware-installation--firmware-update).
 
 ## Initial Configuration
 
