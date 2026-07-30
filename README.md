@@ -31,7 +31,7 @@ For information on updating the firmware on your VSR, see [here](#firmware-insta
 
 The first step is to establish access to the VSR's configuration website ("Config Portal") in order to configure your VSR:
 
-- Power up the VSR and wait until it has finished booting.
+- Power up the VSR and wait a few seconds.
 - Connect your computer or handheld device to the WiFi network "VSR-AP".
 - Navigate your browser to http://vsr.local or http://192.168.4.1 to enter the Config Portal.
 
