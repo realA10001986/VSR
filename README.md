@@ -29,7 +29,7 @@ For information on updating the firmware on your VSR, see [here](#firmware-insta
 
 >Buttons can be _pressed_, which means a brief press-and-release, or _held_, meaning pressing and holding the button for 2 seconds.
 
-The first step is to establish access to the VSR's configuration web site ("Config Portal") in order to configure your VSR:
+The first step is to establish access to the VSR's configuration website ("Config Portal") in order to configure your VSR:
 
 - Power up the VSR and wait until it has finished booting.
 - Connect your computer or handheld device to the WiFi network "VSR-AP".
