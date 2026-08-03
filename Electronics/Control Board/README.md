@@ -10,9 +10,10 @@ The Control Board is the heart of the VSR. It can run off 5V or 12V, and it is m
 
 It has connectors for
 - power (5V or 12V, back side; if you choose to mount the board in another way than intended, the connectors can also be put on the front)
-- time travel button (back side; if you choose to mount the board in another way than intended, the connector can also be put on the front)
+- time travel button ("TT", back side; if you choose to mount the board in another way than intended, the connector can also be put on the front)
+- time travel output ("IO14"): IO14 signals an ongoing time travel by going "high" (2.7-3.3V) for the duration of the time travel. Please do not use this connector as a power supply.
 - temperature sensor (back side)
-- Buttons & lights: Those JST XH four-pin connectors have two wires for the button (BUT, BUT) and two for the lights inside the buttons (L+, L-). BUT and BUT are supposed to be connected when the button is pressed, and open when it is released. The voltage for the lights inside the buttons can be selected from 3.3V, 5V, and 12V. There is a "T" shaped solder jumper on the Control Board. Connect "3V3" and "LVcc" for 3.3V, for instance. If you go for 12V, the Control Board must be powered with 12V through the respective connector on the back of the PCB. On the pictures above, 5V is selected.
+- Buttons & lights: Those JST XH four-pin connectors have two wires for the button (BUT, BUT) and two for the LEDs inside the buttons (L+, L-). BUT and BUT are supposed to be connected when the button is pressed, and open when it is released. The voltage for the LEDs inside the buttons can be set to 3.3V, 5V, or 12V to accommodate their built-in resistors, if any. There is a "T" shaped solder jumper on the Control Board for voltage selection: Connect "3V3" and "LVcc" for 3.3V, for instance. On the pictures above, 5V is selected. If you go for 12V, the Control Board must be powered with 12V through the respective connector on the back of the PCB. *Only LEDs are supported. Do not connect incandescent light bulbs.*
 - Pushwheels and LED display: Pushwheels and LED display are daisy-chained.
 - speaker for audio (PH 2pin).
 
