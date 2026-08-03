@@ -215,9 +215,18 @@ In this mode, the buttons light up when briefly pressed, and stay lit after _hol
 
 To trigger a "time travel" stand-alone, select the _Operation_ [button mode](#button-modes), and press button "9".
 
-You can also connect a dedicated time travel button to your VSR; the button must connect "TT" to "3.3V" on the "Time Travel" connector. Pressing this button briefly will trigger a time travel.
+You can also connect a dedicated time travel button to your VSR; the button must connect "TT" to "3.3V" on the 4-pin connector on the Control Board. Pressing this button briefly will trigger a time travel.
 
 Other ways of triggering a time travel are available if a [Time Circuits Display](#connecting-a-time-circuits-display) is connected.
+
+#### Time Travel output
+
+During a time travel sequence, the "IO14" connector's pin is HIGH (2.7-3.3V), otherwise LOW. This can be used for flux lights to light up during a time travel, for instance. 
+
+Please do not power any peripheral through this pin; instead, use a Standard 3.3V relay module ("1 channel 3.3V relay module"), and connect 
+- "GND" of the Control Board's connector to "-"/"GND"/"DC-" on the relay module,
+- "IO14" of the connector to "S"/"IN" on the relay module, and
+- "3.3V" of the connector to "+"/"VCC"/"3.3V"/"DC+" on the relay module.
 
 ## Temperature Display
 
