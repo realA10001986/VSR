@@ -541,33 +541,33 @@ The VSR supports MQTT protocol versions 3.1.1 and 5.0.
 ### Control the VSR via MQTT
 
 The VSR can be controlled through messages sent to topic **bttf/vsr/cmd**. Supported commands are
-- TIMETRAVEL: Start a [time travel](#time-travel)
-- DISPLAY_PW: Set [display mode](#display-modes) to "pushwheels"
-- DISPLAY_TEMP: Set [display mode](#display-modes) to "temperature"
-- DISPLAY_SPEED: Set [display mode](#display-modes) to "speed"
-- MP_PLAY: Starts the [Music Player](#the-music-player)
-- MP_STOP: Stops the [Music Player](#the-music-player)
-- MP_NEXT: Jump to next track
-- MP_PREV: Jump to previous track
-- MP_SHUFFLE_ON: Enables shuffle mode in [Music Player](#the-music-player)
-- MP_SHUFFLE_OFF: Disables shuffle mode in [Music Player](#the-music-player)
-- MP_FOLDER_x: x being 0-9, set folder number for [Music Player](#the-music-player)
-- MP_REQSTATUS: Publish current [music player status](#-publish-music-player-status-to-bttfvsrmpstatus) to bttf/vsr/mpstatus
-- VOLUME_UP, VOLUME_DOWN: Increase/decrease volume by a notch
-- VOLUME_SET_x: Set volume to x% (x=0-100)
-- PLAYKEY_x: Play keyX.mp3 (from SD card), X being in the range from 1 to 9.
-- STOPKEY: Stop playback of keyX file. Does nothing if no keyX file is currently played back.
-- INJECT_x: See immediately below.
+- ```TIMETRAVEL```: Start a [time travel](#time-travel)
+- ```DISPLAY_PW```: Set [display mode](#display-modes) to "pushwheels"
+- ```DISPLAY_TEMP```: Set [display mode](#display-modes) to "temperature"
+- ```DISPLAY_SPEED```: Set [display mode](#display-modes) to "speed"
+- ```MP_PLAY```: Starts the [Music Player](#the-music-player)
+- ```MP_STOP```: Stops the [Music Player](#the-music-player)
+- ```MP_NEXT```: Jump to next track
+- ```MP_PREV```: Jump to previous track
+- ```MP_SHUFFLE_ON```: Enables shuffle mode in [Music Player](#the-music-player)
+- ```MP_SHUFFLE_OFF```: Disables shuffle mode in [Music Player](#the-music-player)
+- ```MP_FOLDER_x```: x being 0-9, set folder number for [Music Player](#the-music-player)
+- ```MP_REQSTATUS```: Publish current [music player status](#-publish-music-player-status-to-bttfvsrmpstatus) to bttf/vsr/mpstatus
+- ```VOLUME_UP```, ```VOLUME_DOWN```: Increase/decrease volume by a notch
+- ```VOLUME_SET_x```: Set volume to x% (x=0-100)
+- ```PLAYKEY_x```: Play keyX.mp3 (from SD card), X being in the range from 1 to 9.
+- ```STOPKEY```: Stop playback of keyX file. Does nothing if no keyX file is currently played back.
+- ```INJECT_x```: See immediately below.
 
 #### The INJECT_x command
 
 This command allows remote control of the VSR through HA/MQTT in the same way as through the TCD keypad by injecting commands into the VSR command queue (hence the name). Commands are listed [here](#tcd-remote-command-reference); nearly all are supported. For example:
 
-To set volume level to 10 (8310), issue the following command: **INJECT_8310**
+To set volume level to 10 (8310), issue the following command: ```INJECT_8310```
 
-To play "key2.mp3" (8502), issue **INJECT_8502**
+To play "key2.mp3" (8502), issue ```INJECT_8502```
 
-To select the 'music1' folder (8051), issue **INJECT_8051**
+To select the 'music1' folder (8051), issue ```INJECT_8051```
 
 ### Setup
 
