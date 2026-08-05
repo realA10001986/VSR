@@ -589,7 +589,7 @@ If your VSR, along with a [Time Circuits Display](https://tcd.out-a-ti.me/), is 
 
 ![STAmode-car](img/stamode-car2.png)
 
-This configuration can easily achieved by putting both the TCD and the VSR in *Car Mode*:
+This configuration can easily be achieved by putting both the TCD and the VSR in *Car Mode*:
 
 #### TCD
 
