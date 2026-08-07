@@ -69,11 +69,11 @@ Click on "WiFi Configuration" and either select a network from the top of the pa
 
 >If there are several APs with identical SSID nearby, you can select a specific AP by its BSSID (AP's MAC address). You can either manually find out your AP's BSSID and enter it or have it filled out automatically: Click "Scan for networks", then "Show all". If you click on an AP, its BSSID will be copied into BSSID field in the form below. To see which AP is which, hover over the name to see its BSSID as a tooltip.
 
->Your VSR requests an IP address via DHCP, unless you entered valid data in the fields for static IP addresses (IP, gateway, netmask, DNS). If the device is inaccessible as a result of incorrect static IPs, wait until the VSR has completed its startup sequence, then _hold_ all three buttons until "ADM" is displayed, then _hold_ button "4C". After "RST" has been displayed, power-down the VSR. Upon power-up, the device is reset to DHCP.
+>Your VSR requests an IP address via DHCP, unless you entered valid data in the fields for static IP addresses (IP, gateway, netmask, DNS). If the device is inaccessible as a result of incorrect static IPs, wait until the VSR has completed its startup sequence, then _hold_ all three buttons until "ADM" is displayed, then _hold_ button ```4C```. After "RST" has been displayed, power-down the VSR. Upon power-up, the device is reset to DHCP.
 
 </details>
 
-If the VSR fails to connect, it falls back to AP-mode. You can trigger another connection attempt by _holding_ button "10" in [Admin button mode](#admin-mode).
+If the VSR fails to connect, it falls back to AP-mode. You can trigger another connection attempt by _holding_ button ```10``` in [Admin button mode](#admin-mode).
 
 #### Places without a WiFi network
 
@@ -110,7 +110,7 @@ It can be accessed as follows:
 
   >Accessing the Config Portal through this address requires the operating system of your handheld/computer to support Bonjour/mDNS: Windows 10 version TH2     (1511) [other sources say 1703] and later, Android 13 and later; MacOS and iOS since the dawn of time.
 
-  >If connecting to http://vsr.local fails due to a name resolution error, you need to find out your VSR's IP address: _Hold_ all three buttons until "ADM" is displayed, release all buttons and afterwards press button "4C". Your VSR will display its current IP address (a. - b. - c. - d). Then, on your handheld or computer, navigate to http://a.b.c.d (a.b.c.d being the IP address as displayed on your VSR) in order to enter the Config Portal.</details>
+  >If connecting to http://vsr.local fails due to a name resolution error, you need to find out your VSR's IP address: _Hold_ all three buttons until "ADM" is displayed, release all buttons and afterwards press button ```4C```. Your VSR will display its current IP address (a. - b. - c. - d). Then, on your handheld or computer, navigate to http://a.b.c.d (a.b.c.d being the IP address as displayed on your VSR) in order to enter the Config Portal.</details>
 
 In the main menu, click on "Settings" to configure your VSR. 
 
@@ -213,7 +213,7 @@ In this mode, the buttons light up when briefly pressed, and stay lit after _hol
 
 ## Time Travel
 
-To trigger a "time travel" stand-alone, select the _Operation_ [button mode](#button-modes), and press button "9".
+To trigger a "time travel" stand-alone, select the _Operation_ [button mode](#button-modes), and press button ```9```.
 
 You can also connect a dedicated time travel button to your VSR; the button must connect "TT" to "3.3V" on the 4-pin connector on the Control Board. Pressing this button briefly will trigger a time travel.
 
@@ -302,9 +302,9 @@ Your replacements need to be put in the root (top-most) directory of the SD card
 
 The firmware supports some additional user-provided sound effects, which it will load from the SD card. If the respective file is present, it will be used. If that file is absent, no sound will be played.
 
-- "key1.mp3" - "key9.mp3": Will be played when you type 800x (x being 1, 3, 4, 6, 7 or 9) or 850x (1-9) on the TCD (connected through BTTFN). Additionally, "key3.mp3"/"key6.mp3" will be played when you press "10" or "4C" in _Operation_ [button mode](#button-modes)
+- "key1.mp3" - "key9.mp3": Will be played when you type ```800x``` (x being 1, 3, 4, 6, 7 or 9) or ```850x``` (1-9) on the TCD (connected through BTTFN). Additionally, "key3.mp3"/"key6.mp3" will be played when you press ```10``` or ```4C``` in _Operation_ [button mode](#button-modes)
 
-> The seemingly odd numbering of the 800x range is because of synchronicity with other props, especially the TCD and its keymap where the Music Player occupies keys 2, 5, 8. Likewise, 8002, 8005 and 8008 control the VSR's Music Player (prev, play/stop, next).
+> The seemingly odd numbering of the 800x range is because of synchronicity with other props, especially the TCD and its keymap where the Music Player occupies keys 2, 5, 8. Likewise, ```8002```, ```8005``` and ```8008``` control the VSR's Music Player (prev, play/stop, next).
 
 Those files are not provided here. You can use any mp3, with a bitrate of 128kpbs or less.
 
@@ -336,9 +336,9 @@ Since manually renaming mp3 files is somewhat cumbersome, the firmware can do th
 
 To add files to a music folder later, just copy them to the folder and delete the file "TCD_DONE.TXT" (so that the firmware knows that something has changed). 
 
-To start and stop music playback, press button "10" while in _MusicPlayer_ [button mode](#button-modes). Pressing "9" jumps to the previous track, pressing "4C" to the next one. (The same can be achieved by entering codes on the TCD's keypad: 8002 = previous track, 8005 = play/stop, 8008 = next track).
+To start and stop music playback, press button ```10``` while in _MusicPlayer_ [button mode](#button-modes). Pressing ```9``` jumps to the previous track, pressing ```4C``` to the next one. (The same can be achieved by entering codes on the TCD's keypad: ```8002``` = previous track, ```8005``` = play/stop, ```8008``` = next track).
 
-By default, the tracks are played in order, starting at 000.mp3, followed by 001.mp3 and so on. _Holding_ button "10" enables Shuffle mode, button "4C" disables Shuffle mode. The selected shuffle mode is saved and persistent. _Holding_ "9" restarts the player at track number 0.
+By default, the tracks are played in order, starting at 000.mp3, followed by 001.mp3 and so on. _Holding_ button ```10``` enables Shuffle mode, button ```4C``` disables Shuffle mode. The selected shuffle mode is saved and persistent. _Holding_ ```9``` restarts the player at track number 0.
 
 See [here](#music-player-mode) and [here](#tcd-remote-command-reference) for a list of controls of the music player.
 
@@ -374,7 +374,7 @@ To connect your VSR to the TCD, just enter the TCD's hostname - usually "timecir
 Afterwards, the VSR and the TCD can communicate wirelessly and 
 - play time travel sequences in sync,
 - both play an alarm-sequence when the TCD's alarm occurs,
-- the VSR can be remote controlled through the TCD's keypad (command codes 8xxx),
+- the VSR can be remote controlled through the TCD's keypad (command codes ```8xxx```),
 - the VSR queries the TCD for temperature and speed for display,
 - the VSR queries the TCD for fake power and night mode, in order to react accordingly if so configured,
 - the VSR's Time Travel button can trigger a synchronized Time Travel on all BTTFN-connected devices, just like if that Time Travel was triggered through the TCD.
@@ -382,114 +382,114 @@ Afterwards, the VSR and the TCD can communicate wirelessly and
 ### TCD remote command reference
 
 <table>
-   <tr><td>Function</td><td>Code on TCD</td></tr>
+   <tr><td align="center">Function</td><td align="center">Code on TCD</td></tr>
     <tr>
      <td align="left">Select pushwheel display mode</td>
-     <td align="left">8010&#9166;</td>
+     <td align="left"><code>8010</code></td>
     </tr>
     <tr>
      <td align="left">Select <a href="#temperature-display">temperature</a> display mode</td>
-     <td align="left">8011&#9166;</td>
+     <td align="left"><code>8011</code></td>
     </tr>
     <tr>
      <td align="left">Select <a href="#speed-display">speed</a> display mode</td>
-     <td align="left">8012&#9166;</td>
+     <td align="left"><code>8012</code></td>
     </tr>
     <tr>
      <td align="left">Set volume level (00-20)</td>
-     <td align="left">8300&#9166; - 8320&#9166;</td>
+     <td align="left"><code>8300</code> - <code>8320</code></td>
     </tr>
     <tr>
      <td align="left">Set brightness level (00-15)</td>
-     <td align="left"<td>8400&#9166; - 8415&#9166;</td>
+     <td align="left"<td><code>8400</code> - <code>8415</code></td>
     </tr>
     <tr>
      <td align="left"><a href="#the-music-player">Music Player</a>: Play/Stop</td>
-     <td align="left">8005&#9166;</td>
+     <td align="left"><code>8005</code></td>
     </tr>
     <tr>
      <td align="left"><a href="#the-music-player">Music Player</a>: Previous track</td>
-     <td align="left">8002&#9166;</td>
+     <td align="left"><code>8002</code></td>
     </tr>
     <tr>
      <td align="left"><a href="#the-music-player">Music Player</a>: Next track</td>
-     <td align="left">8008&#9166;</td>
+     <td align="left"><code>8008</code></td>
     </tr>
     <tr>
      <td align="left"><a href="#the-music-player">Music Player</a>: Select music folder (0-9)</td>
-     <td align="left">8050&#9166; - 8059&#9166;</td>
+     <td align="left"><code>8050</code> - <code>8059</code></td>
     </tr>
     <tr>
      <td align="left"><a href="#the-music-player">Music Player</a>: Shuffle off</td>
-     <td align="left">8222&#9166;</td>
+     <td align="left"><code>8222</code></td>
     </tr>
     <tr>
      <td align="left"><a href="#the-music-player">Music Player</a>: Shuffle on</td>
-     <td align="left">8555&#9166;</td>
+     <td align="left"><code>8555</code></td>
     </tr> 
     <tr>
      <td align="left"><a href="#the-music-player">Music Player</a>: Go to track 0</td>
-     <td align="left">8888&#9166;</td>
+     <td align="left"><code>8888</code></td>
     </tr>
     <tr>
      <td align="left"><a href="#the-music-player">Music Player</a>: Go to track xxx</td>
-     <td align="left">8888xxx&#9166;</td>
+     <td align="left"><code>8888xxx</code></td>
     </tr>
     <tr>
      <td align="left">Play "<a href="#additional-custom-sounds">key1.mp3</a>"</td>
-     <td align="left">8001&#9166; / 8501&#9166;</td>
+     <td align="left"><code>8001</code> / <code>8501</code></td>
     </tr>
    <tr>
      <td align="left">Play "<a href="#additional-custom-sounds">key2.mp3</a>"</td>
-     <td align="left">8502&#9166;</td>
+     <td align="left"><code>8502</code></td>
     </tr>
     <tr>
      <td align="left">Play "<a href="#additional-custom-sounds">key3.mp3</a>"</td>
-     <td align="left">8003&#9166; / 8503&#9166;</td>
+     <td align="left"><code>8003</code> / <code>8503</code></td>
     </tr>
     <tr>
      <td align="left">Play "<a href="#additional-custom-sounds">key4.mp3</a>"</td>
-     <td align="left">8004&#9166; / 8504&#9166;</td>
+     <td align="left"><code>8004</code> / <code>8504</code></td>
     </tr>
     <tr>
      <td align="left">Play "<a href="#additional-custom-sounds">key5.mp3</a>"</td>
-     <td align="left">8505&#9166;</td>
+     <td align="left"><code>8505</code></td>
     </tr>
     <tr>
      <td align="left">Play "<a href="#additional-custom-sounds">key6.mp3</a>"</td>
-     <td align="left">8006&#9166; / 8506&#9166;</td>
+     <td align="left"><code>8006</code> / <code>8506</code></td>
     </tr>
     <tr>
      <td align="left">Play "<a href="#additional-custom-sounds">key7.mp3</a>"</td>
-     <td align="left">8007&#9166; / 8507&#9166;</td>
+     <td align="left"><code>8007</code> / <code>8507</code></td>
     </tr>
     <tr>
      <td align="left">Play "<a href="#additional-custom-sounds">key8.mp3</a>"</td>
-     <td align="left">8508&#9166;</td>
+     <td align="left"><code>8508</code></td>
     </tr>
     <tr>
      <td align="left">Play "<a href="#additional-custom-sounds">key9.mp3</a>"</td>
-     <td align="left">8009&#9166; / 8509&#9166;</td>
+     <td align="left"><code>8009</code> / <code>8509</code></td>
     </tr>
     <tr>
      <td align="left">Display current IP address</td>
-     <td align="left">8090&#9166;</td>
+     <td align="left"><code>8090</code></td>
     </tr>
      <tr>
      <td align="left">Disable <a href="#car-setup">Car mode</a><sup>1</sup></td>
-     <td align="left">8990&#9166;</td>
+     <td align="left"><code>8990</code></td>
     </tr>
     <tr>
      <td align="left">Enable <a href="#car-setup">Car mode</a><sup>1</sup></td>
-     <td align="left">8991&#9166;</td>
+     <td align="left"><code>8991</code></td>
     </tr>
     <tr>
      <td align="left">Reboot the device<sup>1</sup></td>
-     <td align="left">8064738&#9166;</td>
+     <td align="left"><code>8064738</code></td>
     </tr>
      <tr>
      <td align="left">Delete static IP address<br>and WiFi-AP password<sup>1</sup></td>
-     <td align="left">8123456&#9166;</td>
+     <td align="left"><code>8123456</code></td>
     </tr>
 </table>
 
@@ -563,11 +563,11 @@ The VSR can be controlled through messages sent to topic **bttf/vsr/cmd**. Suppo
 
 This command allows remote control of the VSR through HA/MQTT in the same way as through the TCD keypad by injecting commands into the VSR command queue (hence the name). Commands are listed [here](#tcd-remote-command-reference); nearly all are supported. For example:
 
-To set volume level to 10 (8310), issue the following command: ```INJECT_8310```
+To set volume level to 10 (```8310```), issue the following command: ```INJECT_8310```
 
-To play "key2.mp3" (8502), issue ```INJECT_8502```
+To play "key2.mp3" (```8502```), issue ```INJECT_8502```
 
-To select the 'music1' folder (8051), issue ```INJECT_8051```
+To select the 'music1' folder (```8051```), issue ```INJECT_8051```
 
 ### Setup
 
@@ -594,7 +594,7 @@ This configuration can easily be achieved by putting both the TCD and the VSR in
 #### TCD
 
 - Set **_Power save timer_** to 0 (zero) in the "AP-mode settings" section on the *WiFi Configuration* page
-- Put your TCD in [*Car Mode*](https://tcd.out-a-ti.me/#car-mode) by issuing keypad command 991.
+- Put your TCD in [*Car Mode*](https://tcd.out-a-ti.me/#car-mode) by issuing keypad command ```991```.
 
 #### VSR
 
@@ -602,9 +602,9 @@ One-time configuration steps:
 - Enter the Config Portal on the VSR, click on *Settings* and check that the hostname of the TCD (usually "timecircuits") is present in the  **_Hostname or IP address of TCD_** under *Wireless communication (BTTF-Network)* settings; do _not_ use an IP address.
 - Furthermore, on the *WiFi Configuration* page, check that the TCD's WiFi network name (SSID; usually "TCD-AP") and password (if the TCD is configured with a password) are present under *Car mode settings*.
 
-If everything is in place, you can enable Car mode on the VSR by holding button "9" in Admin button mode for 2 seconds. The VSR will reboot and attempt to connect to the TCD's AP.
+If everything is in place, you can enable Car mode on the VSR by holding button ```9``` in Admin button mode for 2 seconds. The VSR will reboot and attempt to connect to the TCD's AP.
 
-You can switch between your "normal" (home, iPhone, ..) WiFi connection and Car mode by holding button "9" in Admin button mode.
+You can switch between your "normal" (home, iPhone, ..) WiFi connection and Car mode by holding button ```"9``` in Admin button mode.
 
 To access the VSR's Config Portal in Car mode, connect your handheld or computer to the TCD's WiFi network ("TCD-AP"), and direct your browser to http://vsr.local.
 
@@ -617,9 +617,9 @@ The Config Portal offers an option for WiFi power saving for AP-mode (ie when th
 
 The timer can be set to 0 (which disables it; WiFi is never switched off; this is the default) or 10-99 minutes. 
 
-After WiFi has been switched off due to timer expiration, it can be re-enabled by holding button "10" in [Admin button mode](#admin-mode), in which case the timers are restarted (ie WiFi is again switched off after timer expiration).
+After WiFi has been switched off due to timer expiration, it can be re-enabled by holding button ```10``` in [Admin button mode](#admin-mode), in which case the timers are restarted (ie WiFi is again switched off after timer expiration).
 
-> Holding "10" in Admin button mode also triggers a re-connection attempt in case your configured WiFi network was not available when the VSR was trying to connect, see [here](#home-setup-with-a-pre-existing-local-wifi-network).
+> Holding ```10``` in Admin button mode also triggers a re-connection attempt in case your configured WiFi network was not available when the VSR was trying to connect, see [here](#home-setup-with-a-pre-existing-local-wifi-network).
 
 ## Flash Wear
 
@@ -741,7 +741,7 @@ By default, when your VSR creates a WiFi network of its own ("AP-mode"), this ne
 
 By default, and if this field is empty, the VSR's own WiFi network ("VSR-AP") will be unprotected. If you want to protect your VSR access point, enter your password here. It needs to be 8 characters in length and only characters A-Z, a-z, 0-9 and - are allowed.
 
-If you forget this password and are thereby locked out of your VSR, select _Admin_ [button mode](#button-modes), and _hold_ "4C"; "RST" will be displayed, and your WiFi password is deleted. Then power-down and power-up your VSR and the access point will start unprotected.
+If you forget this password and are thereby locked out of your VSR, select _Admin_ [button mode](#button-modes) and _hold_ ```4C```; "RST" will be displayed, and your WiFi password is deleted. Then power-down and power-up your VSR and the access point will start unprotected.
 
 ##### &#9193; WiFi channel
 
@@ -813,7 +813,7 @@ The music player will continue to run.
 
 Selects the current music folder, can be 0 through 9. 
 
-This can also be set/changed through a TCD keypad via BTTFN (8050 - 8059). Such a change will be saved immediately.
+This can also be set/changed through a TCD keypad via BTTFN (```8050``` - ```8059```). Such a change will be saved immediately.
 
 #### <ins>Settings for Night Mode</ins>
 
@@ -847,7 +847,7 @@ If this option is checked, and your TCD is equipped with a fake power switch, th
 
 ##### &#9193; TT buttons trigger BTTFN-wide TT
 
-If the VSR is connected to a TCD through BTTFN, this option allows to trigger a synchronized time travel on all BTTFN-connected devices when pressing "9" in _Operation_ [button mode](#button-modes) or pressing the Time Travel button, just as if the time travel was triggered by the TCD. If this option is unchecked, these actions only trigger a time travel sequence on the VSR.
+If the VSR is connected to a TCD through BTTFN, this option allows to trigger a synchronized time travel on all BTTFN-connected devices when pressing ```9``` in _Operation_ [button mode](#button-modes) or pressing the Time Travel button, just as if the time travel was triggered by the TCD. If this option is unchecked, these actions only trigger a time travel sequence on the VSR.
 
 ##### &#9193; Ignore network-wide TTs
 
