@@ -437,7 +437,7 @@ Afterwards, the VSR and the TCD can communicate wirelessly and
     </tr>
     <tr>
      <td align="left">Play "<a href="#additional-custom-sounds">key1.mp3</a>"</td>
-     <td align="left"><code>8001</code> / <code>8501</code></td>
+     <td align="left"><code>8501</code> / <code>8001</code></td>
     </tr>
    <tr>
      <td align="left">Play "<a href="#additional-custom-sounds">key2.mp3</a>"</td>
@@ -445,11 +445,11 @@ Afterwards, the VSR and the TCD can communicate wirelessly and
     </tr>
     <tr>
      <td align="left">Play "<a href="#additional-custom-sounds">key3.mp3</a>"</td>
-     <td align="left"><code>8003</code> / <code>8503</code></td>
+     <td align="left"><code>8503</code> / <code>8003</code></td>
     </tr>
     <tr>
      <td align="left">Play "<a href="#additional-custom-sounds">key4.mp3</a>"</td>
-     <td align="left"><code>8004</code> / <code>8504</code></td>
+     <td align="left"><code>8504</code> / <code>8004</code></td>
     </tr>
     <tr>
      <td align="left">Play "<a href="#additional-custom-sounds">key5.mp3</a>"</td>
@@ -457,11 +457,11 @@ Afterwards, the VSR and the TCD can communicate wirelessly and
     </tr>
     <tr>
      <td align="left">Play "<a href="#additional-custom-sounds">key6.mp3</a>"</td>
-     <td align="left"><code>8006</code> / <code>8506</code></td>
+     <td align="left"><code>8506</code> / <code>8006</code></td>
     </tr>
     <tr>
      <td align="left">Play "<a href="#additional-custom-sounds">key7.mp3</a>"</td>
-     <td align="left"><code>8007</code> / <code>8507</code></td>
+     <td align="left"><code>8507</code> / <code>8007</code></td>
     </tr>
     <tr>
      <td align="left">Play "<a href="#additional-custom-sounds">key8.mp3</a>"</td>
@@ -469,7 +469,7 @@ Afterwards, the VSR and the TCD can communicate wirelessly and
     </tr>
     <tr>
      <td align="left">Play "<a href="#additional-custom-sounds">key9.mp3</a>"</td>
-     <td align="left"><code>8009</code> / <code>8509</code></td>
+     <td align="left"><code>8509</code> / <code>8009</code></td>
     </tr>
     <tr>
      <td align="left">Display current IP address</td>
