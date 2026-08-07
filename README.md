@@ -302,7 +302,7 @@ Your replacements need to be put in the root (top-most) directory of the SD card
 
 The firmware supports some additional user-provided sound effects, which it will load from the SD card. If the respective file is present, it will be used. If that file is absent, no sound will be played.
 
-- "key1.mp3" - "key9.mp3": Will be played when you type ```800x``` (x being 1, 3, 4, 6, 7 or 9) or ```850x``` (1-9) on the TCD (connected through BTTFN). Additionally, "key3.mp3"/"key6.mp3" will be played when you press ```10``` or ```4C``` in _Operation_ [button mode](#button-modes)
+- "key1.mp3" - "key9.mp3": Will be played upon keypad commands ```850x``` (x=1-9) or ```800x``` (x being 1, 3, 4, 6, 7 or 9) on the TCD (connected through BTTFN). Additionally, "key3.mp3"/"key6.mp3" will be played when you press ```10```/```4C``` in _Operation_ [button mode](#button-modes)
 
 > The seemingly odd numbering of the 800x range is because of synchronicity with other props, especially the TCD and its keymap where the Music Player occupies keys 2, 5, 8. Likewise, ```8002```, ```8005``` and ```8008``` control the VSR's Music Player (prev, play/stop, next).
 
