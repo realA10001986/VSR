@@ -221,7 +221,7 @@ Other ways of triggering a time travel are available if a [Time Circuits Display
 
 #### Time Travel output
 
-During a time travel sequence, the "IO14" connector's pin is HIGH (2.7-3.3V), otherwise LOW. This can be used for flux lights to light up during a time travel, for instance. 
+During a time travel sequence, the 4pin connector's "IO14" pin is HIGH (2.7-3.3V), otherwise LOW. This can be used for flux lights to light up during a time travel, for instance. 
 
 Please do not power any peripheral through this pin; instead, use a Standard 3.3V relay module ("1 channel 3.3V relay module"), and connect 
 - "GND" of the Control Board's connector to "-"/"GND"/"DC-" on the relay module,
