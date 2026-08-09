@@ -609,7 +609,7 @@ You can switch between your "normal" (home, iPhone, ..) WiFi connection and Car 
 To access the VSR's Config Portal in Car mode, connect your handheld or computer to the TCD's WiFi network ("TCD-AP"), and direct your browser to http://vsr.local.
 
   ><details><summary>If that fails...</summary>
-  >If connecting to http://vsr.local fails due to a name resolution error, briefly press ```4C``` in Admin button mode, or go to the TCD's keypad menu, navigate to "BTTFN CLIENTS", and look for the VSR's IP address there.</details>
+  >If connecting to http://vsr.local fails due to a name resolution error, briefly press ```4C``` in Admin button mode, or go to the TCD's keypad menu, navigate to "BTTFN CLIENTS", and look for the VSR's IP address there; then direct your browser to the IP by using the URL http://a.b.c.d (a-d being the IP address displayed on the VSR's or the TCD' display).</details>
 
 ## WiFi Power Saving Features
 
