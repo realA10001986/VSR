@@ -100,7 +100,7 @@
  *   - ArduinoJSON (>= 6.19): https://arduinojson.org/v6/doc/installation/
  *
  * - Download the complete firmware source code:
- *   https://github.com/realA10001986/VSR/archive/refs/heads/main.zip
+ *   https://github.com/realA10001986/VSR/archive/refs/heads/master.zip
  *   Extract this file somewhere. Enter the "vsr-A10001986" folder and 
  *   double-click on "vsr-A10001986.ino". This opens the firmware in the
  *   Arduino IDE.
@@ -122,6 +122,14 @@
 
 /*  Changelog
  *
+ *  2026/08/26 (A10001986) [1.35]
+ *    *********************************************************************************
+ *    ** If updating from below 1.30, please see boxed note at version 1.31 below    **
+ *    *********************************************************************************
+ *    - New sound-pack (VR04)
+ *    - Button and button LED logic fixes
+ *    - More robust error handling in case of malformed config files
+ *    - SD: More compatibility fixes
  *  2026/07/17 (A10001986) [1.34]
  *    *********************************************************************************
  *    ** If updating from below 1.30, please see boxed note at version 1.31 below    **
@@ -240,7 +248,7 @@
  *    - Put MQTT commands in command queue instead of executing them directly.
  *  2025/11/02 (A10001986)
  *    - WM: Generate HTML for checkboxes on-the-fly.
- *  2025/10/30 (A10001986) 
+ *  2025/10/30 (A10001986)
  *    - Fix deleting a bad .bin file after upload
  *    - Remove volume settings from Settings page
  *  2025/10/26 (A10001986) [1.20.1]
@@ -253,7 +261,7 @@
  *      trigger a connection attempt if configured WiFi could not be connected
  *      to during boot.
  *    - WM: Fix AP shutdown; handle mDNS
- *  2025/10/21 (A10001986)  
+ *  2025/10/21 (A10001986)
  *    - Wakeup on GPS speed changes from <= 0 to >= 0
  *  2025/10/17 (A10001986) [1.20]
  *    - Wipe flash FS if alien VER found; in case no VER is present, check
@@ -261,7 +269,7 @@
  *  2025/10/16 (A10001986)
  *    - Minor code optim (settings)
  *    - WM: More event-based waiting instead of delays
- *  2025/10/15 (A10001986)  
+ *  2025/10/15 (A10001986)
  *    - Some more WM changes. Number of scanned networks listed is now restricted 
  *      in order not to run out of memory.
  *  2025/10/14 (A10001986) [1.19.2]
@@ -272,7 +280,7 @@
  *  2025/10/11 (A10001986) [1.19.1]
  *    - More WM changes: Simplify "Forget" using a checkbox; redo signal quality
  *      assessment; remove over-engineered WM debug stuff.
- *  2025/10/08 (A10001986)   
+ *  2025/10/08 (A10001986)  
  *    - WM: Set "world safe" country info, limiting choices to 11 channels
  *    - WM: Add "show all", add channel info (when all are shown) and
  *      proposed AP WiFi channel on WiFi Configuration page.

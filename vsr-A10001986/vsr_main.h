@@ -56,7 +56,7 @@
 #define _VSR_MAIN_H
 
 // Durations of tt phases for *internal* tt
-#define P0_DUR          1000    // acceleration phase (stand-alone; only relay-click-lead)
+#define P0_DUR          1000    // acceleration phase (stand-alone; only relay-click-lead). Must be >= 600
 #define P1_DUR_TCD      6600    // time tunnel phase (synced; overruled by TCD network commands)
 #define P1_DUR          5000    // time tunnel phase (stand-alone)
 #define P2_DUR          3000    // re-entry phase
@@ -80,11 +80,12 @@ void cmChanged();
 void ssEnd();
 void ssRestartTimer();
 
-void showWaitSequence();
+void showWaitSequence(bool force = false);
 void endWaitSequence();
 void showCopyError();
 void showNumber(int num);
 
+void ButLEDsOff();
 void allOff();
 void prepareReboot();
 
@@ -104,7 +105,7 @@ bool bttfn_trigger_tt();
 // LED display modes
 enum {
    LDM_WHEELS = 0,    // display pushwheel values
-   LDM_GPS,           // display GPS/RotEnc speed
+   LDM_TCDS,          // display TCD speed (GPS, RE, Futaba, ...)
    LDM_TEMP,          // display temperature
    LDM_BM,            // display button mode  (not for userDispMode)
    LDM_SYS            // display system message (with time-out) (not for userDispMode)
@@ -113,6 +114,7 @@ extern int userDispMode;
 #define NUM_UDM 3     // number of user-selectable display modes
 
 extern unsigned long udispchgnow;
+extern unsigned long butchgnow;
 
 extern unsigned long powerupMillis;
 
@@ -128,7 +130,7 @@ extern bool haveTempSens;
 
 extern bool showBM;
 
-extern bool TCDconnected;
+extern bool TCDbyWire;
 
 extern bool FPBUnitIsOn;
 extern bool vsrNM;
@@ -140,7 +142,6 @@ extern bool bttfnTT;
 extern bool ignTT;
 
 extern bool networkTimeTravel;
-extern bool networkTCDTT;
 extern bool networkReentry;
 extern bool networkAbort;
 extern bool networkAlarm;
@@ -150,11 +151,10 @@ extern uint16_t networkP1;
 extern bool doPrepareTT;
 extern bool doWakeup;
 
-extern bool vsrBusy;
+extern int  vsrBusy;
+extern int  blockScan;
 
 extern bool ssActive;
-
-extern bool blockScan;
 
 extern int     bttfnHaveTCDSSID;
 extern char    TCDSSID[];

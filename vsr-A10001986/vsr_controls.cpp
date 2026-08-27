@@ -88,6 +88,7 @@ static bool    ignkey[3]        = { false, false, false };
 static const int otherKey[3][3] = { { 1, 2 }, { 0, 2 }, { 0, 1 } };
 
 uint8_t        buttonMode = VBM_LIGHT;
+uint8_t        lastDisplayedButtonMode = VBM_LIGHT;
 static uint8_t buttonModeChg = 0;
 static const char *bmodesText[NUM_BM+1] = {
     "LGT",
@@ -96,6 +97,8 @@ static const char *bmodesText[NUM_BM+1] = {
     "ADM",
     "---"
 };
+// Translation buttonMode -> LED states
+static const uint8_t bms[4] = { 3, 5, 6, 7 };
 
 static void controlsEvent(int idx, ButState bstate);
 
@@ -129,9 +132,25 @@ void resetButtons()
  *  The controls event handler: Only called for Buttons, not PW changes
  */
 static void controlsEvent(int idx, ButState bstate)
-{       
-    if(TTrunning || !FPBUnitIsOn) 
+{
+    if(TTrunning || !FPBUnitIsOn) {
+        // If we were interrupted during a button mode change,
+        // restore previous button mode if new modes wasn't
+        // announced on display. Note: This bridge is very
+        // narrow: buttonModeChg is only ever set if more than
+        // one button is already in HELD state, so the time
+        // until HELD - which is the bigger problem as regards
+        // user experience - isn't taken into account here!
+        if(buttonModeChg) {
+            if(buttonMode != lastDisplayedButtonMode) {
+                buttonMode = lastDisplayedButtonMode;
+                butchgnow = millisNonZero();
+                storeButtonMode();
+            }
+            buttonModeChg = 0;
+        }
         return;
+    }
         
     ssRestartTimer();
 
@@ -191,8 +210,7 @@ static void controlsEvent(int idx, ButState bstate)
                     switch(idx) {
                     case 0:
                         if(!bttfnTT || !bttfn_trigger_tt()) {
-                            // We have no "acceleration", hence P0_DUR, not ETTO_LEAD
-                            timeTravel(false, P0_DUR);    
+                            timeTravel(false);    
                         }
                         break;
                     case 1:
@@ -275,13 +293,13 @@ static void controlsEvent(int idx, ButState bstate)
                     buttonMode = VBM_ADMIN;
                     buttonModeChg = 7;
                     if(signalBM) {
-                        vsrLEDs.setStates(buttonMode + 4);
+                        vsrLEDs.setStates(bms[buttonMode]);
                     }
                 } else if(butState[idx1] == VSRB_HELD) {    // 0+1-1=0, 0+2-1=1; 1+2-1=2
                     buttonMode = idx + idx1 - 1;
                     buttonModeChg = (1 << idx) | (1 << idx1);
                     if(signalBM) {
-                        vsrLEDs.setStates(buttonMode + 4);
+                        vsrLEDs.setStates(bms[buttonMode]);
                     } else {
                         vsrLEDs.setStates(vsrLEDs.getStates() & (~(1 << idx2)));
                     }
@@ -289,14 +307,17 @@ static void controlsEvent(int idx, ButState bstate)
                     buttonMode = idx + idx2 - 1;
                     buttonModeChg = (1 << idx) | (1 << idx2);
                     if(signalBM) {
-                        vsrLEDs.setStates(buttonMode + 4);
+                        vsrLEDs.setStates(bms[buttonMode]);
                     } else {
                         vsrLEDs.setStates(vsrLEDs.getStates() & (~(1 << idx1)));
                     }
                 } else if(butState[idx1] == VSRB_IDLE && butState[idx2] == VSRB_IDLE) {
                     play_buttonl_sound();
                 }
-                showBM = !!buttonModeChg;
+                if((showBM = !!buttonModeChg)) {
+                    butchgnow = millisNonZero();
+                    storeButtonMode();
+                }
             }
             break;
         default:
@@ -319,7 +340,7 @@ static void controlsEvent(int idx, ButState bstate)
                     break;
                 case VBM_OP:        // OP button mode: Select display mode
                     if(signalBM) {
-                        vsrLEDs.setStates(buttonMode + 4);
+                        vsrLEDs.setStates(bms[buttonMode]);
                     } else {
                         vsrLEDs.setStates(vsrLEDs.getStates() & (~(1 << idx)));
                     }
@@ -331,7 +352,7 @@ static void controlsEvent(int idx, ButState bstate)
                         userDispMode = LDM_TEMP;
                         break;
                     case 2:
-                        userDispMode = LDM_GPS;
+                        userDispMode = LDM_TCDS;
                         break;
                     }
                     udispchgnow = millisNonZero();
@@ -339,7 +360,7 @@ static void controlsEvent(int idx, ButState bstate)
                     break;
                 case VBM_MP:        // MP mode: Shuffle off/goto 0/shuffle on
                     if(signalBM) {
-                        vsrLEDs.setStates(buttonMode + 4);
+                        vsrLEDs.setStates(bms[buttonMode]);
                     } else {
                         vsrLEDs.setStates(vsrLEDs.getStates() & (~(1 << idx)));
                     }
@@ -368,7 +389,7 @@ static void controlsEvent(int idx, ButState bstate)
                     break;
                 case VBM_ADMIN:     // Admin mode: Toggle CM / Reconnect WiFI / Delete IP config+Clear AP pw
                     if(signalBM) {
-                        vsrLEDs.setStates(buttonMode + 4);
+                        vsrLEDs.setStates(bms[buttonMode]);
                     } else {
                         vsrLEDs.setStates(vsrLEDs.getStates() & (~(1 << idx)));
                     }
@@ -425,7 +446,7 @@ static void controlsEvent(int idx, ButState bstate)
                     }
                 }
                 buttonModeChg &= ~(1 << idx);
-                if(!buttonModeChg) showBM = false;
+                if(!buttonModeChg) showBM = false;  // Release display upon last button released
             }
             butState[idx] = VSRB_IDLE;
             break;
@@ -440,14 +461,16 @@ static void controlsEvent(int idx, ButState bstate)
     }
 }
 
-void resetBLEDandBState()
+void resetBLEDandBState(bool resetLightMode)
 {
     for(int i = 0; i < 3; i++) {
         butState[i] = VSRB_IDLE;
     }
+    buttonModeChg = 0;
+    showBM = false;
     if(signalBM && buttonMode != VBM_LIGHT) {
-        vsrLEDs.setStates(buttonMode + 4);
-    } else {
+        vsrLEDs.setStates(bms[buttonMode]);
+    } else if(resetLightMode) {
         if(vsrLEDs.getStates()) {
             vsrLEDs.setStates(0);
         }

@@ -87,4 +87,8 @@ extern bool useMQTT;
 extern bool pubMP;
 #endif
 
+#ifdef VSR_PROFILER
+void debugOutput(const char *str, unsigned long val);
+#endif
+
 #endif

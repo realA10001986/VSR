@@ -274,7 +274,7 @@ bool Pushwheel_I2C::doScan()
             }
         }
 
-    } while(maxRetry-- && repeat);
+    } while(repeat && maxRetry--);
 
     #ifdef VSR_DBG
     if(repeat || maxRetry < 4) {

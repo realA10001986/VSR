@@ -57,7 +57,7 @@
 
 void controls_setup();
 
-void resetBLEDandBState();
+void resetBLEDandBState(bool resetLightMode = true);
 
 bool scanControls();
 void resetButtons();
@@ -76,6 +76,7 @@ enum {
     VBM_UNKNOWN
 };
 extern uint8_t buttonMode;
+extern uint8_t lastDisplayedButtonMode;
 
 #include "input.h"
 extern Pushwheel_I2C vsrControls;

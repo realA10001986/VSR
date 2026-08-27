@@ -278,7 +278,6 @@ WiFiManagerParameter custom_noETTOL("uEtNL", "TCD signals Time Travel without 5s
 
 WiFiManagerParameter custom_haveSD(wmBuildHaveSD, WFM_SECTS);
 WiFiManagerParameter custom_CfgOnSD("CfgOnSD", "Save secondary settings on SD<br><span>Check this to avoid flash wear</span>", settings.CfgOnSD, "class='mt5'", WFM_LABEL_AFTER|WFM_IS_CHKBOX);
-//WiFiManagerParameter custom_sdFrq("sdFrq", "4MHz SD clock speed<br><span>Checking this might help in case of SD card problems</span>", settings.sdFreq, "style='margin-top:12px'", WFM_LABEL_AFTER|WFM_IS_CHKBOX);
 WiFiManagerParameter custom_upd("upd", "Show update notifications on power-up", settings.upd, "", WFM_LABEL_AFTER|WFM_IS_CHKBOX|WFM_FOOT);
 
 #ifdef VSR_HAVEMQTT
@@ -498,7 +497,6 @@ void wifi_setup()
       
       &custom_haveSD,       // 3
       &custom_CfgOnSD,
-      //&custom_sdFrq,
       &custom_upd,
 
       NULL
@@ -808,7 +806,7 @@ void wifi_loop()
         carMode = !!(wifiLoopSaveAction & WLA_SET_CM_ON);
         if(!*settings.cm_ssid) carMode = false;
         if(carMode != ocm) {
-            vsrBusy = true;  // Force MP "off" state
+            vsrBusy = 1;  // Force MP "off" state
             mp_stop(true);
             stopAudio();
             saveCarMode();
@@ -825,7 +823,7 @@ void wifi_loop()
 
         int temp;
 
-        vsrBusy = true;  // Force MP "off" state
+        vsrBusy = 1;  // Force MP "off" state
         mp_stop(true);
         stopAudio();
 
@@ -943,7 +941,6 @@ void wifi_loop()
 
             oldCfgOnSD = settings.CfgOnSD[0];
             evalCB(settings.CfgOnSD, &custom_CfgOnSD);
-            //evalCB(settings.sdFreq, &custom_sdFrq);          
 
             // Copy volume/speed/IR/etc settings to other medium if
             // user changed respective option
@@ -1303,7 +1300,7 @@ static void checkForUpdate()
     if(uver) {
         haveCVer = true;
         if(((uver << 8) | urev) > ((cver << 8) | crev)) {
-            snprintf(newversion, sizeof(newversion), "%d.%d", uver, urev);
+            snprintf(newversion, sizeof(newversion), "%d.%02d", uver, urev);
         }
     }
 
@@ -1448,13 +1445,14 @@ static void preUpdateCallback()
     wifiAPOffDelay = 0;
     origWiFiOffDelay = 0;
 
-    vsrBusy = true;    // Force MP "off" state
+    vsrBusy = 1;    // Force MP "off" state
     mp_stop(true);
     stopAudio();
 
     flushDelayedSave();
 
-    showWaitSequence();
+    ButLEDsOff();
+    showWaitSequence(true);
 }
 
 // This is called after a firmware updated has finished.
@@ -1574,7 +1572,6 @@ static void updateConfigPortalValues()
     setCBVal(&custom_noETTOL, settings.noETTOLead);
 
     setCBVal(&custom_CfgOnSD, settings.CfgOnSD);
-    //setCBVal(&custom_sdFrq, settings.sdFreq);
 
     #ifdef VSR_HAVEMQTT
     setCBVal(&custom_useMQTT, settings.useMQTT);
@@ -2447,11 +2444,9 @@ static void mqttCallback(char *topic, byte *payload, unsigned int length)
         case 1:
             // Trigger Time Travel (if not running already)
             // Ignore command if TCD is connected by wire
-            if(!TCDconnected && !TTrunning && !TTrunningIOonly && !vsrBusy) {
+            if(!TCDbyWire && !TTrunning && !TTrunningIOonly && !vsrBusy) {
                 networkTimeTravel = true;
-                networkTCDTT = true;
-                networkReentry = false;
-                networkAbort = false;
+                networkReentry = networkAbort = false;
                 if(strlen(tempBuf) == 20) {
                     networkLead = a2i(&tempBuf[11]);
                     networkP1 = a2i(&tempBuf[16]);
@@ -2464,14 +2459,15 @@ static void mqttCallback(char *topic, byte *payload, unsigned int length)
         case 2:   // Re-entry
             // Start re-entry (if TT currently running)
             // Ignore command if TCD is connected by wire
-            if(!TCDconnected && (TTrunning || TTrunningIOonly) && networkTCDTT) {
-                networkReentry = true;
+            if(!TCDbyWire) {
+                if(TTrunning || TTrunningIOonly) networkReentry = true;
+                else networkTimeTravel = false;
             }
             break;
         case 3:   // Abort TT (TCD fake-powered down during TT)
             // Ignore command if TCD is connected by wire
             // (mainly because this is no network-triggered TT)
-            if(!TCDconnected && (TTrunning || TTrunningIOonly) && networkTCDTT) {
+            if(!TCDbyWire && (TTrunning || TTrunningIOonly || networkTimeTravel)) {
                 networkAbort = true;
             }
             break;
@@ -2679,6 +2675,19 @@ bool mqttPublish(const char *topic, const char *pl, unsigned int len)
     }
 
     return true;
-}           
+}
+
+#ifdef VSR_PROFILER
+void debugOutput(const char *str, unsigned long val)
+{
+    if(useMQTT) {
+        char buf[128];
+        sprintf(buf, str, val);
+        mqttPublish("bttf/vsr/debug", buf, strlen(buf));
+    } else {
+        Serial.printf(str, val);
+    }
+}
+#endif
 
 #endif

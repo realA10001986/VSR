@@ -66,7 +66,8 @@
 #define PA_IGNNM   0x0010
 #define PA_WAV     0x0020
 #define PA_MUSIC   0x0040
-// upper 8 bits all taken
+#define PA_DOID3TS 0x0080
+// 0x1ff00 taken
 #define PA_MASKA   (PA_LOOP|PA_INTRMUS|PA_ALLOWSD|PA_DYNVOL|PA_IGNNM)
 
 void audio_setup();

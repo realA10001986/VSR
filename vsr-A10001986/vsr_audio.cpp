@@ -244,10 +244,32 @@ static int32_t skipID3(char *buf)
     return 0;
 }
 
+static void setupLoopAndBegin(AudioFileSourceLoop *src, uint32_t flags)
+{
+    int32_t pos = 0;
+    char buf[10];
+    
+    buf[0] = 0;
+    
+    src->setPlayLoop(!!(flags & PA_LOOP));
+
+    if(flags & PA_WAV) {
+        wav->begin(src, out);
+        src->setStartPos(wav->startPos);  // Yes, AFTER begin! Need wav->startPos!
+    } else {
+        if(flags & PA_DOID3TS) {
+            src->read((void *)buf, 10);
+            pos = skipID3(buf);
+            src->seek(pos, SEEK_SET);
+        }
+        src->setStartPos(pos);
+        
+        mp3->begin(src, out);
+    }
+}
+
 void play_file(const char *audio_file, uint32_t flags, float volumeFactor)
 {
-    char buf[64];
-    int32_t curSeek = 0;
     #ifdef VSR_HAVEMQTT
     bool mpWasActive = false;
     #endif
@@ -279,45 +301,19 @@ void play_file(const char *audio_file, uint32_t flags, float volumeFactor)
     }
 
     curVolFact  = volumeFactor;
-    curChkNM    = (flags & PA_IGNNM)  ? false : true;
-    dynVol      = (flags & PA_DYNVOL) ? true : false;
+    curChkNM    = !(flags & PA_IGNNM);  // Yes, !
+    dynVol      = !!(flags & PA_DYNVOL);
     key_playing = flags & 0x1ff00;
     
     out->SetGain(getVolume());
 
-    buf[0] = 0;
-
     if(haveSD && ((flags & PA_ALLOWSD) || FlashROMode) && mySD0L->open(audio_file)) {
-        mySD0L->setPlayLoop(!!(flags & PA_LOOP));
-
-        if(flags & PA_WAV) {
-            wav->begin(mySD0L, out);
-            mySD0L->setStartPos(wav->startPos);
-        } else {
-            mySD0L->read((void *)buf, 10);
-            curSeek = skipID3(buf);
-            mySD0L->setStartPos(curSeek);
-            mySD0L->seek(curSeek, SEEK_SET);
-            mp3->begin(mySD0L, out);
-        }
-        
+        setupLoopAndBegin(mySD0L, flags|PA_DOID3TS);
         #ifdef VSR_DBG
         Serial.println("Playing from SD");
         #endif
     } else if(haveFS && myFS0L->open(audio_file)) {
-        myFS0L->setPlayLoop(!!(flags & PA_LOOP));
-        
-        if(flags & PA_WAV) {
-            wav->begin(myFS0L, out);
-            myFS0L->setStartPos(wav->startPos);
-        } else {
-            myFS0L->read((void *)buf, 10);
-            curSeek = skipID3(buf);
-            myFS0L->setStartPos(curSeek);
-            myFS0L->seek(curSeek, SEEK_SET);
-            mp3->begin(myFS0L, out);
-        }
-        
+        setupLoopAndBegin(myFS0L, flags);
         #ifdef VSR_DBG
         Serial.println("Playing from flash FS");
         #endif
@@ -339,23 +335,23 @@ void play_file(const char *audio_file, uint32_t flags, float volumeFactor)
 uint32_t play_button_sound()
 {
     uint32_t prevKeyPlayed = key_playing;
-    play_file("/button.mp3", PA_ALLOWSD, 1.0f);
+    play_file("/button.mp3", PA_ALLOWSD);
     return prevKeyPlayed;
 }
 
 void play_buttonl_sound()
 {
-    play_file("/buttonl.mp3", PA_ALLOWSD, 1.0f);
+    play_file("/buttonl.mp3", PA_ALLOWSD);
 }
 
 void play_button_bad()
 {
-    play_file("/button_bad.mp3", PA_ALLOWSD, 1.0f);
+    play_file("/button_bad.mp3", PA_ALLOWSD);
 }
 
 void play_volchg_sound()
 {
-    play_file("/volchg.mp3", PA_ALLOWSD, 1.0f);
+    play_file("/volchg.mp3", PA_ALLOWSD);
 }
 
 void play_key(int k, uint32_t prevKeyPlayed)
@@ -713,7 +709,7 @@ static bool mp_play_int(bool force)
 
     mp_buildFileName(fnbuf, playList[mpCurrIdx]);
     if(SD.exists(fnbuf)) {
-        if(force) play_file(fnbuf, PA_MUSIC|PA_INTRMUS|PA_ALLOWSD|PA_DYNVOL, 1.0f);
+        if(force) play_file(fnbuf, PA_MUSIC|PA_INTRMUS|PA_ALLOWSD|PA_DYNVOL);
         mpActive = force;
         aud_state.curTrack = playList[mpCurrIdx];
         #ifdef VSR_HAVEMQTT

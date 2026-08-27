@@ -147,7 +147,6 @@ static unsigned long sysMsgNow = 0;
 static bool          playTTsounds = true;
 
 bool networkTimeTravel = false;
-bool networkTCDTT      = false;
 bool networkReentry    = false;
 bool networkAbort      = false;
 bool networkAlarm      = false;
@@ -155,17 +154,17 @@ uint16_t networkLead   = ETTO_LEAD;
 uint16_t networkP1     = 6600;
 
 static bool tcdIsBusy  = false;
-bool        vsrBusy    = false;
+int         vsrBusy    = 0;
 
-#define GPS_GRACE_PERIOD 1000
-static bool usingGPSS   = false;
-static int16_t gpsSpeed = -1;
-static int16_t prevGPSSpeed = -2;
-static int16_t oldGpsSpeed  = -2;
-static bool spdIsRotEnc = false;
-static bool GPSended    = false;
-static unsigned long GPSendedNow = 0;
-static unsigned long gpsGracePeriod = 0;
+#define TCDS_GRACE_PERIOD 1000
+static bool usingTCDS   = false;
+static bool spdIsNonGPS = false;
+static bool TCDSended   = false;
+static int16_t tcdSpeed = -1;
+static int16_t prevTCDSpeed = -2;
+static int16_t oldTCDSpeed  = -2;
+static unsigned long TCDSendedNow    = 0;
+static unsigned long tcdsGracePeriod = 0;
 
 static bool    usingTEMP       = false;
 static int16_t TCDtemperature  = -32768;
@@ -216,12 +215,12 @@ static unsigned long TTFInt = 0;
 static unsigned long TTFDelay = 0;
 #define TT_V_LEV     0.7f
 
-bool         TCDconnected = false;
+bool         TCDbyWire  = false;
 static bool  noETTOLead = false;
 
 static unsigned long volchgnow = 0;
 static unsigned long brichgnow = 0;
-static unsigned long butchgnow = 0;
+unsigned long        butchgnow = 0;
 unsigned long        udispchgnow = 0;
 
 static unsigned long ssLastActivity = 0;
@@ -232,7 +231,7 @@ bool                 ssActive = false;
 static bool          nmOld = false;
 static bool          fpoOld = false;
 bool                 FPBUnitIsOn = true;
-bool                 blockScan = false;
+int                  blockScan = 0;
 
 // BTTF network
 #define BTTFN_VERSION              1
@@ -388,19 +387,20 @@ void main_boot()
 
 void main_boot2()
 {
-    // Init LED segment display
     int temp = 0;
 
     // Reset TT-OUT
     pinMode(TT_OUT_PIN, OUTPUT);
     digitalWrite(TT_OUT_PIN, LOW);
 
+    // Init LED segment display
     if(!vsrdisplay.begin(temp)) {
         Serial.println("Display not found");
     } else {
         loadBrightness();
     }
 
+    // Display diagnostics for manufacturer
     #ifdef VSR_DIAG
     vsrdisplay.lampTest();
     delay(10*1000);
@@ -447,9 +447,9 @@ void main_setup()
     #endif
     if(check_allow_CPA()) {
         showWaitSequence();
-        vsrBusy = true;  // Force MP "off" state, if state happens to be sent
+        vsrBusy = 1;  // Force MP "off" state, if state happens to be sent
         if(prepareCopyAudioFiles()) {
-            play_file("/_installing.mp3", PA_ALLOWSD, 1.0f);
+            play_file("/_installing.mp3", PA_ALLOWSD);
             waitAudioDone();
         }
         doCopyAudioFiles();
@@ -469,7 +469,7 @@ void main_setup()
 
     // Determine if Time Circuits Display is connected
     // via wire, and is source of GPIO tt trigger
-    TCDconnected = evalBool(settings.TCDpresent);
+    TCDbyWire = evalBool(settings.TCDpresent);
     noETTOLead = evalBool(settings.noETTOLead);
 
     // Eval other options
@@ -501,7 +501,7 @@ void main_setup()
         true      // Enable internal pull-down resistor
     );
     TTKey.attachPressEnd(TTKeyPressed);
-    if(!TCDconnected) {
+    if(!TCDbyWire) {
         // If we are in fact a physical button, we need
         // reasonable values for debounce and press
         TTKey.setTiming(TT_DEBOUNCE, TT_HOLD_TIME);
@@ -539,6 +539,9 @@ void main_setup()
 
     // Init music player (don't check for SD here)
     switchMusicFolder(musFolderNum, true);
+
+    // Set busy to avoid premature bttfn messages
+    vsrBusy++;
 
     // Initialize BTTF network
     bttfn_setup();
@@ -582,6 +585,9 @@ void main_setup()
         
     }
 
+    // Unset busy
+    vsrBusy--;
+
     #ifdef VSR_DBG
     Serial.println("main_setup() done");
     #endif
@@ -623,9 +629,6 @@ void main_loop()
             nmOverruled = false;
 
             flushDelayedSave();
-
-            doPrepareTT = false;
-            doWakeup = false;
             
             // FIXME - anything else?
             
@@ -639,10 +642,6 @@ void main_loop()
             vsrdisplay.on();
 
             vsrLEDs.on();
-
-            TTKey.reset();
-            isTTKeyHeld = isTTKeyPressed = false;
-            networkTimeTravel = false;
 
             // Play startup sequence
             play_startup();
@@ -662,6 +661,10 @@ void main_loop()
             mp_sendStatus();
             #endif
 
+            networkTimeTravel = false;
+            doPrepareTT = false;
+            doWakeup = false;
+
             // Force display update
             doForceDispUpd = true;
 
@@ -672,16 +675,16 @@ void main_loop()
 
     // Eval flags set in handle_tcd_notification
     if(doPrepareTT) {
+        doPrepareTT = false;
         if(FPBUnitIsOn && !ignTT && !TTrunning) {
             prepareTT();
         }
-        doPrepareTT = false;
     }
     if(doWakeup) {
+        doWakeup = false;
         if(FPBUnitIsOn && !TTrunning) {
             wakeup();
         }
-        doWakeup = false;
     }
 
     // Execute remote commands from TCD or MQTT
@@ -704,7 +707,7 @@ void main_loop()
     }
     #ifdef VSR_PROFILER
     q = millis() - q;
-    if(q > 15) Serial.printf("scanControls took %d\n", q);
+    if(q > 20) debugOutput("scanControls took %d\n", q);
     #endif
 
     // Handle pushwheel values
@@ -729,41 +732,42 @@ void main_loop()
     }
 
     // TT button evaluation
-    if(FPBUnitIsOn && !TTrunning) {
-        ttkeyScan();
-        if(isTTKeyHeld) {
+    ttkeyScan();
+    if(isTTKeyHeld) {
+        isTTKeyHeld = isTTKeyPressed = false;
+        if(FPBUnitIsOn && !TTrunning) {
             ssEnd();
-            isTTKeyHeld = isTTKeyPressed = false;
             // ...?
-        } else if(isTTKeyPressed) {
-            isTTKeyPressed = false;
-            if(!TCDconnected && ssActive) {
+        }
+    } else if(isTTKeyPressed) {
+        isTTKeyPressed = false;
+        if(FPBUnitIsOn && !TTrunning) {
+            if(!TCDbyWire && ssActive) {
                 // First button press when ss is active only deactivates SS
                 ssEnd();
             } else {
-                if(TCDconnected) {
+                if(TCDbyWire) {
                     ssEnd();
                 }
-                if(TCDconnected || !bttfnTT || !bttfn_trigger_tt()) {
-                    // stand-alone TT with P0_DUR lead, not ETTO_LEAD
-                    timeTravel(TCDconnected, (TCDconnected && noETTOLead) ? 0 : (TCDconnected ? ETTO_LEAD : P0_DUR));
+                if(TCDbyWire || !bttfnTT || !bttfn_trigger_tt()) {
+                    // P0 parm ignored for stand-alone TT
+                    timeTravel(TCDbyWire, noETTOLead ? 0 : ETTO_LEAD);
                 }
             }
         }
-    
-        // Check for BTTFN/MQTT-induced TT
-        if(networkTimeTravel) {
-            networkTimeTravel = false;
-            if(!networkAbort) {
-                /*if(!ignTT)*/ ssEnd();
-                timeTravel(networkTCDTT, networkLead, networkP1);
-            }
-        }
-    } else {
-        isTTKeyHeld = isTTKeyPressed = false;
-        TTKey.reset();
     }
 
+    // Check for BTTFN/MQTT-induced TT
+    if(networkTimeTravel) {
+        networkTimeTravel = false;
+        if(FPBUnitIsOn && !TTrunning) {
+            if(!networkAbort) {
+                ssEnd();    // End SS even if we ignore TT
+                timeTravel(true, networkLead, networkP1);
+            }
+        }
+    }
+    
     now = millis();
     
     // TT sequence logic: TT is mutually exclusive with stuff below (like SID)
@@ -794,66 +798,63 @@ void main_loop()
                       
                     // Update display during "acceleration"
                     switch(dispMode) {
-                    case LDM_GPS:
-                        if(gpsSpeed != prevGPSSpeed) {
-                            vsrdisplay.setSpeed(gpsSpeed);
+                    case LDM_TCDS:
+                        if(tcdSpeed != prevTCDSpeed) {
+                            vsrdisplay.setSpeed(tcdSpeed);
                             vsrdisplay.show();
-                            prevGPSSpeed = gpsSpeed;
+                            prevTCDSpeed = tcdSpeed;
                         }
                         break;
                     }
 
-                } else {
+                } else if(!networkAbort) {
 
-                    if(!networkAbort) {
+                    setTTOUT(HIGH);
 
-                        setTTOUT(HIGH);
-
-                        // If we have missed P0, play it now
-                        if(TTFInt) {
-                            if(playTTsounds) {
-                                play_file("/ttstart.mp3", PA_INTRMUS|PA_ALLOWSD, TT_V_LEV);
-                                append_file("/humm.wav", PA_LOOP|PA_WAV|PA_INTRMUS|PA_ALLOWSD, TT_V_LEV);
-                            }
+                    // If we have missed P0, play it now
+                    if(TTFInt) {
+                        if(playTTsounds) {
+                            play_file("/ttstart.mp3", PA_INTRMUS|PA_ALLOWSD, TT_V_LEV);
+                            append_file("/humm.wav", PA_LOOP|PA_WAV|PA_INTRMUS|PA_ALLOWSD, TT_V_LEV);
                         }
-
-                        vsrdisplay.setText("1.21");
-                        vsrdisplay.show();
-
-                        TTP0 = false;
-                        TTP1 = true;
-      
-                        TTstart = now;
-                        TTFInt = 1;
-                        
-                    } else {
-
-                        // We were aborted: Handle sound gracefully, skip P1.
-
-                        if(!TTFInt) {
-                            // If "humm" is still pending, replace by ttend
-                            // Otherwise interrupt "humm" by ttend
-                            if(append_pending()) {
-                                append_file("/ttend.mp3", PA_INTRMUS|PA_ALLOWSD, TT_V_LEV);
-                            } else {
-                                play_file("/ttend.mp3", PA_INTRMUS|PA_ALLOWSD, TT_V_LEV);
-                            }
-                        }
-
-                        TTP0 = false;
-                        TTP2 = true;
-
-                        TTstart = now;
-                      
                     }
 
+                    vsrdisplay.setText("1.21");
+                    vsrdisplay.show();
+
+                    TTP0 = false;
+                    TTP1 = true;
+  
+                    TTstart = now;
+                    TTFInt = 1;
+                    
+                } else {
+
+                    // We were aborted: Handle sound gracefully, skip P1.
+
+                    if(!TTFInt) {
+                        // If "humm" is still pending, replace by ttend
+                        // Otherwise interrupt "humm" by ttend
+                        if(append_pending()) {
+                            append_file("/ttend.mp3", PA_INTRMUS|PA_ALLOWSD, TT_V_LEV);
+                        } else {
+                            play_file("/ttend.mp3", PA_INTRMUS|PA_ALLOWSD, TT_V_LEV);
+                        }
+                    }
+
+                    TTP0 = false;
+                    TTP2 = true;
+
+                    TTstart = now;
+                  
                 }
+
             }
             if(TTP1) {   // Peak/"time tunnel" - ends with pin going LOW or MQTT "REENTRY" (or a long timeout)
 
-                if(((networkTCDTT && (!networkReentry && !networkAbort)) || 
-                    (!networkTCDTT && digitalRead(TT_IN_PIN)))               &&
-                    (millis() - TTstart <  P1_maxtimeout) ) {
+                if(((!TCDbyWire && !networkReentry && !networkAbort) || 
+                    (TCDbyWire && digitalRead(TT_IN_PIN)))               &&
+                   (millis() - TTstart <  P1_maxtimeout) ) {
 
                    // Wait...
                     
@@ -877,9 +878,15 @@ void main_loop()
                 if(now - TTstart > 500) {
                     TTP2 = false;
                     TTrunning = false;
-                    isTTKeyHeld = isTTKeyPressed = false;
+                    
+                    // Reset BLED states, button states
+                    // (Event eval skipped during tt, state machine outdated)
+                    resetButtons();
+                    resetBLEDandBState(false);
+                    
                     ssRestartTimer();
                     doForceDispUpd = true;
+
                 }
                 
             }
@@ -947,9 +954,15 @@ void main_loop()
                 if(now - TTstart > 500) {
                     TTP2 = false;
                     TTrunning = false;
-                    isTTKeyHeld = isTTKeyPressed = false;
+
+                    // Reset BLED states, button states
+                    // (Event eval skipped during tt, state machine outdated)
+                    resetButtons();
+                    resetBLEDandBState(false);
+
                     ssRestartTimer();
                     doForceDispUpd = true;
+
                 }
 
             }
@@ -961,8 +974,7 @@ void main_loop()
         if(TTrunningIOonly) {
             if(TTP0) {
                 if(networkAbort) {
-                    TTP0 = false;
-                    TTrunningIOonly = false;
+                    TTrunningIOonly = TTP0 = false;
                 } else if(now - TTstart >= P0duration) {
                     setTTOUT(HIGH);
                     TTP0 = false;
@@ -973,7 +985,7 @@ void main_loop()
             if(TTP1) {
                 if(networkReentry || networkAbort || (millis() - TTstart >= P1_maxtimeout)) {
                     setTTOUT(LOW);
-                    TTrunningIOonly = false;
+                    TTrunningIOonly = TTP1 = false;
                 }
             }
         }
@@ -983,7 +995,7 @@ void main_loop()
             ssEnd();
 
             if(evalBool(settings.playALsnd)) {
-                play_file("/alarm.mp3", PA_INTRMUS|PA_ALLOWSD|PA_DYNVOL, 1.0f);
+                play_file("/alarm.mp3", PA_INTRMUS|PA_ALLOWSD|PA_DYNVOL);
             }
 
             if(!FPBUnitIsOn) {
@@ -1014,11 +1026,11 @@ void main_loop()
         } else {
 
             // Wake up on RotEnc/Remote speed changes; on GPS only if old speed was <=0
-            if(gpsSpeed != oldGpsSpeed) {
-                if(FPBUnitIsOn && (spdIsRotEnc || oldGpsSpeed <= 0) && gpsSpeed >= 0) {
+            if(tcdSpeed != oldTCDSpeed) {
+                if(FPBUnitIsOn && (spdIsNonGPS || oldTCDSpeed <= 0) && tcdSpeed >= 0) {
                     wakeup();
                 }
-                oldGpsSpeed = gpsSpeed;
+                oldTCDSpeed = tcdSpeed;
             }
 
             now = millis();
@@ -1062,20 +1074,20 @@ void main_loop()
                             }
                             break;
         
-                        case LDM_GPS:
-                            if(gpsSpeed >= 0) {
-                                usingGPSS = true;
-                                GPSended = false;
-                                dispMode = LDM_GPS;
+                        case LDM_TCDS:
+                            if(tcdSpeed >= 0) {
+                                usingTCDS = true;
+                                TCDSended = false;
+                                dispMode = LDM_TCDS;
                             } else {
-                                if(usingGPSS) {
-                                    usingGPSS = false;
-                                    GPSended = true;
-                                    GPSendedNow = now;
-                                    gpsGracePeriod = spdIsRotEnc ? 0 : GPS_GRACE_PERIOD;
-                                    dispMode = LDM_GPS;
-                                } else if(GPSended) {
-                                    dispMode = LDM_GPS;
+                                if(usingTCDS) {
+                                    usingTCDS = false;
+                                    TCDSended = true;
+                                    TCDSendedNow = now;
+                                    tcdsGracePeriod = spdIsNonGPS ? 0 : TCDS_GRACE_PERIOD;
+                                    dispMode = LDM_TCDS;
+                                } else if(TCDSended) {
+                                    dispMode = LDM_TCDS;
                                 } else {
                                     dispMode = LDM_WHEELS;
                                 }
@@ -1107,9 +1119,9 @@ void main_loop()
 
                 // Sanitize
                 switch(dispMode) {
-                case LDM_GPS:
-                    if(GPSended && (now - GPSendedNow >= gpsGracePeriod)) {
-                        GPSended = false;
+                case LDM_TCDS:
+                    if(TCDSended && (now - TCDSendedNow >= tcdsGracePeriod)) {
+                        TCDSended = false;
                         dispMode = LDM_WHEELS;
                     }
                     break;
@@ -1124,11 +1136,11 @@ void main_loop()
 
                 // Display
                 switch(dispMode) {
-                case LDM_GPS:
-                    if(forceDispUpd || (gpsSpeed != prevGPSSpeed)) {
-                        vsrdisplay.setSpeed(gpsSpeed);
+                case LDM_TCDS:
+                    if(forceDispUpd || (tcdSpeed != prevTCDSpeed)) {
+                        vsrdisplay.setSpeed(tcdSpeed);
                         vsrdisplay.show();
-                        prevGPSSpeed = gpsSpeed;
+                        prevTCDSpeed = tcdSpeed;
                     }
                     if(!bttfnTCDSeqCnt) {
                         bttfnVSRPollInt = BTTFN_POLL_INT_FAST;
@@ -1166,11 +1178,7 @@ void main_loop()
                     if(forceDispUpd || (buttonMode != prevButtonMode)) {
                         vsrdisplay.setText(getBMString());
                         vsrdisplay.show();
-                        if(buttonMode != prevButtonMode) {
-                            butchgnow = millisNonZero();
-                        }
-                        storeButtonMode();
-                        prevButtonMode = buttonMode;
+                        prevButtonMode = lastDisplayedButtonMode = buttonMode;
                     }
                     break;
                 case LDM_SYS:
@@ -1232,7 +1240,7 @@ void main_loop()
              (!BTTFNBootTO && !lastBTTFNpacket && (now - powerupMillis > 60*1000))) ) {
             tcdNM = false;
             tcdFPO = false;
-            gpsSpeed = -1;
+            tcdSpeed = -1;
             TCDtemperature = -32768;
             haveTCDTemp = false;
             lastBTTFNpacket = 0;
@@ -1336,12 +1344,13 @@ void timeTravel(bool TCDtriggered, uint16_t P0Dur, uint16_t P1Dur)
     } else {
         TTrunning = true;
         TTrunningIOonly = false;
-    }
 
-    // All props stop the musicplayer on TT if playTTsounds is true
-    // (regardless of whether they are playing sound immediately or not)
-    if(playTTsounds) {
-        mp_stop();
+        // All props stop the musicplayer on TT if playTTsounds is true
+        // (regardless of whether they are playing sound immediately or not)
+        // We only stop the mp if we take part in the TT sequence though.
+        if(playTTsounds) {
+            mp_stop();
+        }
     }
 
     TTP0 = true;   // phase 0
@@ -1356,10 +1365,8 @@ void timeTravel(bool TCDtriggered, uint16_t P0Dur, uint16_t P1Dur)
 
     P0duration = P0Dur;
     
-    if(TCDtriggered) {    // TCD-triggered TT (GPIO, BTTFN or MQTT) (synced with TCD)
-      
-        extTT = true;
-        
+    if((extTT = TCDtriggered)) {    
+        // TCD-triggered TT (BTTFN, MQTT-pub, GPIO) (synced with TCD)
         if(P0duration > RELAY_AHEAD) {
             TTFDelay = P0duration - RELAY_AHEAD;
         } else if(P0duration > 600) {
@@ -1369,18 +1376,10 @@ void timeTravel(bool TCDtriggered, uint16_t P0Dur, uint16_t P1Dur)
         }
         TTFInt = 1;
         
-    } else {              // button-triggered TT (stand-alone)
-      
-        extTT = false;
-        
-        if(P0duration >= 600) {
-            TTFDelay = P0_DUR - 600;
-        } else {
-            TTFDelay = 0;
-        }
-        
+    } else {              
+        // button/IR/MQTT-cmd triggered TT (stand-alone)
+        TTFDelay = P0_DUR - 600;
         TTFInt = 1;
-                    
     }
     
     #ifdef VSR_DBG
@@ -1406,9 +1405,10 @@ static void play_startup()
         {  0,  0, 0, 0 }
     };
 
-    blockScan = true;
+    blockScan++;
+    vsrBusy++;
 
-    play_file("/startup.mp3", PA_ALLOWSD, 1.0f);
+    play_file("/startup.mp3", PA_ALLOWSD);
 
     while(!checkAudioDone() || !j) {
         vsrdisplay.setText((char *)intro[i++]);
@@ -1419,11 +1419,13 @@ static void play_startup()
     }
     vsrdisplay.setText((char *)intro[10]);
 
-    blockScan = false;
+    blockScan--;
+    vsrBusy--;
 }
 
 static void displayButtonMode()
 {        
+    lastDisplayedButtonMode = buttonMode;
     vsrdisplay.setText(getBMString());
     vsrdisplay.show();
     mydelay(1000);
@@ -1463,15 +1465,20 @@ static void setNightMode(bool nmode)
     vsrNM = nmode;
 }
 
+void ButLEDsOff()
+{
+    vsrLEDs.off();
+}
+
 void allOff()
 {
     vsrdisplay.off();
-    vsrLEDs.off();
+    ButLEDsOff();
 }
 
 void prepareReboot()
 {
-    vsrBusy = true;
+    vsrBusy = 1;
     mp_stop(true);
     stopAudio();
 
@@ -1540,8 +1547,10 @@ void ssEnd()
  * Show special signals
  */
 
-void showWaitSequence()
+void showWaitSequence(bool force)
 {
+    ssEnd();
+    if(force) vsrdisplay.on();
     vsrdisplay.setText("\78\7");
     vsrdisplay.show();
 }
@@ -1679,7 +1688,7 @@ static void execute_remote_command()
                 dmc = true;
                 break;
             case 2:
-                userDispMode = LDM_GPS;
+                userDispMode = LDM_TCDS;
                 dmc = true;
                 break;
             }
@@ -1781,9 +1790,8 @@ static void execute_remote_command()
             switch(command) {
             case 0:
                 // Trigger stand-alone Time Travel
-                // We have no "acceleration", hence P0_DUR, not ETTO_LEAD
                 ssEnd();
-                timeTravel(false, P0_DUR);    
+                timeTravel(false);    
                 break;
             case 7:    
                 mp_play();
@@ -1856,7 +1864,8 @@ void display_ip()
     vsrdisplay.setText("IP");
     vsrdisplay.show();
 
-    blockScan = true;
+    vsrBusy++;
+    blockScan++;
 
     mydelay(500);
 
@@ -1873,7 +1882,8 @@ void display_ip()
     vsrdisplay.show();
     mydelay(500);
 
-    blockScan = false;
+    blockScan--;
+    vsrBusy--;
 
     doForceDispUpd = true;
 }
@@ -1886,7 +1896,8 @@ bool switchMusicFolder(uint8_t nmf, bool isSetup)
     
     if((musFolderNum != nmf) || isSetup) {
 
-        vsrBusy = blockScan = true;
+        vsrBusy++; 
+        blockScan++;
         
         if(!isSetup) {
             musFolderNum = nmf;
@@ -1913,7 +1924,8 @@ bool switchMusicFolder(uint8_t nmf, bool isSetup)
             endWaitSequence();
         }
 
-        vsrBusy = blockScan = false;
+        vsrBusy--;
+        blockScan--;;
     }
 
     // Let audio_loop take care of updating MP status
@@ -2048,9 +2060,9 @@ static void bttfn_eval_response(uint8_t *buf, bool checkCaps)
     }
     
     if(buf[5] & 0x02) {
-        gpsSpeed = (int16_t)(buf[18] | (buf[19] << 8));
-        if(gpsSpeed > 88) gpsSpeed = 88;
-        spdIsRotEnc = !!(buf[26] & (0x80|0x20));    // Speed is from RotEnc or Remote
+        tcdSpeed = (int16_t)(buf[18] | (buf[19] << 8));
+        if(tcdSpeed > 88) tcdSpeed = 88;
+        spdIsNonGPS = !!(buf[26] & (0x80|0x20));    // Speed is from RotEnc or Remote
     }
 
     if(buf[5] & 0x04) {
@@ -2121,22 +2133,22 @@ static void handle_tcd_notification(uint8_t *buf)
         if(seqCnt > bttfnTCDSeqCnt || seqCnt == 1) {
             switch(buf[8] | (buf[9] << 8)) {
             case BTTFN_SSRC_GPS:
-                spdIsRotEnc = false;
+                spdIsNonGPS = false;
                 break;
             case BTTFN_SSRC_P1:
                 // If packets come out-of-order, we might
                 // get this one before TTrunning, and we
-                // don't want a switch to usingGPSS only 
+                // don't want a switch to usingTCDS only 
                 // because of P1 speed
                 if(!TTrunning) return;
                 // fall through
             default:
-                spdIsRotEnc = true;
+                spdIsNonGPS = true;
             }
-            gpsSpeed = (int16_t)(buf[6] | (buf[7] << 8));
-            if(gpsSpeed > 88) gpsSpeed = 88;
+            tcdSpeed = (int16_t)(buf[6] | (buf[7] << 8));
+            if(tcdSpeed > 88) tcdSpeed = 88;
             #ifdef VSR_DBG_NET
-            Serial.printf("TCD sent speed %d\n", gpsSpeed);
+            Serial.printf("TCD sent speed %d\n", tcdSpeed);
             #endif
         } else {
             #ifdef VSR_DBG_NET
@@ -2157,26 +2169,25 @@ static void handle_tcd_notification(uint8_t *buf)
     case BTTFN_NOT_TT:
         // Trigger Time Travel (if not running already)
         // Ignore command if TCD is connected by wire
-        if(!TCDconnected && !TTrunning && !TTrunningIOonly && !vsrBusy) {
+        if(!TCDbyWire && !TTrunning && !TTrunningIOonly && !vsrBusy) {
+            networkTimeTravel = true;
+            networkReentry = networkAbort = false;
             networkLead = buf[6] | (buf[7] << 8);
             networkP1 = buf[8] | (buf[9] << 8);
-            networkReentry = false;
-            networkAbort = false;
-            networkTimeTravel = true;
-            networkTCDTT = true;
         }
         break;
     case BTTFN_NOT_REENTRY:
         // Start re-entry (if TT currently running)
         // Ignore command if TCD is connected by wire
-        if(!TCDconnected && (TTrunning || TTrunningIOonly || networkTimeTravel) && networkTCDTT) {
-            networkReentry = true;
+        if(!TCDbyWire) {
+            if(TTrunning || TTrunningIOonly) networkReentry = true;
+            else networkTimeTravel = false;
         }
         break;
     case BTTFN_NOT_ABORT_TT:
         // Abort TT (if TT currently running)
         // Ignore command if TCD is connected by wire
-        if(!TCDconnected && (TTrunning || TTrunningIOonly || networkTimeTravel) && networkTCDTT) {
+        if(!TCDbyWire && (TTrunning || TTrunningIOonly || networkTimeTravel)) {
             networkAbort = true;
         }
         break;

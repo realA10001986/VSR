@@ -58,14 +58,13 @@
 #define MS(s) XMS(s)
 #define XMS(s) #s
 
-void settings_setup();
-
 void unmount_fs();
 
-void write_settings();
-bool checkConfigExists();
-
 bool evalBool(char *s);
+
+void write_settings();
+
+void settings_setup();
 
 void loadBrightness();
 void storeBrightness();
@@ -102,14 +101,14 @@ bool loadIpSettings();
 void writeIpSettings();
 void deleteIpSettings();
 
+void moveSettings();
+
 bool check_if_default_audio_present();
 bool prepareCopyAudioFiles();
 void doCopyAudioFiles();
 
 bool check_allow_CPA();
 void delete_ID_file();
-
-void moveSettings();
 
 #define MAX_SIM_UPLOADS 16
 #define UPL_OPENERR 1
@@ -141,7 +140,7 @@ void   freeUploadFileNames();
 #define DEF_DISP_BM         1     // Show button mode upon power-up: 1=yes, 0=no
 #define DEF_PLAY_TT_SND     1     // 1: Play time travel sounds (0: Do not; for use with external equipment)
 #define DEF_PLAY_ALM_SND    0     // 1: Play TCD-alarm sound, 0: do not
-#define DEF_SIG_BM          0     // Signal button mode by permanent button lights
+#define DEF_SIG_BM          1     // 1: Signal button mode by permanent button lights  0: Do not (might be confusing)
 #define DEF_BRI             15    // Default display brightness
 #define DEF_SS_TIMER        0     // "Screen saver" timeout in minutes; 0 = ss off
 
@@ -160,7 +159,6 @@ void   freeUploadFileNames();
 #define DEF_NO_ETTO_LEAD    0     // 0: TCD signals TT with ETTO_LEAD lead time; 1 without
 
 #define DEF_CFG_ON_SD       1     // Save secondary settings on SD card. Default: Yes (1)
-#define DEF_SD_FREQ         0     // SD/SPI frequency: Default 16MHz
 
 struct Settings {
     char ssid[34]           = "";
@@ -203,7 +201,6 @@ struct Settings {
     char noETTOLead[2]      = MS(DEF_NO_ETTO_LEAD);
 
     char CfgOnSD[2]         = MS(DEF_CFG_ON_SD);
-    char sdFreq[2]          = MS(DEF_SD_FREQ);
 
 #ifdef VSR_HAVEMQTT  
     char useMQTT[2]         = "0";
