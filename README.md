@@ -941,7 +941,7 @@ The backchannel is used/required by the A10001986 [Lou's Cafe Jukebox](https://j
 - "ERR": Error while installing the sound-pack. Please try again.
 - "IP": IP address is going to be shown.
 - "RST": WiFi password cleared; static IP permanently deleted
-- "UPD": Firmware update available; shown briefly at power-up (optional).
+- "UPD": Firmware update available. Shown briefly at power-up.
 - "LOW": Temperature below -99 degrees.
 - "HI": Temperature above 999 degrees.
 - "SHU": Shuffle mode enabled
