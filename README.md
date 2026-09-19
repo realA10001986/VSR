@@ -846,7 +846,7 @@ If this option is checked, and your TCD is equipped with a fake power switch, th
 
 If this option is checked, and your TCD goes into night mode, the VSR will disable or dim the display and the button lights, and reduce its audio volume.
 
-##### &#9193; TT buttons trigger BTTFN-wide TT
+##### &#9193; TT buttons trigger BTTFN-wide Time Travel
 
 If the VSR is connected to a TCD through BTTFN, this option allows to trigger a synchronized time travel on all BTTFN-connected devices when pressing ```9``` in _Operation_ [button mode](#button-modes) or pressing the Time Travel button, just as if the time travel was triggered by the TCD. If this option is unchecked, these actions only trigger a time travel sequence on the VSR.
 
