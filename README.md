@@ -858,7 +858,7 @@ If this is checked, the VSR ignores network-wide (BTTFN, MQTT) time travels. Aft
 
 ##### &#9193; TCD connected by wire
 
-Check this if you have a Time Circuits Display connected by wire. Note that a wired connection only allows for synchronized time travel sequences, no other communication takes place.
+Check this if you have a Time Circuits Display connected to your VSR by wire. Note that a wired connection only allows for synchronized time travel sequences, no other communication takes place.
 
 While you can connect both a button and the TCD to the "time travel" connector on the VSR, the button should not be pressed when this option is set, as it might yield unwanted effects.
 
