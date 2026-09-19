@@ -834,17 +834,17 @@ This offset, which can range from -3.0 to 3.0, is added to the sensor measuremen
 
 #### <ins>Settings for BTTFN communication</ins>
 
-##### &#9193; Hostname or IP address of TCD
+##### &#9193; Hostname of TCD
 
-If you want to have your VSR to communicate with a Time Circuits Display wirelessly ("BTTF-Network"), enter the TCD's hostname - usually 'timecircuits' - or IP address here. Hostname is preferred because it makes the setup independent of the network environment.
-
-##### &#9193; Follow TCD night-mode
-
-If this option is checked, and your TCD goes into night mode, the VSR will disable or dim the display and the button lights, and reduce its audio volume.
+If you want to have your SID to communicate with a Time Circuits Display wirelessly ("BTTF-Network"), enter the TCD's hostname - usually 'timecircuits' - here. Although specifying the TCD's IP address is supported as well, the hostname is preferred because it makes your setup independent of the network environment.
 
 ##### &#9193; Follow TCD fake power
 
 If this option is checked, and your TCD is equipped with a fake power switch, the VSR will also fake-power up/down. If fake power is off, the VSR will be dark and it will ignore all input from buttons.
+
+##### &#9193; Follow TCD night-mode
+
+If this option is checked, and your TCD goes into night mode, the VSR will disable or dim the display and the button lights, and reduce its audio volume.
 
 ##### &#9193; TT buttons trigger BTTFN-wide TT
 
