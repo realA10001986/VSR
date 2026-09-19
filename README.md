@@ -836,7 +836,7 @@ This offset, which can range from -3.0 to 3.0, is added to the sensor measuremen
 
 ##### &#9193; Hostname of TCD
 
-If you want to have your SID to communicate with a Time Circuits Display wirelessly ("BTTF-Network"), enter the TCD's hostname - usually 'timecircuits' - here. Although specifying the TCD's IP address is supported as well, the hostname is preferred because it makes your setup independent of the network environment.
+If you want to have your VSR to communicate with a Time Circuits Display wirelessly ("BTTF-Network"), enter the TCD's hostname - usually 'timecircuits' - here. Although specifying the TCD's IP address is supported as well, the hostname is preferred because it makes your setup independent of the network environment.
 
 ##### &#9193; Follow TCD fake power
 
