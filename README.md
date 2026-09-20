@@ -327,7 +327,7 @@ The uploaded files are stored to the root folder of the SD card, so this way of 
 The firmware contains a simple music player to play mp3 files located on the SD card. 
 
 > [!NOTE]
-> The maximum mp3 bitrate is __128kpbs__. The free [Adapter](https://macroplant.com/adapter/audio-converter) tool can re-encode your mp3 files in batches.
+> The maximum mp3 bitrate is __128kpbs__. The free [Adapter&#10548;](https://macroplant.com/adapter/audio-converter) tool can re-encode your mp3 files in batches.
 
 To be recognized, your mp3 files need to be organized in music folders named *music0* through *music9*. The folder number is 0 by default, i.e. the player starts searching for music in folder *music0*. The folder number can be changed in the Config Portal or through the TCD keypad (```805x```) or HA/MQTT (```MP_FOLDER_x```).
 
@@ -600,7 +600,7 @@ This configuration can easily be achieved by putting both the TCD and the VSR in
 #### VSR
 
 One-time configuration steps:
-- Enter the Config Portal on the VSR, click on *Settings* and check that the hostname of the TCD (usually "timecircuits") is present in the  **_Hostname or IP address of TCD_** under *Wireless communication (BTTF-Network)* settings; do _not_ use an IP address.
+- Enter the Config Portal on the VSR, click on *Settings* and check that the hostname of the TCD (usually "timecircuits") is present in the  **_Hostname of TCD_** under *Wireless communication (BTTF-Network)* settings.
 - Furthermore, on the *WiFi Configuration* page, check that the TCD's WiFi network name (SSID; usually "TCD-AP") and password (if the TCD is configured with a password) are present under *Car mode settings*.
 
 If everything is in place, you can enable Car mode on the VSR by holding button ```9``` in Admin button mode for 2 seconds. The VSR will reboot and attempt to connect to the TCD's AP.
@@ -704,7 +704,7 @@ To connect your VSR to your WiFi network, all you need to do is either to click 
 
 >By default, the VSR requests an IP address via DHCP. However, you can also configure a static IP for the VSR by entering the IP, netmask, gateway and DNS server. All four fields must be filled for a valid static IP configuration. If you want to stick to DHCP, leave those four fields empty.
 
-If there are several APs with identical SSID nearby, the VSR will connect to the first one found, which might not be the one with the strongest signal. It is therefore recommended to select the nearest/strongest AP by its BSSID (AP's MAC address). You can either manually find out your AP's BSSID and enter it or have it filled out automatically: Click "Scan for networks", then "Show all". If you click on an AP, its BSSID will be copied into BSSID field in the form below. To see which AP is which, hover over the name to see its BSSID as a tooltip.
+If there are several APs with identical SSID nearby, the VSR will connect to the first one found, which might not be the one with the strongest signal. It is therefore recommended to select the nearest/strongest AP by its BSSID (AP's MAC address, a unique identifier for a specific AP). You can either manually find out your AP's BSSID and enter it or have it filled out automatically: Click "Scan for networks", then "Show all". If you click on an AP, its BSSID will be copied into BSSID field in the form below. To see which AP is which, hover over the name to see its BSSID as a tooltip.
 
 ##### &#9193; Forget Saved WiFi Network
 
