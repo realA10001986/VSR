@@ -29,6 +29,8 @@
 
 #define WM_CCM
 
+#define WM_FWPROT "VSR"
+
 // #define WM_AP_STATIC_IP
 // #define WM_APCALLBACK
 // #define WM_PRECONNECTCB
