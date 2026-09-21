@@ -58,7 +58,7 @@
 #include <WiFi.h>
 #include "vsrdisplay.h"
 #include "input.h"
-#ifdef VSR_HAVETEMP
+#ifdef HAVE_TEMP
 #include "sensors.h"
 #endif
 
@@ -99,7 +99,7 @@ vsrBLEDs vsrLEDs(1,
 // The tt button / TCD tt trigger object
 static VSRButton TTKey = VSRButton();
 
-#ifdef VSR_HAVETEMP
+#ifdef HAVE_TEMP
 tempSensor tempSens(9, 
             (uint8_t[9*2]){ MCP9808_ADDR, MCP9808,
                             BMx280_ADDR,  BMx280,
@@ -178,7 +178,7 @@ static float   prevTemperature = -32767.0f;
 
 bool                 haveTempSens = false;
 static bool          tempUnit = DEF_TEMP_UNIT;
-#ifdef VSR_HAVETEMP
+#ifdef HAVE_TEMP
 static unsigned long tempReadNow = 0;
 static unsigned long tempUpdInt = TEMP_UPD_INT_L;
 #endif
@@ -250,7 +250,7 @@ int                  blockScan = 0;
 #define BTTFN_TYPE_SID     2    // SID
 #define BTTFN_TYPE_PCG     3    // Dash Gauges
 #define BTTFN_TYPE_VSR     4    // VSR
-#define BTTFN_TYPE_AUX     5    // Aux (user custom device)
+#define BTTFN_TYPE_AUX     5    // Aux (user custom device, Jukebox)
 #define BTTFN_TYPE_REMOTE  6    // Futaba remote control
 #define BTTFN_NOT_PREPARE  1
 #define BTTFN_NOT_TT       2
@@ -351,6 +351,8 @@ static void setTTOUT(uint8_t stat);
 
 static void execute_remote_command();
 
+static bool switchMusicFolder(uint8_t nmf, bool isSetup = false);
+
 static void play_startup();
 static void displayButtonMode();
 
@@ -365,7 +367,7 @@ static void ssStart();
 static void prepareTT();
 static void wakeup();
 
-#ifdef VSR_HAVETEMP
+#ifdef HAVE_TEMP
 static void myCustomDelay_Sens(unsigned long mydel);
 static void updateTemperature(bool force = false);
 #endif
@@ -478,7 +480,7 @@ void main_setup()
     bttfnTT = evalBool(settings.bttfnTT);
 
     tempUnit = evalBool(settings.tempUnit);
-    #ifdef VSR_HAVETEMP
+    #ifdef HAVE_TEMP
     if(tempSens.begin(powerupMillis, myCustomDelay_Sens)) {
         haveTempSens = true;
         tempSens.setOffset((float)strtof(settings.tempOffs, NULL));
@@ -657,7 +659,7 @@ void main_loop()
             ssRestartTimer();
             ssActive = false;
 
-            #ifdef VSR_HAVEMQTT
+            #ifdef HAVE_MQTT
             mp_sendStatus();
             #endif
 
@@ -693,7 +695,7 @@ void main_loop()
     }
 
     // Update temp sensor reading
-    #ifdef VSR_HAVETEMP
+    #ifdef HAVE_TEMP
     updateTemperature();
     #endif
 
@@ -1147,7 +1149,7 @@ void main_loop()
                     }
                     break;
                 case LDM_TEMP:
-                    #ifdef VSR_HAVETEMP
+                    #ifdef HAVE_TEMP
                     if(haveTempSens) {
                         temperature = tempSens.readLastTemp();
                     } else if(haveTCDTemp) {
@@ -1302,7 +1304,7 @@ static void chgVolume(int d)
     if(aud_state.curVolume != nv) {
         aud_state.curVolume = nv;
 
-        #ifdef VSR_HAVEMQTT
+        #ifdef HAVE_MQTT
         mp_sendStatus();
         #endif
     
@@ -1483,6 +1485,8 @@ void prepareReboot()
     stopAudio();
 
     setTTOUT(LOW);
+
+    wifiMDNSGoodBye();
     
     allOff();
     
@@ -1727,7 +1731,7 @@ static void execute_remote_command()
                     aud_state.curVolume = command;
                     volchgnow = millisNonZero();
                     storeCurVolume();
-                    #ifdef VSR_HAVEMQTT
+                    #ifdef HAVE_MQTT
                     mp_sendStatus();
                     #endif
                 }
@@ -1782,7 +1786,7 @@ static void execute_remote_command()
         // All below only when we're ON
         // Commands allowed while off must be handled in mqttCallback()
 
-        #ifdef VSR_HAVEMQTT
+        #ifdef HAVE_MQTT
         if(!injected) {
 
             command -= 1000;
@@ -1847,7 +1851,7 @@ static void execute_remote_command()
             break;
         default:                                  // 8888xxx: goto song #xxx
             if((command / 1000) == 888) {
-                uint16_t num = command - 888000;
+                int num = command - 888000;
                 num = mp_gotonum(num, true);
             }
             break;
@@ -1888,7 +1892,7 @@ void display_ip()
     doForceDispUpd = true;
 }
 
-bool switchMusicFolder(uint8_t nmf, bool isSetup)
+static bool switchMusicFolder(uint8_t nmf, bool isSetup)
 {
     bool waitShown = false;
 
@@ -1963,7 +1967,7 @@ void myCustomDelay_KP(unsigned long mydel)
     myCustomDelay_int(mydel, 1);
 }
 
-#ifdef VSR_HAVETEMP
+#ifdef HAVE_TEMP
 static void myCustomDelay_Sens(unsigned long mydel)
 {
     myCustomDelay_int(mydel, 5);

@@ -60,6 +60,10 @@
 
 void unmount_fs();
 
+void deleteFileFromSD(const char *fn);
+bool readFileFromSD(const char *fn, uint8_t *buf, int len);
+bool writeFileToSD(const char *fn, uint8_t *buf, int len);
+
 bool evalBool(char *s);
 
 void write_settings();
@@ -187,7 +191,7 @@ struct Settings {
     char diNmOff[2]         = MS(DEF_DI_NM);
 
     char tempUnit[2]        = MS(DEF_TEMP_UNIT);
-    #ifdef VSR_HAVETEMP
+    #ifdef HAVE_TEMP
     char tempOffs[6]        = MS(DEF_TEMP_OFFS);
     #endif
 
@@ -202,7 +206,7 @@ struct Settings {
 
     char CfgOnSD[2]         = MS(DEF_CFG_ON_SD);
 
-#ifdef VSR_HAVEMQTT  
+#ifdef HAVE_MQTT  
     char useMQTT[2]         = "0";
     char mqttVers[2]        = "0"; // 0 = 3.1.1, 1 = 5.0
     char mqttServer[80]     = "";  // ip or domain [:port]  

@@ -59,7 +59,7 @@
 #ifndef _VSRSENSOR_H
 #define _VSRSENSOR_H
 
-#if defined(VSR_HAVETEMP)
+#if defined(HAVE_TEMP)
 
 class tcSensor {
 
@@ -82,7 +82,7 @@ class tcSensor {
 
 #endif
 
-#ifdef VSR_HAVETEMP    // -----------------------------------------
+#ifdef HAVE_TEMP    // -----------------------------------------
 
 enum {
     MCP9808 = 0,      // 0x18 (unsupported: 0x19-0x1f)

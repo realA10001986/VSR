@@ -62,6 +62,8 @@ bool wifiOnWillBlock();
 void wifiStartCP();
 bool updateAvailable();
 
+void wifiMDNSGoodBye();
+
 void updateConfigPortalBriValues();
 void updateConfigPortalUpdValues();
 
@@ -70,7 +72,7 @@ bool isIp(char *str);
 
 bool checkIPConfig();
 
-#ifdef VSR_HAVEMQTT
+#ifdef HAVE_MQTT
 bool mqttConnected();
 bool mqttPublish(const char *topic, const char *pl, unsigned int len);
 #endif
@@ -82,7 +84,7 @@ extern bool wifiInAPMode;
 
 extern bool carMode;
 
-#ifdef VSR_HAVEMQTT
+#ifdef HAVE_MQTT
 extern bool useMQTT;
 extern bool pubMP;
 #endif

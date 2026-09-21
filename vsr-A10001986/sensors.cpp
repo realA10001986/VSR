@@ -69,7 +69,7 @@
 
 #include "vsr_global.h"
 
-#ifdef VSR_HAVETEMP
+#ifdef HAVE_TEMP
 
 #include <Arduino.h>
 #include <Wire.h>
@@ -815,4 +815,4 @@ bool tempSensor::readAndCheck6(uint8_t *buf, uint16_t& t, uint16_t& h, uint8_t c
     return false;
 }
 
-#endif // VSR_HAVETEMP
+#endif // HAVE_TEMP

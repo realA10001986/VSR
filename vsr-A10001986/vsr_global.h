@@ -15,8 +15,8 @@
  ***                          Version Strings                          ***
  *************************************************************************/
 
-#define VSR_VERSION "V1.35"                 // Do NOT change format.
-#define VSR_VERSION_EXTRA "AUG262026"
+#define VSR_VERSION "V1.36"                 // Do NOT change format.
+#define VSR_VERSION_EXTRA "SEP202026"
 
 /*************************************************************************
  ***             Configuration for hardware/peripherals                ***
@@ -26,14 +26,14 @@
 // SI7021, SHT4x, TMP117, AHT20, HTU31D, MS8607, HDC302X) connected via i2c.
 // Will be used to display ambient temperature on display when idle.
 // See sensors.cpp for supported i2c slave addresses
-#define VSR_HAVETEMP
+#define HAVE_TEMP
 
 /*************************************************************************
  ***                           Miscellaneous                           ***
  *************************************************************************/
 
 // Uncomment for HomeAssistant MQTT protocol support
-#define VSR_HAVEMQTT
+#define HAVE_MQTT
 
 // External time travel lead time, as defined by TCD firmware
 // If VSR is connected to TCD by wire, and the option "Signal Time Travel 
@@ -41,16 +41,16 @@
 // lead" must be set, too.
 #define ETTO_LEAD 5000
 
-// Enable LED display test at boot
-//#define VSR_DIAG
-//#define VSR_DIAG2
-
 /*************************************************************************
  ***                               Debug                               ***
  *************************************************************************/
 
 //#define VSR_DBG               // Generic except below
 //#define VSR_DBG_NET           // Prop network related
+
+// Enable LED display test at boot
+//#define VSR_DIAG
+//#define VSR_DIAG2
 
 #ifdef VSR_DBG
 //#define VSR_PROFILER
@@ -63,8 +63,8 @@
 #if defined __has_include && __has_include(<esp_arduino_version.h>)
 #include <esp_arduino_version.h>
 #ifdef ESP_ARDUINO_VERSION_MAJOR
-    #if ESP_ARDUINO_VERSION >= ESP_ARDUINO_VERSION_VAL(2,0,8)
-    #define HAVE_GETNEXTFILENAME
+    #if ESP_ARDUINO_VERSION < ESP_ARDUINO_VERSION_VAL(2,0,8)
+    #error "ESP-arduino >= 2.0.8 required"
     #endif
 #endif
 #endif

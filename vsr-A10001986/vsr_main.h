@@ -91,7 +91,6 @@ void prepareReboot();
 
 void display_ip();
 
-bool switchMusicFolder(uint8_t nmf, bool isSetup = false);
 void waitAudioDone();
 
 void myCustomDelay_KP(unsigned long mydel);
