@@ -29,7 +29,7 @@ For information on updating the firmware of your VSR, see [here](#firmware-insta
 
 >Buttons can be _pressed_, which means a brief press-and-release, or _held_, meaning pressing and holding the button for 2 seconds.
 
-The first step is to put a **good-quality** ("endurance", "long life", ...) **microSD card into the card slot**. The maximum size is 32GB and the card must be FAT32 formatted. [More information](#sd-card)
+The first step is to put a **good-quality** ("endurance", "long life", ...) **and empty microSD card into the card slot**. The maximum size is 32GB and the card must be FAT32 formatted. [More information](#sd-card)
 
 The second step is to establish access to the VSR's configuration website ("Config Portal") in order to configure your VSR:
 
