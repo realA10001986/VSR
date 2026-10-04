@@ -15,7 +15,6 @@ Features include
 - various display modes, selectable by buttons: Pushwheel values, temperature (from directly connected sensor or from [CircuitSetup](https://circuitsetup.us) [Time Circuits Display](https://tcd.out-a-ti.me)) or speed (from a [Time Circuits Display](https://tcd.out-a-ti.me))
 - [Time Travel](#time-travel) sequence, triggered by button, [Time Circuits Display](https://tcd.out-a-ti.me) or via [Home Assistant](#home-assistant--mqtt)
 - [Music player](#the-music-player): Play mp3 files located on an SD card, controlled by buttons, [Time Circuits Display](https://tcd.out-a-ti.me) or HomeAssistant
-- [SD card](#sd-card) support for custom audio files for effects and music for the Music Player. SD card required for firmware updates.
 - advanced network-accessible [Config Portal](#the-config-portal) for setup (http://vsr.local)
 - [wireless communication](#bttf-network-bttfn) with [Time Circuits Display](https://tcd.out-a-ti.me); used for synchronized time travels, alarm, night mode, fake power, temperature display and remote control through keypad
 - [Home Assistant](#home-assistant--mqtt) (MQTT) support
@@ -25,11 +24,9 @@ For information on updating the firmware of your VSR, see [here](#firmware-insta
 
 ## Initial Configuration
 
->The following instructions only need to be followed once, on fresh VSRs. They do not need to be repeated after a firmware update.
+**Some functions of your VSR require an SD card.** The first step is therefore to put a **good-quality** ("endurance", "industrial", "long life", ...) **and empty microSD card into the card slot**. The SD card must be inserted before powering up the VSR. It is not recognized if inserted while the VSR is running. Furthermore, do not remove the SD card while the VSR is powered.
 
->Buttons can be _pressed_, which means a brief press-and-release, or _held_, meaning pressing and holding the button for 2 seconds.
-
-The first step is to put a **good-quality** ("endurance", "industrial", "long life", ...) **and empty microSD card into the card slot**. The maximum size is 32GB and the card must be FAT32 formatted. [More information](#sd-card)
+>SD/SDHC/SDXC cards up to 32GB are supported. The card needs to be FAT32-formatted (not exFAT). Transcend, Sandisk Ultra and Industrial, Verbatim Premium and Samsung Pro Endurance SDHC cards usually work fine. Some SD cards might not be recognized due to off-specs initialization quirks. SDUC cards are not supported.
 
 The second step is to establish access to the VSR's configuration website ("Config Portal") in order to configure your VSR:
 
@@ -125,6 +122,8 @@ A full reference of the Config Portal is [here](#appendix-a-the-config-portal).
 ## Basic Operation
 
 By default, the display shows the value selected by the pushwheels, with slight fluctuations (which can be disabled in the Config Portal). Changing the pushwheels results in the display adapting to the new value, which is done smoothly (which also can be disabled in the Config Portal).
+
+>Buttons can be _pressed_, which means a brief press-and-release, or _held_, meaning pressing and holding the button for 2 seconds.
 
 ### Display modes
 
@@ -282,13 +281,7 @@ For longer cables, ie >50cm (>20in), I recommend using a twisted pair cable, and
 
 Your VSR can also display speed, provided a TCD is connected through [BTTFN](#bttf-network-bttfn), and the TCD has either a GPS receiver or a rotary encoder configured for speed, or a [Futaba Remote Control](https://remote.out-a-ti.me) is present. Please see [here](https://tcd.out-a-ti.me) for more information.
 
-## SD Card
-
->Only SD/SDHC/SDXC cards up to 32GB are supported. Card needs to be FAT32-formatted (not exFAT). Transcend, Sandisk Ultra (as of firmware version 1.34) and Industrial, Verbatim Premium and Samsung Pro Endurance SDHC cards usually work fine. Some SD cards might not be recognized due to off-specs initialization quirks. SDUC cards are not supported.
-
-The SD card, apart from being required for [installing](#sound-pack-installation) the sound-pack, can be used for substituting built-in sound effects and for music played back by the [Music player](#the-music-player). Also, it is _strongly recommended_ to store [secondary settings](#-save-secondary-settings-on-sd) on the SD card to minimize [Flash Wear](#flash-wear). Button and display modes are only saved on SD; if no SD card is present, they are reset to default upon power-up.
-
-The SD card must be inserted before powering up the device. It is not recognized if inserted while the VSR is running. Furthermore, do not remove the SD card while the device is powered.
+## Sound Customization
 
 ### Sound substitution
 
@@ -624,15 +617,14 @@ After WiFi has been switched off due to timer expiration, it can be re-enabled b
 
 > Holding ```10``` in Admin button mode also triggers a re-connection attempt in case your configured WiFi network was not available when the VSR was trying to connect, see [here](#home-setup-with-a-pre-existing-local-wifi-network).
 
-## Flash Wear
-
-Flash memory has a somewhat limited lifetime. It can be written to only between 10.000 and 100.000 times before becoming unreliable. The firmware writes to the internal flash memory when saving settings and other data. Every time you change settings, data is written to flash memory.
-
-In order to reduce the number of write operations and thereby prolong the life of your VSR, it is recommended to use a good-quality SD card and to check **_[Save secondary settings on SD](#-save-secondary-settings-on-sd)_** in the Config Portal; secondary settings are then stored on the SD card (which also suffers from wear but is easy to replace). See [here](#-save-secondary-settings-on-sd) for more information.
-
 ## Firmware Installation / Firmware Update
 
-To update the firmware of your VSR, enter the [Config Portal](#the-config-portal), click on "Update & Upload", select the pre-compiled binary file ("**vsr-A10001986-Vx.xx.bin**") provided in the [Release package](https://github.com/realA10001986/VSR/releases), and click on *Update*.
+To update the firmware of your VSR, 
+- download the firmware file provided in the [Release package](https://github.com/realA10001986/VSR/releases) ("**vsr-A10001986-Vx.xx.bin**")
+- enter the [Config Portal](#the-config-portal),
+- click on "Update & Upload",
+- select the downloaded firmware file in the _top_ file selector, and
+- click on *Update*. 
 
 <details>
 <summary>Installing on a fresh ESP32...</summary>
@@ -645,11 +637,15 @@ If you are using a fresh ESP32, please go <a href="https://install.out-a-ti.me">
 
 The firmware comes with a sound-pack which needs to be installed separately. The sound-pack is not updated as often as the firmware itself. There will be a message in the Config Portal and the VSR will briefly display "INS"-"SND"-"PCK" during boot when/if the sound-pack needs to be updated.
 
-_Installing the sound-pack requires an [SD card](#sd-card)._
+_Installing the sound-pack requires an [SD card](#initial-configuration)._
 
-The first step is to extract "sound-pack-vrXX.zip" (which is included in every [Release package](https://github.com/realA10001986/VSR/releases)). It contains one file, named "VSRA.bin".
-
-Next, head to the [Config Portal](#the-config-portal), click on "Update & Upload", select the "VSRA.bin" file in the _bottom_ file selector and click on *Upload*.
+To update the sound-pack of your VSR, 
+- download the sound-pack file provided in the [Release package](https://github.com/realA10001986/VSR/releases) ("**sound-pack-vrXX.zip**"),
+- extract the downloaded file. It contains one file named VSRA.bin.
+- enter the [Config Portal](#the-config-portal),
+- click on "Update & Upload",
+- select the VSRA.bin file in the _bottom_ file selector, and
+- click on *Upload*.
 
 <details>
 <summary>Alternative way</summary>
@@ -686,13 +682,11 @@ This leads to the [HomeAssistant/MQTT Settings page](#hamqtt-settings).
 
 This leads to the firmware update and audio upload page.
 
-To upload a new firmware, such as published in the [Release packages](https://github.com/realA10001986/VSR/releases), select the "**vsr-A10001986-Vx.xx.bin**" file as contained in the Release package in the _top_ file selector and click *Update*.
+See [here](#firmware-installation--firmware-update) for firmware update instructions.
 
-You can also install the VSR's sound-pack on this page; download the sound-pack (which is included in every [Release package](https://github.com/realA10001986/VSR/releases)), extract it and select the resulting VSRA.bin file in the bottom file selector. Finally, click *Upload*. An SD card is required for this operation.
-
-See also [here](#firmware-installation--firmware-update).
-
-Finally, this page is also for uploading [custom or replacement sound files](#installing-custom--replacement-audio-files) to the SD card. Select an mp3 file in the bottom file selector and click *Upload*. (Maximum 16 files at a time.)
+This page is also for uploading [custom or replacement sound files](#installing-custom--replacement-audio-files) to the SD card:
+- Select one or more mp3 file(s) in the _bottom_ file selector (max 16 files at a time) and
+- click *Upload*.
 
 ---
 
@@ -877,18 +871,14 @@ If your VSR is connected wirelessly, this option has no effect.
 
 ##### &#9193; Save secondary settings on SD
 
-If this is checked, secondary settings (volume, brightness, button mode) are stored on the SD card (if one is present). This helps to minimize write operations to the internal flash memory and to prolong the lifetime of your VSR. See [Flash Wear](#flash-wear).
+_Please leave this option checked. It is safe to have this option checked even with no SD card present._
 
-Apart from Flash Wear, there is another reason for using an SD card for settings: Writing data to internal flash memory can cause delays of up to 1.5 seconds, which interrupt sound playback and have other undesired effects. The VSR needs to save data from time to time, so for a smooth experience without unexpected and unwanted delays, please use an SD card and check this option.
-
-It is safe to have this option checked even with no SD card present.
+If this is checked, some settings are stored on the SD card. This helps to minimize write operations to the internal flash memory and to prolong the lifetime of your VSR. Apart from Flash Wear, there is another reason for using an SD card for settings: The VSR needs to save data from time to time. Writing data to internal flash memory can cause delays of up to 1.5 seconds, which interrupt sound playback and have other undesired effects.
 
 If you want copy settings from one SD card to another, do as follows:
 - With the old SD card still in the slot, enter the Config Portal, turn off _Save secondary settings on SD_, and click "SAVE".
 - After the VSR has rebooted, power it down, and swap the SD card for your new one.
 - Power-up the VSR, enter the Config Portal, re-enable _Save secondary settings on SD_, and click "SAVE".
-
-This procedure ensures that all your settings are copied from the old to the new SD card.
 
 ##### &#9193; Show update notifications on power-up
 
