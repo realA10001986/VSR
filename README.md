@@ -24,7 +24,7 @@ For information on updating the firmware of your VSR, see [here](#firmware-insta
 
 ## Initial Configuration
 
-**Some functions of your VSR require an SD card.** The first step is therefore to put a **good-quality** ("endurance", "industrial", "long life", ...) **and empty microSD card into the card slot**. The SD card must be inserted before powering up the VSR. It is not recognized if inserted while the VSR is running. Furthermore, do not remove the SD card while the VSR is powered.
+**Some features of your VSR require an SD card.** The first step is therefore to put a **good-quality** ("endurance", "industrial", "long life", ...) **and empty microSD card into the card slot**. The SD card must be inserted before powering up the VSR. It is not recognized if inserted while the VSR is running. Furthermore, do not remove the SD card while the VSR is powered.
 
 >SD/SDHC/SDXC cards up to 32GB are supported. The card needs to be FAT32-formatted (not exFAT). Transcend, Sandisk Ultra and Industrial, Verbatim Premium and Samsung Pro Endurance SDHC cards usually work fine. Some SD cards might not be recognized due to off-specs initialization quirks. SDUC cards are not supported.
 
