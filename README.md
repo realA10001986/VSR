@@ -630,7 +630,7 @@ First, download main firmware and sound-pack. Both files are in every [Release p
 To update the main firmware of your VSR, 
 - enter the [Config Portal](#the-config-portal),
 - click on "Update & Upload",
-- select the downloaded firmware file in the _top_ file selector, and
+- select the downloaded main firmware file in the _top_ file selector, and
 - click on *Update*. 
 
 <details>
