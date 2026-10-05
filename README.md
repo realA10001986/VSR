@@ -619,8 +619,15 @@ After WiFi has been switched off due to timer expiration, it can be re-enabled b
 
 ## Firmware Installation / Firmware Update
 
-To update the firmware of your VSR, 
-- download the firmware file provided in the [Release package](https://github.com/realA10001986/VSR/releases) ("**vsr-A10001986-Vx.xx.bin**")
+The firmware consists of two parts: The main firmware, and a sound-pack.
+
+First, download main firmware and sound-pack. Both files are in every [Release package](https://github.com/realA10001986/VSR/releases/latest), and named
+- "**vsr-A10001986-Vx.xx.bin**", and
+- "**sound-pack-vrXX.zip**".
+
+### Main firmware
+
+To update the main firmware of your VSR, 
 - enter the [Config Portal](#the-config-portal),
 - click on "Update & Upload",
 - select the downloaded firmware file in the _top_ file selector, and
@@ -631,17 +638,14 @@ To update the firmware of your VSR,
 If you are using a fresh ESP32, please go <a href="https://install.out-a-ti.me">here</a> and follow the instructions, or - if you are a nerd and want to deal with source code, compilers'n'stuff - see <a href="https://github.com/realA10001986/VSR/blob/master/vsr-A10001986/vsr-A10001986.ino">vsr-A10001986.ino</a> for detailed build and upload information.
 </details>
   
-*After a firmware update, the "wait" symbol might be shown a bit longer while booting. Do NOT unplug the device during this time.*
-
 ### Sound-pack installation
 
-The firmware comes with a sound-pack which needs to be installed separately. The sound-pack is not updated as often as the firmware itself. There will be a message in the Config Portal and the VSR will briefly display "INS"-"SND"-"PCK" during boot when/if the sound-pack needs to be updated.
+After updating the main firmware, there will be a notification on the Config Portal (and the VSR will briefly display "INS"-"SND"-"PCK" at startup) when/if the sound-pack also needs to be updated. 
 
 _Installing the sound-pack requires an [SD card](#initial-configuration)._
 
 To update the sound-pack of your VSR, 
-- download the sound-pack file provided in the [Release package](https://github.com/realA10001986/VSR/releases) ("**sound-pack-vrXX.zip**"),
-- extract the downloaded file. It contains one file named VSRA.bin.
+- extract the downloaded zip file. It contains one file named VSRA.bin.
 - enter the [Config Portal](#the-config-portal),
 - click on "Update & Upload",
 - select the VSRA.bin file in the _bottom_ file selector, and
