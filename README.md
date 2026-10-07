@@ -663,6 +663,20 @@ Alternatively, you can install the sound-pack the following way:
 </ul>
 </details>
 
+<!--
+## Factory Reset
+
+To reset your VSR to factory default settings, 
+- power-down the device,
+- press button ```10``` and keep it pressed,
+- power-up the device,
+- wait until the display shows an animation,
+- press button ```4C``` exactly five times within 10 seconds (the display will show "FAC" on the fifth time),
+- then release button ```10```.
+
+Since any configured WiFi connection is deleted as well, the VSR will reboot in AP-mode.
+
+-->
 
 ---
 
