@@ -206,7 +206,7 @@ In this mode, the buttons light up when briefly pressed, and stay lit after _hol
      <td align="center"><img src="img/b10.png"></td><td>Volume down</td><td><a href="#wifi-power-saving-features">Re-enable WiFi</a> or re-try to <a href="#home-setup-with-a-pre-existing-local-wifi-network">connect to WiFi</a></td>
     </tr>
     <tr>
-     <td align="center"><img src="img/b4c.png"></td><td>Display IP address</td><td>Delete static IP and AP password</td>
+     <td align="center"><img src="img/b4c.png"></td><td>Display IP address</td><td>-</td>
     </tr>
 </table>
 
@@ -482,10 +482,6 @@ Afterwards, the VSR and the TCD can communicate wirelessly and
     <tr>
      <td align="left">Reboot the device<sup>1</sup></td>
      <td align="left"><code>8064738</code></td>
-    </tr>
-     <tr>
-     <td align="left">Delete static IP address<br>and WiFi-AP password<sup>1</sup></td>
-     <td align="left"><code>8123456</code></td>
     </tr>
 </table>
 
