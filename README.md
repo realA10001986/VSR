@@ -70,6 +70,16 @@ Click on "WiFi Configuration" and either select a network from the top of the pa
 
 >Your VSR requests an IP address via DHCP, unless you entered valid data in the fields for static IP addresses (IP, gateway, netmask, DNS). If the device is inaccessible as a result of incorrect static IPs, wait until the VSR has completed its startup sequence, then _hold_ all three buttons until "ADM" is displayed, then _hold_ button ```4C```. After "RST" has been displayed, power-down the VSR. Upon power-up, the device is reset to DHCP.
 
+<!--
+>Your VSR requests an IP address via DHCP, unless you entered valid data in the fields for static IP addresses (IP, gateway, netmask, DNS). If the device is inaccessible as a result of incorrect static IPs,
+>- power-down the device,
+>- press button ```10``` and keep it pressed,
+>- power-up the device,
+>- wait until the display shows an animation,
+>- press button ```9``` twice within 10 seconds (the display will show "RST" after the second press),
+>- then release button ```10```.
+>
+>The device will continue booting, but - this once - use DHCP and ignore static IP data. This gives your an opportunity to correct or clear that data, otherwise it will be effective again after the next reboot.-->
 </details>
 
 If the VSR fails to connect, it falls back to AP-mode. You can trigger another connection attempt by _holding_ button ```10``` in [Admin button mode](#admin-mode).
@@ -667,7 +677,7 @@ To reset your VSR to factory default settings,
 - press button ```10``` and keep it pressed,
 - power-up the device,
 - wait until the display shows an animation,
-- press button ```4C``` exactly five times within 10 seconds (the display will show "FAC" on the fifth time),
+- press button ```4C``` exactly five times within 10 seconds (the display will show "FAC" after the fifth press),
 - then release button ```10```.
 
 Since any configured WiFi connection is deleted as well, the VSR will reboot in AP-mode.
@@ -754,6 +764,17 @@ By default, when your VSR creates a WiFi network of its own ("AP-mode"), this ne
 By default, and if this field is empty, the VSR's own WiFi network ("VSR-AP") will be unprotected. If you want to protect your VSR access point, enter your password here. It needs to be 8 characters in length and only characters A-Z, a-z, 0-9 and - are allowed.
 
 If you forget this password and are thereby locked out of your VSR, select _Admin_ [button mode](#button-modes) and _hold_ ```4C```; "RST" will be displayed, and your WiFi password is deleted. Then power-down and power-up your VSR and the access point will start unprotected.
+
+<!--
+If you forget this password and are thereby locked out of your VSR,
+- power-down the device,
+- press button ```10``` and keep it pressed,
+- power-up the device,
+- wait until the display shows an animation,
+- press button ```9``` twice within 10 seconds (the display will show "RST" after the second press),
+- then release button ```10```.
+
+The VSR will boot and start the access point - this once - without a password, thereby giving you an opportunity to connect without a password and to either look up or change said password. When you reboot or power-cycle the VSR, the AP will be password protected again. -->
 
 ##### &#9193; WiFi channel
 
