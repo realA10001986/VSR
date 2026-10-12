@@ -79,7 +79,7 @@ Click on "WiFi Configuration" and either select a network from the top of the pa
 >- press button ```9``` twice within 10 seconds (the display will show "RST" after the second press),
 >- then release button ```10```.
 >
->The device will continue booting, but - this once - use DHCP and ignore static IP data. This gives your an opportunity to correct or clear that data, otherwise it will be effective again after the next reboot.-->
+>This procedure causes static IP data to be deleted; the device will return to using DHCP.-->
 </details>
 
 If the VSR fails to connect, it falls back to AP-mode. You can trigger another connection attempt by _holding_ button ```10``` in [Admin button mode](#admin-mode).
@@ -774,7 +774,7 @@ If you forget this password and are thereby locked out of your VSR,
 - press button ```9``` twice within 10 seconds (the display will show "RST" after the second press),
 - then release button ```10```.
 
-The VSR will boot and start the access point - this once - without a password, thereby giving you an opportunity to connect without a password and to either look up or change said password. When you reboot or power-cycle the VSR, the AP will be password protected again. -->
+The VSR will boot and start the access point - this once - without a password, thereby giving you an opportunity to connect without a password and to either look up or change said password. When you reboot or power-cycle the VSR, VSR-AP will be password protected again. -->
 
 ##### &#9193; WiFi channel
 
