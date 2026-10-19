@@ -4,6 +4,7 @@
  * (C) 2024-2026 Thomas Winischhofer (A10001986)
  * https://github.com/realA10001986/VSR
  * https://vsr.out-a-ti.me
+ * This code was written without the use of artificial intelligence.
  *
  * vsrBLEDs Class:   Button LEDs
  * vsrDisplay Class: VSR 3-digit Display
@@ -205,7 +206,7 @@ bool vsrBLEDs::getNightMode(void)
 #define S7G_M   0b01000000    // middle
 #define S7G_DOT 0b10000000    // dot
 
-static const uint16_t font7segGeneric[47] = {
+static const uint16_t font7segGeneric[51] = {
     S7G_T|S7G_TR|S7G_BR|S7G_B|S7G_BL|S7G_TL,
     S7G_TR|S7G_BR,
     S7G_T|S7G_TR|S7G_B|S7G_BL|S7G_M,
@@ -243,16 +244,20 @@ static const uint16_t font7segGeneric[47] = {
     S7G_TR|S7G_BR|S7G_B|S7G_TL|S7G_M,
     S7G_T|S7G_TR|S7G_B|S7G_BL|S7G_M,
     S7G_DOT,
-    S7G_M,        // 37 minus
-    S7G_T,        // 38 coded as  1
-    S7G_TR,       // 39           2
-    S7G_BR,       // 40           3
-    S7G_B,        // 41           4
-    S7G_BL,       // 42           5
-    S7G_TL,       // 43           6
-    S7G_T|S7G_B,  // 44           7
-    S7G_T|S7G_BR|S7G_B|S7G_BL|S7G_M,  // 45 8
-    S7G_BR|S7G_B|S7G_BL|S7G_M,        // 46 9
+    S7G_M,                            // 37 minus
+    S7G_T,                            // 38 coded as  1
+    S7G_TR,                           // 39           2
+    S7G_BR,                           // 40           3
+    S7G_B,                            // 41           4
+    S7G_BL,                           // 42           5
+    S7G_TL,                           // 43           6
+    S7G_T|S7G_B,                      // 44           7
+    S7G_T|S7G_BR|S7G_B|S7G_BL|S7G_M,  // 45           8
+    S7G_BR|S7G_B|S7G_BL|S7G_M,        // 46           9
+    S7G_BR|S7G_BL|S7G_TL|S7G_TR|S7G_T,// 48           10
+    S7G_BR|S7G_BL|S7G_TL|S7G_TR|S7G_M,// 49           11
+    S7G_BR|S7G_BL|S7G_TL|S7G_TR|S7G_B,// 50           12
+    S7G_BR|S7G_BL|S7G_TL|S7G_TR       // 51           13
 };
 
 static const struct dispConf {
@@ -506,8 +511,8 @@ void vsrDisplay::setSpeed(int speed)
     if(speed < 0) {
         setText("---.");
     } else {
-        char buf[4];
-        sprintf(buf, "%3d.", speed);
+        char buf[8];
+        sprintf(buf, "%3d.", speed & 0xff);
         setText(buf);
     }
 }
@@ -556,7 +561,7 @@ uint16_t vsrDisplay::getLEDChar(uint8_t value)
         return *(_fontXSeg + 36);
     } else if(value == '-') {
         return *(_fontXSeg + 37);
-    } else if(value >= 1 && value <= 9) {
+    } else if(value >= 1 && value <= 13) {
         return *(_fontXSeg + 38 + (value - 1));
     } 
 

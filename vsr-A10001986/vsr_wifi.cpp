@@ -4,6 +4,7 @@
  * (C) 2024-2026 Thomas Winischhofer (A10001986)
  * https://github.com/realA10001986/VSR
  * https://vsr.out-a-ti.me
+ * This code was written without the use of artificial intelligence.
  *
  * WiFi and Config Portal handling
  *
@@ -69,10 +70,6 @@
 
 #define STRLEN(x) (sizeof(x)-1)
 
-Settings settings;
-
-IPSettings ipsettings;
-
 WiFiManager wm;
 bool wifiSetupDone = false;
 
@@ -80,6 +77,8 @@ bool wifiSetupDone = false;
 WiFiClient mqttWClient;
 PubSubClient mqttClient(mqttWClient);
 #endif
+
+#define CFMAGIC "VRCF"
 
 static const char R_updateacdone[] = "/uac";
 
@@ -90,7 +89,7 @@ static const char acul_part7[]  = " S' id='lc'><strong>Upload successful.</stron
 static const char acul_part7a[] = "<br>Installation will proceed after reboot.";
 static const char acul_part71[] = " D'><strong>Upload failed.</strong><br>";
 static const char acul_part8[]  = "</div></div></body></html>";
-static const char *acul_errs[]  = { 
+static const char * const acul_errs[]  = { 
     "Can't open file on SD",
     "No SD card found",
     "Write error",
@@ -100,7 +99,7 @@ static const char *acul_errs[]  = {
     "Extraneous .bin file"
 };
 
-static const char tcdList[] = "<datalist id='tcda'><option value='TCD-AP%s'></option></datalist><datalist id='hnl'><option value='vsr'></option></datalist>";
+static const char tcdList[] = "<datalist id='tcda'><option value='TCD-AP%s'></option></datalist><datalist id='hnl'><option value='" DEF_HOSTNAME "'></option></datalist>";
 
 static const char tcdSSID0[] = "<div style='margin:0 0 10px 0;padding:0;font-size:80%'>";
 static const char tcdSSIDp[] = "%sSSID of currently connected TCD is <b>TCD-AP%s</b></div>";
@@ -108,7 +107,7 @@ static const char tcdSSIDq[] = "%sCurrently connected TCD has %s password config
 static const char tcdAPPW1[] = "no";
 static const char tcdAPPW2[] = "a";
 
-static const char *apChannelCustHTMLSrc[14] = {
+static const char * const apChannelCustHTMLSrc[14] = {
     "'>WiFi channel",
     "apchnl",
     ">Random%s1'",
@@ -125,7 +124,7 @@ static const char *apChannelCustHTMLSrc[14] = {
     ">11%s"
 };
 
-static const char *musFoldCustHTMLSrc[12] = {
+static const char * const musFoldCustHTMLSrc[12] = {
     "'>Music folder",
     "mfol",
     ">0%s%s1'",
@@ -140,7 +139,7 @@ static const char *musFoldCustHTMLSrc[12] = {
     ">9%s%s"
 };
 
-static const char *musFoldStates[6] = {
+static const char * const musFoldStates[6] = {
     " No SD card",
     " Not a folder",
     " No audio files",
@@ -150,7 +149,7 @@ static const char *musFoldStates[6] = {
 };
 
 #ifdef HAVE_MQTT
-static const char *mqttpCustHTMLSrc[4] = {
+static const char * const mqttpCustHTMLSrc[4] = {
     "'>Protocol version",
     "mprot",
     ">3.1.1%s1'",
@@ -210,10 +209,13 @@ static const char mqttStatus[] = "%s%s%s%s%s (%d)</div>";
 #endif
 
 // WiFi Configuration
-
+// If first parameter does not have SECTS or SECTS_HEAD set, the WiFi Connection settings section will be left open
+WiFiManagerParameter custom_wifiConRetries("Connection attempts (1-10)", settings.wifiConRetries, 2, "type='number' min='1' max='10'");
 WiFiManagerParameter custom_asel(wmBuildTCDAPList);
 
-WiFiManagerParameter custom_sectstart_cm("Car Mode settings", WFM_SECTS_HEAD|WFM_HL);
+WiFiManagerParameter custom_hostName("Hostname<br><span>Your VSR's ID on the network.<br>This ID determines the Config Portal URL: http://<i>hostname</i>.local<br>Valid characters: a-z/0-9/-</span>", settings.hostName, 31, "pattern='[A-Za-z0-9\\-]+' placeholder='" DEF_HOSTNAME "' list='hnl'", WFM_LABEL_BEFORE|WFM_SECTS);
+
+WiFiManagerParameter custom_sectstart_cm("Car Mode settings", WFM_SECTS|WFM_HL);
 WiFiManagerParameter custom_cmhint("<div style='margin:0 0 10px 0;padding:0;font-size:80%;white-space:break-spaces;'>In Car Mode, the device connects to the TCD's access point instead of the WiFi network configured above.</div>");
 WiFiManagerParameter custom_ssidcm("Network name (SSID) of TCD-AP", settings.cm_ssid, 13, "pattern='[A-Za-z0-9\\-]+' placeholder='Example: TCD-AP' list='tcda'");
 WiFiManagerParameter custom_tcdssid(wmBuildTCDSSID);
@@ -222,18 +224,13 @@ WiFiManagerParameter custom_tcdpw(wmBuildTCDPW);
 WiFiManagerParameter custom_bssidcm("TCD-AP BSSID<br><span>Will be filled out automatically after first connect if left empty.</span>", settings.cm_bssid, 17, "pattern='^([0-9A-Fa-f]{2}[:]){5}([0-9A-Fa-f]{2})$' placeholder='XX:XX:XX:XX:XX:XX'");
 WiFiManagerParameter custom_ecm("Enable Car Mode now", settings.ecmKludge, "", WFM_LABEL_AFTER|WFM_IS_CHKBOX);
 
-WiFiManagerParameter custom_hostName("Hostname<br><span>Network device ID. Config Portal URL: http://<i>hostname</i>.local<br>Valid characters: a-z/0-9/-</span>", settings.hostName, 31, "pattern='[A-Za-z0-9\\-]+' placeholder='vsr' list='hnl'", WFM_LABEL_BEFORE|WFM_SECTS);
-
-WiFiManagerParameter custom_sectstart_wifi("WiFi connection: Other settings", WFM_SECTS|WFM_HL);
-WiFiManagerParameter custom_wifiConRetries("Connection attempts (1-10)", settings.wifiConRetries, 2, "type='number' min='1' max='10'");
-
-WiFiManagerParameter custom_sectstart_ap("Access point (AP) mode settings", WFM_SECTS|WFM_HL);
+WiFiManagerParameter custom_sectstart_ap("VSR Access Point mode (VSR-AP) settings", WFM_SECTS|WFM_HL);
 WiFiManagerParameter custom_sysID("Network name (SSID) appendix<br><span>Will be appended to \"VSR-AP\" [a-z/0-9/-]</span>", settings.systemID, 7, "pattern='[A-Za-z0-9\\-]+'");
 WiFiManagerParameter custom_appw("Password<br><span>Password to protect VSR-AP. Empty or 8 characters [a-z/0-9/-]</span>", settings.appw, 8, "minlength='8' pattern='[A-Za-z0-9\\-]+'");
 WiFiManagerParameter custom_apch(wmBuildApChnl);
 WiFiManagerParameter custom_bapch(wmBuildBestApChnl);
 WiFiManagerParameter custom_wifiAPOffDelay("Power save timer<br><span>(10-99[minutes]; 0=off)</span>", settings.wifiAPOffDelay, 2, "type='number' min='0' max='99' title='WiFi-AP will be shut down after chosen period. 0 means never.'");
-WiFiManagerParameter custom_wifihint("<div style='margin:0;padding:0;font-size:80%'>Hold '10' in Admin button mode to re-enable Wifi when in power save mode</div>", WFM_FOOT);
+WiFiManagerParameter custom_wifihint("<span style='white-space:normal;font-size:80%'>Hold '10' in Admin button mode to re-enable Wifi when in power save mode</span>", WFM_FOOT);
 
 // Settings
 
@@ -334,6 +331,9 @@ bool carMode                  = false;
 static bool wifiHaveSTAConf   = false;
 static bool connectedToTCDAP  = false;
 
+bool bootAPwithoutStaticIP = false;
+bool bootAPwithoutPW = false;
+
 // WiFi power management in AP mode
 bool          wifiInAPMode = false;
 bool          wifiAPIsOff = false;
@@ -409,6 +409,12 @@ static void handleUploadDone();
 static void handleUploading();
 static void handleUploadDone();
 
+static bool openDataFileCallback();
+static bool writeDataFileCallback(uint8_t *buf, size_t len);
+static void closeDataFileCallback(bool del);
+static void uploadSpinnerCallback(int doStart, int progress);
+static bool idCFCallback(uint8_t *dbuf, size_t len);
+
 #ifdef HAVE_MQTT
 static void strcpyutf8(char *dst, const char *src, unsigned int len);
 static void mqttPing();
@@ -428,7 +434,10 @@ void wifi_setup()
 
     WiFiManagerParameter *wifiParmArray[] = {
 
+      &custom_wifiConRetries, 
       &custom_asel,
+
+      &custom_hostName,
       
       &custom_sectstart_cm,
       &custom_cmhint,
@@ -438,11 +447,6 @@ void wifi_setup()
       &custom_tcdpw,
       &custom_bssidcm,
       &custom_ecm,
-
-      &custom_hostName,
-
-      &custom_sectstart_wifi,
-      &custom_wifiConRetries, 
 
       &custom_sectstart_ap,
       &custom_sysID,
@@ -536,6 +540,11 @@ void wifi_setup()
     wm.setSaveParamsCallback(saveParamsCallback);
     wm.setPreOtaUpdateCallback(preUpdateCallback);
     wm.setPostOtaUpdateCallback(postUpdateCallback);
+    if(haveSD) {
+        wm.setPackedOTACallbacks(openDataFileCallback, writeDataFileCallback, closeDataFileCallback);
+    }
+    wm.setIdDfCallback(idCFCallback, idSpCallback);
+    wm.setUploadSpinnerCallback(uploadSpinnerCallback);
     wm.setWebServerCallback(setupWebServerCallback);
     wm.setDelayReplacement(wifiDelayReplacement);
     wm.setGPCallback(gpCallback);
@@ -636,7 +645,7 @@ void wifi_setup()
             IPAddress gw = stringToIp(ipsettings.gateway);
             IPAddress sn = stringToIp(ipsettings.netmask);
             IPAddress dns = stringToIp(ipsettings.dns);
-            wm.setSTAStaticIPConfig(ip, gw, sn, dns);
+            wm.setSTAStaticIPConfig(!bootAPwithoutStaticIP, ip, gw, sn, dns);
         }
     }
 
@@ -1029,6 +1038,7 @@ static void wifiConnect(bool deferConfigPortal)
 {
     char realAPName[16];
     char *mssid, *mpass, *mbssid;
+    char *appw = bootAPwithoutPW ? NULL : settings.appw;
     
     if(carMode) {
         mssid = settings.cm_ssid;
@@ -1047,7 +1057,7 @@ static void wifiConnect(bool deferConfigPortal)
     
     // Connect using saved credentials if they exist
     // If connection fails it starts an access point with the specified name
-    if(wm.wifiConnect(mssid, mpass, mbssid, realAPName, settings.appw)) {
+    if(wm.wifiConnect(mssid, mpass, mbssid, realAPName, appw)) {
         #ifdef VSR_DBG
         Serial.println("WiFi connected");
         #endif
@@ -1079,6 +1089,16 @@ static void wifiConnect(bool deferConfigPortal)
         wifiIsOff = false;
         wifiOnNow = millis();
         wifiAPIsOff = false;  // Sic! Allows checks like if(wifiAPIsOff || wifiIsOff)
+
+        // Now delete static IP if user likely wanted us to.
+        // (Same boot-procedure also clears AP pw, which
+        // does not apply in STA mode. So we're guessing
+        // if connected, user likely wanted us to delete
+        // the static IP.)
+        if(!carMode && bootAPwithoutStaticIP) {
+            deleteIpSettings();
+            bootAPwithoutStaticIP = false;
+        }
 
     } else {
         #ifdef VSR_DBG
@@ -1576,7 +1596,7 @@ static const char *buildBanner(const char *msg, const char *col, int op)
     return str;
 }
 
-static unsigned int calcSelectMenu(const char **theHTML, int cnt, char *setting, bool indent = false)
+static unsigned int calcSelectMenu(const char * const *theHTML, int cnt, char *setting, bool indent = false)
 {
     int sr = atoi(setting);
 
@@ -1599,7 +1619,7 @@ static unsigned int calcSelectMenu(const char **theHTML, int cnt, char *setting,
     return l + 8;
 }
 
-static void buildSelectMenu(char *target, const char **theHTML, int cnt, char *setting, bool indent = false)
+static void buildSelectMenu(char *target, const char * const *theHTML, int cnt, char *setting, bool indent = false)
 {
     int sr = atoi(setting);
 
@@ -1618,7 +1638,7 @@ static void buildSelectMenu(char *target, const char **theHTML, int cnt, char *s
     }
 }
 
-static const char *wmBuildSelect(const char *dest, int op, const char **src, int count, char *setting, bool indent = false)
+static const char *wmBuildSelect(const char *dest, int op, const char * const *src, int count, char *setting, bool indent = false)
 {
     if(op == WM_CP_DESTROY) {
         if(dest) free((void *)dest);
@@ -1744,7 +1764,9 @@ static const char *wmBuildMusicFolder(const char *dest, int op)
         return NULL;
     }
 
-    sprintf(settings.musicFolder, "%1d", musFolderNum);
+    //sprintf(settings.musicFolder, "%1d", musFolderNum);
+    *settings.musicFolder = musFolderNum + '0';
+    settings.musicFolder[1] = 0;
 
     unsigned int l = calcSelectMenu(musFoldCustHTMLSrc, 12, settings.musicFolder);
 
@@ -1963,6 +1985,7 @@ static void handleUploading()
               if(!numUploads) {
                   allocUplArrays();
                   preUpdateCallback();
+                  doUploadSpinner(1, -1);
               }
     
               haveACFile = openUploadFile(c, acFile, numUploads, haveAC, opType[numUploads], ACULerr[numUploads]);
@@ -1979,6 +2002,8 @@ static void handleUploading()
               if(writeACFile(acFile, upload.buf, upload.currentSize) != upload.currentSize) {
                   doCloseACFile(numUploads, true);
                   ACULerr[numUploads] = UPL_WRERR;
+              } else {
+                  doUploadSpinner(0, -1);
               }
           }
 
@@ -2033,7 +2058,7 @@ static void handleUploadDone()
         if(opType[i] > 0) {
             haveAC = true;
             if(!ACULerr[i]) {
-                if(!check_if_default_audio_present()) {
+                if(!check_for_new_sp()) {
                     haveAC = false;
                     ACULerr[i] = UPL_BADERR;
                     removeACFile(i);
@@ -2074,7 +2099,7 @@ static void handleUploadDone()
     buflen += 8;
 
     if(!(buf = (char *)malloc(buflen))) {
-        buf = (char *)(haveErrs ? ebuf : dbuf);
+        buf = (char *)((!haveSD || haveErrs) ? ebuf : dbuf);
     } else {
         strcpy(buf, wm.getHTTPSTART(titStart));
         if(titStart >= 0) {
@@ -2132,13 +2157,66 @@ static void handleUploadDone()
     }
     */
     
-    String str(buf);
-    wm.server->send(200, "text/html", str);
+    wm.server->send(200, "text/html", buf);
 
     // Reboot required even for mp3 upload, because for most files, we check
     // during boot if they exist (to avoid repeatedly failing open() calls)
 
     doReboot();
+}
+
+static bool openDataFileCallback()
+{
+    String fn = ".bin";
+    
+    if(!numUploads) {
+        allocUplArrays();
+    } else {
+        return false;
+    }
+
+    haveACFile = openUploadFile(fn, acFile, numUploads, haveAC, opType[numUploads], ACULerr[numUploads]);
+
+    return haveACFile;
+}
+
+static bool writeDataFileCallback(uint8_t *buf, size_t len)
+{
+    bool ret = false;
+    if(haveACFile) {
+        if(writeACFile(acFile, buf, len) != len) {
+            doCloseACFile(numUploads, true);
+            ACULerr[numUploads] = UPL_WRERR;
+        } else {
+            ret = true;
+        }
+    }
+    return ret;
+}
+
+static void closeDataFileCallback(bool del)
+{
+    doCloseACFile(numUploads, del);
+    
+    if(!del && opType[numUploads] >= 0) {
+        renameUploadFile(numUploads);
+    }
+    
+    numUploads++;
+}
+
+static void uploadSpinnerCallback(int doStart, int progress)
+{
+    doUploadSpinner(doStart, progress);
+}
+
+static bool idCFCallback(uint8_t *dbuf, size_t len)
+{
+    if(len > 4) {
+        return !strncmp((char *)dbuf, CFMAGIC, 4);
+    }
+
+    return false;
 }
 
 bool wifi_getIP(uint8_t& a, uint8_t& b, uint8_t& c, uint8_t& d)
@@ -2227,7 +2305,7 @@ static bool isNumString(char *s)
 
 static void getServerParam(const char *name, char *destBuf, size_t length, int minval, int maxval, int defaultVal)
 {
-    int i;
+    int i = defaultVal;
     memset(destBuf, 0, length + 1);
     strncpy(destBuf, wm.server->arg(name).c_str(), length);
     if(*destBuf) {

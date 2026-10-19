@@ -4,6 +4,7 @@
  * (C) 2024-2026 Thomas Winischhofer (A10001986)
  * https://github.com/realA10001986/VSR
  * https://vsr.out-a-ti.me
+ * This code was written without the use of artificial intelligence.
  *
  * -------------------------------------------------------------------
  * License: Modified MIT NON-AI
@@ -122,14 +123,35 @@
 
 /*  Changelog
  *
- *  2026/09/xx (A10001986) [1.36]
+ *  2026/10/19 (A10001986) [2.00]
+ *    *********************************************************************************
+ *    ** If updating from below 1.30, please see boxed note at version 1.31 below    **
+ *    *********************************************************************************
+ *    - Re-arrange WiFi Configuration page for a better user experience
+ *    - BTTFN: "Hostname of TCD" now defaults to "timecircuits" instead of being empty.
+ *      As a result, a factory-fresh VSR now connects to a TCD in the network without
+ *      any user configuration changes.
+ *    - Deleting static IP data or temporarily clearing the VSR-AP password now requires
+ *      holding button "10" during (real) power-on and, while still holding "10", 
+ *      pressing "9" exactly twice. The old procedure (holding 4C in Admin button mode)
+ *      no longer applies.
+ *    - Holding button "10" during (real)power-on and, while still holding "10",
+ *      pressing "4C" exactly five times within 10 seconds resets all settings to
+ *      factory defaults.
+ *    - New sound-pack (VR05)
+ *    - Future firmware updates may only consist of one single file instead of "main 
+ *      firmware" plus "sound-pack". Firmware updates will require an SD card.
+ *      Future sound-pack uploads, if any, are done through the top file selector, and
+ *      no longer through the bottom one. The bottom one is for custom mp3 file upload
+ *      only.
+ *  2026/09/20 (A10001986) [1.36]
  *    *********************************************************************************
  *    ** If updating from below 1.30, please see boxed note at version 1.31 below    **
  *    *********************************************************************************
  *    - Car Mode: Automatically pair VSR to currently connected TCD by means of the
  *      TCD's BSSID upon first successful connection in Car Mode. This avoids connecting
- *      to other people's TCD if in close range (meet-ups, exhibitions)
- *    - Fix minor issues with ID3v1 and ID3v2.4-UTF8 tags
+ *      to other people's TCD if in close range (eg on meet-ups)
+ *    - Fix minor issues with ID3v1 tags
  *    - Speed up booting with folders containing many files
  *    - Music Player: The "TCD_DONE.TXT" file is now obsolete. The firmware instead uses
  *      a cache file in the top-most folder of the SD card ("musicXc") which needs to be
@@ -205,226 +227,7 @@
  *    - Config files are now only written if actually changed which prolongs
  *      Flash life-span.
  *    - Code optimizations and fixes.
- *  2026/01/09 (A10001986) [1.25]
- *    - BTTFN: Fix keep-alive logic and re-connection after a TCD-reboot.
- *  2026/01/09 (A10001986) [1.24]
- *    - IO14 is now mirror of the TCD's TT-OUT (in its original function); goes HIGH 
- *      on start of temporal displacement, LOW on re-entry. There is no lead time.
- *      IO14 also switches if VSR is set up to ignore BTTFN-wide time travels.
- *    - BTTFN enhancements in sync with TCD capabilities
- *    - Code refinements
- *  2025/11/26 (A10001986) [1.23]
- *    - Prevent P1-speed from becoming the reason to switch to adapting to
- *      TCD-provided speed in speedo-less time-travel sequences
- *  2025/11/22 (A10001986)
- *    - Sync'd TT: Handle abort in P0
- *  2025/11/21 (A10001986)
- *    - WM: Minor HTML tweaks; make page width dynamic for better display
- *      on handheld devices
- *  2025/11/19 (A10001986)
- *    - Add support for MQTT v5.0 (tested with mosquitto only). Has no
- *      advantages over 3.1.1 (but more overhead), only there to use brokers
- *      that lack support for 3.1.1.
- *    - Move HA/MQTT settings to separate page
- *    - Add MQTT connection state info on HA/MQTT Settings page
- *  2025/11/16 (A10001986) [1.22]
- *    - WM: Require HTTP_POST for params save pages. Also, check if request 
- *      has parameter, do not overwrite current value with null (protects from 
- *      overwriting settings by errorneous page reloads)
- *  2025/11/14 (A10001986)
- *    - Remove BTTFN_MC conditional
- *  2025/11/13 (A10001986)
- *    - Move Music Player init into main_setup()
- *    - Block WiFi scan during some sequences
- *    - Allow using TCD command codes 8xxx with MQTT-INJECT command
- *    - Block BTTFN/MQTT commands while busy
- *  2025/11/12 (A10001986) [1.21]
- *    - Clean-up time travel
- *  2025/11/10 (A10001986)
- *    - Support MQTT-"TIMETRAVEL" command for inter-prop communication with lead
- *      time and time tunnel duration attached ("TIMETRAVEL_1234_9876") (TCD 3.9)
- *  2025/11/09 (A10001986)
- *    - Add BTTFN_NOT_BUSY support (TCD 3.9)
- *  2025/11/08 (A10001986)
- *    - Allocate MQTT buffer only if MQTT is actually used
- *  2025/11/07 (A10001986)
- *    - Make TCD notifications synchronous (wakeup, prepareTT)
- *    - MP3/File-Renamer: Ignore non-mp3 files; display number of files-to-do while
- *      renaming
- *    - Remove hack to skip web handling in on mp3-playback start, remove stopping
- *      sound in AP mode on CP access.
- *  2025/11/05 (A10001986)
- *    - Add MQTT command "INJECT_"
- *  2025/11/04 (A10001986)
- *    - Add MQTT commands PLAYKEY_x and STOPKEY (X=1-9)
- *    - Add commands 8501-8509 to play keyX (X=1-9) (Old short-hands 800x for 
- *      a subset of keyX playback remain as well.)
- *    - Eliminate historical limitation of not having "key8.mp3". Can be played
- *      through HA/MQTT and TCD-commands.
- *    - Put MQTT commands in command queue instead of executing them directly.
- *  2025/11/02 (A10001986)
- *    - WM: Generate HTML for checkboxes on-the-fly.
- *  2025/10/30 (A10001986)
- *    - Fix deleting a bad .bin file after upload
- *    - Remove volume settings from Settings page
- *  2025/10/26 (A10001986) [1.20.1]
- *    - BTTFN: Fix hostname length issues; code optimizations; minor fix for mc 
- *      notifications. Breaks support for TCD firmwares < 3.2.
- *      Recommend to update all props' firmwares for similar fixes.
- *  2025/10/24 (A10001986)
- *    - Add WiFi power saving for AP-mode, and user-triggered WiFi connect retry. 
- *      Hold '10' in ADM mode to 1) restart WiFi after entering PS mode, 2)
- *      trigger a connection attempt if configured WiFi could not be connected
- *      to during boot.
- *    - WM: Fix AP shutdown; handle mDNS
- *  2025/10/21 (A10001986)
- *    - Wakeup on GPS speed changes from <= 0 to >= 0
- *  2025/10/17 (A10001986) [1.20]
- *    - Wipe flash FS if alien VER found; in case no VER is present, check
- *      available space for audio files, and wipe if not enough.
- *  2025/10/16 (A10001986)
- *    - Minor code optim (settings)
- *    - WM: More event-based waiting instead of delays
- *  2025/10/15 (A10001986)
- *    - Some more WM changes. Number of scanned networks listed is now restricted 
- *      in order not to run out of memory.
- *  2025/10/14 (A10001986) [1.19.2]
- *    - WM: Do not garble UTF8 SSID; skip SSIDs with non-printable characters
- *    - Fix regression in CP ("show password")
- *  2025/10/13 (A10001986)
- *    - Config Portal: Minor restyling (message boxes)
- *  2025/10/11 (A10001986) [1.19.1]
- *    - More WM changes: Simplify "Forget" using a checkbox; redo signal quality
- *      assessment; remove over-engineered WM debug stuff.
- *  2025/10/08 (A10001986)  
- *    - WM: Set "world safe" country info, limiting choices to 11 channels
- *    - WM: Add "show all", add channel info (when all are shown) and
- *      proposed AP WiFi channel on WiFi Configuration page.
- *    - Experimental: Change bttfn_checkmc() to return true as long as 
- *      a packet was received (as opposed to false if a packet was received
- *      but not for us, malformed, etc). Also, change the max packet counter
- *      in bttfn_loop(_quick)() from 10 to 100 to get more piled-up old 
- *      packets out of the way.
- *    - Add a delay when connecting to TCD-AP so not all props hammer the
- *      TCD-AP at the very same time
- *    - WM: Use events when connecting, instead of delays
- *  2025/10/07 (A10001986) [1.19]
- *    - Add emergency firmware update via SD (for dev purposes)
- *    - WM fixes (Upload, etc)
- *  2025/10/06 (A10001986)
- *    - WM: Skip setting static IP params in Save
- *    - Add "No SD present" banner in Config Portal if no SD present
- *  2025/10/05 (A10001986)
- *    - CP: Show msg instead of upload file input if no sd card is present
- *  2025/10/03-05 (A10001986) [1.18]
- *    - More WiFiManager changes. We no longer use NVS-stored WiFi configs, 
- *      all is managed by our own settings. (No details are known, but it
- *      appears as if the core saves some data to NVS on every reboot, this
- *      is totally not needed for our purposes, nor in the interest of 
- *      flash longevity.)
- *    - Save static IP only if changed
- *    - Disable MQTT when connected to "TCD-AP"
- *    - Let DNS server in AP mode only resolve our domain (hostname)
- *  2025/09/22-10/03 (A10001986)
- *    - WiFi Manager overhaul; many changes to Config Portal.
- *      WiFi-related settings moved to WiFi Configuration page.
- *      Note: If the VSR is in AP-mode, mp3 playback will be stopped when
- *      accessing Config Portal web pages from now on.
- *      This had lead to sound stutter and incomplete page loads in the past.
- *    - Various code optimizations to minimize code size and used RAM
- *  2025/09/22 (A10001986) [1.17]
- *    - Config Portal: Re-order settings; remove non-checkbox-code
- *    - Fix TCD hostname length field
- *  2025/09/20 (A10001986)
- *    - Config Portal: Add "install sound pack" banner to main menu
- *  2025/09/19 (A10001986) [1.16]
- *    - Extend mp3 upload by allowing multiple (max 16) mp3 files to be uploaded
- *      at once. The VSRA.bin file can be uploaded at the same time as well.
- *    - Remove HAVE_AUDIO conditional
- *  2025/09/17 (A10001986)
- *    - WiFi Manager: Reduce page size by removing "quality icon" styles where
- *      not needed.
- *  2025/09/15 (A10001986) [1.15]
- *    - Refine mp3 upload facility; allow deleting files from SD by prefixing
- *      filename with "delete-".
- *    - WiFi manager: Remove lots of <br> tags; makes Safari display the
- *      pages better.
- *  2025/09/14 (A10001986)
- *    - Allow uploading .mp3 files to SD through config portal. Uses the same
- *      interface as audio container upload. Files are stored in the root
- *      folder of the SD; hence not suitable for music player.
- *    - WiFi manager: Remove (ie skip compilation of) unused code
- *    - WiFi manager: Add callback to Erase WiFi settings, before reboot
- *    - WiFi manager: Build param page with fixed size string to avoid memory 
- *      fragmentation; add functions to calculate String size beforehand.
- *  2025/02/11 (A10001986) [1.14.1]
- *    - Change default volume to 10
- *    - Delete temp file after audio installation
- *  2025/01/17 (A10001986) [1.14]
- *    - Fix audio logic errors
- *    - Fix sound-pack (volchg volume reduction)
- *  2025/01/11-15 (A10001986) [1.13]
- *    - Add option to ignore network-wide time travels. After all, the VSR is 
- *      never shown during time travel in the movies, so some might prefer to
- *      skip the made-up time travel sequence.
- *    - New "volume change" sample sound (new sound-pack)
- *    - BTTFN: Minor code optimization
- *    - Optimize play_key; keyX will be stopped instead of (re)started if it is 
- *      currently played when repeatedly triggered
- *  2025/01/10 (A10001986) [1.12]
- *    - Add support for HDC302x temperature sensor
- *    - Interrupt night mode for button mode changes if display is configured to
- *      be off in night mode.
- *  2024/10/28 (A10001986)
- *    - Increase i2c speed to 400kHz
- *  2024/10/27 (A10001986) [1.11]
- *    - Minor changes (bttfn_loop in delay-loops; fix alarm when fp is off; etc)
- *  2024/10/26 (A10001986) [1.10]
- *    - Add support for TCD multicast notifications: This brings more immediate speed 
- *      updates (no more polling; TCD sends out speed info when appropriate), and 
- *      less network traffic in time travel sequences.
- *      The TCD supports this since Oct 26, 2024.
- *  2024/10/02 (A10001986)
- *    - Minor (cosmetic) fix to display code
- *  2024/09/30 (A10001986)
- *    - Minor temperature-related fix
- *  2024/09/11 (A10001986)
- *    - Fix C99-compliance
- *  2024/09/09 (A10001986)
- *    - Tune BTTFN poll interval
- *  2024/09/01 (A10001986)
- *    - Stop audio when fake-powered off
- *  2024/08/31 (A10001986)
- *    - Fix brightness change not displayed in Config Portal
- *  2024/08/28 (A10001986)
- *    - Treat TCD-speed from Remote like speed from RotEnc
- *    - Fix some typos
- *  2024/08/11 (A10001986)
- *    - In addition to the custom "key3" and "key6" sounds, now also "key1", 
- *      "key4", "key7" and "key9" are available/supported; command codes are 
- *      8001, 8004, 8007, 8009.
- *  2024/08/05 (A10001986)
- *    - Display volume when pressing up/down key even if limit has been reached
- *    - TT: Minimize duration of P0 in stand-alone mode
- *    - TT: Relay-click earlier in sync'd tt
- *    - Save user-selected display mode
- *    - Display "AUD" if audio files need to be installed/updated
- *    - Fix volume control by buttons (update CP; save)
- *  2024/07/11 (A10001986)
- *    - MQTT: Add MP_FOLDER_x commands to set music folder number
- *  2024/06/05 (A10001986)
- *    - Minor fixes for WiFiManager
- *    * Switched to esp32-arduino 2.0.17 for pre-compiled binary.
- *  2024/05/09 (A10001986)
- *    - TT button: Activate internal pull-down (in addition to external pd)
- *  2024/05/08 (A10001986)
- *    - Make button mode indication by lights optional
- *    - Switch button lights from PWM to LOW/HIGH to reflect actual hardware
- *  2024/05/03 (A10001986)
- *    - Adapt to Control Board 1.05
- *  2024/04/25 (A10001986)
- *    - Remove "display type" selection from CP
- *    - Make buttons active low by default
+ *  [...]
  *  2024/04/10 (A10001986)
  *    - Initial version
  *

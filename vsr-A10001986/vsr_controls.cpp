@@ -4,6 +4,7 @@
  * (C) 2024-2026 Thomas Winischhofer (A10001986)
  * https://github.com/realA10001986/VSR
  * https://vsr.out-a-ti.me
+ * This code was written without the use of artificial intelligence.
  *
  * Input controls handling
  *
@@ -423,16 +424,8 @@ static void controlsEvent(int idx, ButState bstate)
                         ssRestartTimer();
                         break;
                     case 2:
-                        Serial.println("Deleting ip config; clearing AP mode WiFi password\n");
-                        waitAudioDone();
-                        flushDelayedSave();
-                        deleteIpSettings();
-                        if(settings.appw[0]) {
-                            settings.appw[0] = 0;
-                            write_settings();
-                        }
-                        ssRestartTimer();
-                        displaySysMsg("RST", 1000);
+                        // NIX NADA - yet.
+                        // Delete static IP/clear AP PW have new procedure
                         break;
                     }
                     break;
@@ -457,6 +450,9 @@ static void controlsEvent(int idx, ButState bstate)
             break;
         }
         
+        break;
+
+    default:    // SIlence compiler
         break;
     }
 }

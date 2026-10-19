@@ -4,6 +4,7 @@
  * (C) 2024-2026 Thomas Winischhofer (A10001986)
  * https://github.com/realA10001986/VSR
  * https://vsr.out-a-ti.me
+ * This code was written without the use of artificial intelligence.
  *
  * Main
  *
@@ -233,6 +234,9 @@ static bool          fpoOld = false;
 bool                 FPBUnitIsOn = true;
 int                  blockScan = 0;
 
+unsigned long        uploadSpinner = 0;
+unsigned long        lastSpinner = 0;
+
 // BTTF network
 #define BTTFN_VERSION              1
 #define BTTFN_SUP_MC            0x80
@@ -300,6 +304,7 @@ static uint32_t      BTTFUDPID = 0;
 static unsigned long lastBTTFNpacket = 0;
 static unsigned long lastBTTFNKA = 0;
 static unsigned long bttfnLastNotData = 0;
+static unsigned long BTTFNstartPolling = 0;
 static bool          BTTFNBootTO = false;
 static bool          haveTCDIP = false;
 static IPAddress     bttfnTcdIP;
@@ -313,6 +318,7 @@ static uint8_t       bttfnReqStatus = 0x56; // Request capabilities, status, tem
 static bool          TCDSupportsNOTData = false;
 static bool          TCDSupportsSSID = false;
 static bool          bttfnDataNotEnabled = false;
+static bool          BTTFNstopGrowInt = false;
 static uint32_t      tcdHostNameHash = 0;
 static byte          BTTFMCBuf[BTTF_PACKET_SIZE];
 static IPAddress     bttfnMcIP(224, 0, 0, 224);
@@ -380,23 +386,42 @@ static bool bttfn_checkmc();
 static void BTTFNCheckPacket();
 static bool BTTFNSendRequest();
 static void BTTFNPreparePacketTemplate();
-static void BTTFNSendPacket();
 
 void main_boot()
 {
-    
+}
+
+static void rstCheckButton(int pin, bool &state, int& count, bool& skipOther)
+{
+    bool newState;
+    if(digitalRead(pin) != state) {
+        delay(50);
+        if((newState = digitalRead(pin)) != state) {
+            count++;
+            state = newState;
+            skipOther = true;
+        }
+    }
 }
 
 void main_boot2()
 {
-    int temp = 0;
+    static const char * const resetanim[] = {
+        "-",
+        " -",
+        "  -",
+        "  -",
+        " -",
+        "-"
+    };
+    #define ANMXIDX ((sizeof(resetanim) / sizeof(resetanim[0])) - 1)
 
     // Reset TT-OUT
     pinMode(TT_OUT_PIN, OUTPUT);
     digitalWrite(TT_OUT_PIN, LOW);
 
     // Init LED segment display
-    if(!vsrdisplay.begin(temp)) {
+    if(!vsrdisplay.begin(0)) {
         Serial.println("Display not found");
     } else {
         loadBrightness();
@@ -428,6 +453,80 @@ void main_boot2()
     }
     #endif
 
+    // Pre-maturely init button IOs (initialized again later)
+    pinMode(BUTTON1_IO_PIN, INPUT_PULLUP);
+    pinMode(BUTTON2_IO_PIN, INPUT_PULLUP);
+    pinMode(BUTTON3_IO_PIN, INPUT_PULLUP);
+    delay(50);
+
+    // Check if user wants to clear WiFi-AP-PW and static IP, or
+    // "restore factory defaults".
+    if(!digitalRead(BUTTON2_IO_PIN)) {
+        delay(50);
+        if(!digitalRead(BUTTON2_LED_PIN)) {
+            unsigned long mnow = millis(), seqnow = 0;
+            bool ssState = true, stState = true, lockOnFAC = false, lockOnRST = false;
+            int ssCount = 0, tCount = 0, an = 0;
+            const char *ant = resetanim[0], *antt = NULL;
+
+            vsrdisplay.on();
+
+            while(!digitalRead(BUTTON1_IO_PIN)) {}
+            while(!digitalRead(BUTTON3_IO_PIN)) {}
+
+            while(1) {
+                delay(50);
+                if(!lockOnFAC) {
+                    rstCheckButton(BUTTON1_IO_PIN, ssState, ssCount, lockOnRST);
+                    tCount = 4;
+                }
+                if(!lockOnRST) {
+                    rstCheckButton(BUTTON3_IO_PIN, stState, ssCount, lockOnFAC);
+                    tCount = 10;
+                }
+                if(ssCount < tCount) {
+                    if(millis() - seqnow > 50) {
+                        seqnow = millis();
+                        if(++an > ANMXIDX) an = 0;
+                        ant = resetanim[an];
+                    }
+                } else if(ssCount == tCount) {
+                    ant = lockOnRST ? "RST" : "FAC";
+                } else {
+                    ant = "---";
+                }
+                if(antt != ant) {
+                    antt = ant;
+                    vsrdisplay.setText(ant);
+                    vsrdisplay.show();
+                }
+
+                if(ssCount > tCount)            break;
+                if(millis() - mnow > 10*1000)   break;
+                if(digitalRead(BUTTON2_IO_PIN)) break;
+            }
+
+            while(!digitalRead(BUTTON2_IO_PIN)) {}
+
+            vsrdisplay.clearBuf();
+            vsrdisplay.show();
+
+            if(ssCount == tCount) {
+                if(lockOnRST) {
+                    Serial.println("Booting without static IP and without WiFi AP password");
+                    bootAPwithoutStaticIP = true;
+                    bootAPwithoutPW = true;
+                } else {
+                    Serial.println("Restoring factory defaults");
+                    resettofactorydefault();
+                    unmount_fs();
+                    delay(2000);
+                    esp_restart();
+                }
+            }
+        }
+    }
+
     showWaitSequence();
 }
 
@@ -450,11 +549,11 @@ void main_setup()
     if(check_allow_CPA()) {
         showWaitSequence();
         vsrBusy = 1;  // Force MP "off" state, if state happens to be sent
-        if(prepareCopyAudioFiles()) {
+        if(prepare_install_sp()) {
             play_file("/_installing.mp3", PA_ALLOWSD);
             waitAudioDone();
         }
-        doCopyAudioFiles();
+        do_install_sp();
         // We never return here. The ESP is rebooted.
     }
 
@@ -1246,6 +1345,8 @@ void main_loop()
             TCDtemperature = -32768;
             haveTCDTemp = false;
             lastBTTFNpacket = 0;
+            BTTFNstartPolling = millis();
+            BTTFNstopGrowInt = false;
             BTTFNBootTO = true;
         }
     }
@@ -1566,6 +1667,33 @@ void endWaitSequence()
     doForceDispUpd = true;
 }
 
+void doUploadSpinner(int doStart, int progress)
+{
+    unsigned long now = millis();
+    char spinner[] = "\78\7";
+    char prog[4];
+    char *sp = spinner;
+
+    if(doStart) {
+        uploadSpinner = 0;
+    } else {
+        if(now - lastSpinner < 500) return;
+        spinner[1] = 10 + uploadSpinner;
+        uploadSpinner++; 
+        uploadSpinner &= 3;
+        if(progress >= 0 && progress <= 99) {
+            prog[0] = (progress / 10) + '0';
+            prog[1] = (progress % 10) + '0';
+            prog[2] = '&';
+            prog[3] = 0;
+            sp = prog;
+        }
+    }
+    lastSpinner = now;
+    vsrdisplay.setText(sp);
+    vsrdisplay.show();
+}
+
 void showCopyError()
 {
     vsrdisplay.setText("ERR");
@@ -1836,17 +1964,6 @@ static void execute_remote_command()
                 prepareReboot();
                 delay(1000);
                 esp_restart();
-            }
-            break;
-        case 123456:
-            flushDelayedSave();
-            if(!injected) {
-                deleteIpSettings();               // 8123456: deletes IP settings
-                if(settings.appw[0]) {
-                    settings.appw[0] = 0;         // and clears AP mode WiFi password
-                    write_settings();
-                }
-                ssRestartTimer();
             }
             break;
         default:                                  // 8888xxx: goto song #xxx
@@ -2414,6 +2531,27 @@ static bool BTTFNSendRequest()
     return true;
 }
 
+static unsigned long BTTFNCalcPollInterval()
+{
+    if(!lastBTTFNpacket) {
+        // We never received anything. Grow polling interval
+        if(!BTTFNstopGrowInt) {
+            unsigned long pollingTime = millis() - BTTFNstartPolling;
+            if(pollingTime < 5*60*1000) {
+                return BTTFN_POLL_INT;
+            } else if(pollingTime < 10*60*1000) {
+                return BTTFN_POLL_INT * 3;
+            } else if(pollingTime < 30*60*1000) {
+                return BTTFN_POLL_INT * 6;
+            }
+            BTTFNstopGrowInt = true;
+        }
+        return BTTFN_POLL_INT * 30;
+    }
+
+    return bttfnVSRPollInt;
+}
+
 static bool bttfn_connected()
 {
     if(!useBTTFN)
@@ -2552,7 +2690,7 @@ void bttfn_loop()
         if(!BTTFNWiFiUp && (WiFi.status() == WL_CONNECTED)) {
             BTTFNUpdateNow = 0;
         }
-        if((!BTTFNUpdateNow) || (millis() - BTTFNUpdateNow > bttfnVSRPollInt)) {
+        if((!BTTFNUpdateNow) || (millis() - BTTFNUpdateNow > BTTFNCalcPollInterval())) {
             BTTFNSendRequest();
         }
     }

@@ -4,6 +4,7 @@
  * (C) 2024-2026 Thomas Winischhofer (A10001986)
  * https://github.com/realA10001986/VSR
  * https://vsr.out-a-ti.me
+ * This code was written without the use of artificial intelligence.
  *
  * Sound handling
  *
@@ -244,6 +245,21 @@ static int32_t skipID3(uint8_t *buf)
     return 0;
 }
 
+static void audioCancel()
+{
+    key_playing = 0;
+}
+
+static bool audioBegin(AudioFileSourceLoop *src, AudioGenerator *gen)
+{
+    if(!gen->begin(src, out)) {
+        gen->stop();  // frees buffers, stops i2c, closes file
+        audioCancel();
+        return false;
+    }
+    return true;
+}
+
 static void setupLoopAndBegin(AudioFileSourceLoop *src, uint32_t flags)
 {
     int32_t pos = 0;
@@ -256,8 +272,9 @@ static void setupLoopAndBegin(AudioFileSourceLoop *src, uint32_t flags)
     src->setPlayLoop(!!(flags & PA_LOOP));
 
     if(flags & PA_WAV) {
-        wav->begin(src, out);
-        src->setStartPos(wav->startPos);  // Yes, AFTER begin! Need wav->startPos!
+        if(audioBegin(src, wav)) { //wav->begin(src, out);
+            src->setStartPos(wav->startPos);  // Yes, AFTER begin! Need wav->startPos!
+        }
     } else {
         if(flags & PA_DOID3TS) {
             src->read((void *)buf, 10);
@@ -270,7 +287,7 @@ static void setupLoopAndBegin(AudioFileSourceLoop *src, uint32_t flags)
             src->seek(pos, SEEK_SET);
         }
         src->setStartPos(pos);  
-        mp3->begin(src, out);
+        audioBegin(src, mp3); //mp3->begin(src, out);
     }
 }
 
@@ -324,7 +341,7 @@ void play_file(const char *audio_file, uint32_t flags, float volumeFactor)
         Serial.println("Playing from flash FS");
         #endif
     } else {
-        key_playing = 0;
+        audioCancel();
         #ifdef VSR_DBG
         Serial.println("Audio file not found");
         #endif
@@ -920,7 +937,7 @@ static void mpren_looper(bool isSetup, bool checking, int fileNum)
 
 static bool mp_renameFilesInDir(bool isSetup)
 {
-    char fnbuf[20];
+    char fnbuf[32];
     char fnbuf3[32];
     char **a, **d;
     char *c;

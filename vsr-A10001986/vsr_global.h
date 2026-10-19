@@ -4,6 +4,7 @@
  * (C) 2024-2026 Thomas Winischhofer (A10001986)
  * https://github.com/realA10001986/VSR
  * https://vsr.out-a-ti.me
+ * This code was written without the use of artificial intelligence.
  *
  * Global definitions
  */
@@ -15,8 +16,8 @@
  ***                          Version Strings                          ***
  *************************************************************************/
 
-#define VSR_VERSION "V1.36"                 // Do NOT change format.
-#define VSR_VERSION_EXTRA "SEP202026"
+#define VSR_VERSION "V2.00"                 // Do NOT change format.
+#define VSR_VERSION_EXTRA "OCT192026"
 
 /*************************************************************************
  ***             Configuration for hardware/peripherals                ***

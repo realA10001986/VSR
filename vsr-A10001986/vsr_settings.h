@@ -4,6 +4,7 @@
  * (C) 2024-2026 Thomas Winischhofer (A10001986)
  * https://github.com/realA10001986/VSR
  * https://vsr.out-a-ti.me
+ * This code was written without the use of artificial intelligence.
  *
  * Settings handling
  *
@@ -68,6 +69,8 @@ bool evalBool(char *s);
 
 void write_settings();
 
+void resettofactorydefault();
+
 void settings_setup();
 
 void loadBrightness();
@@ -107,9 +110,10 @@ void deleteIpSettings();
 
 void moveSettings();
 
-bool check_if_default_audio_present();
-bool prepareCopyAudioFiles();
-void doCopyAudioFiles();
+bool check_for_new_sp();
+size_t idSpCallback(uint8_t *buf, size_t len);
+bool prepare_install_sp();
+void do_install_sp();
 
 bool check_allow_CPA();
 void delete_ID_file();
@@ -153,7 +157,7 @@ void   freeUploadFileNames();
 #define DEF_TEMP_UNIT       0     // Temperature unit: Fahrenheit (0=default) or Celsius (1)
 #define DEF_TEMP_OFFS       0.0   // Temperature offset: Default 0.0
 
-#define DEF_TCD_IP          ""    // TCD hostname (or ip address) for BTTFN
+#define DEF_TCD_IP          "timecircuits"    // TCD hostname for BTTFN
 #define DEF_USE_NM          0     // 0: Ignore TCD night mode; 1: Follow TCD night mode
 #define DEF_USE_FPO         0     // 0: Ignore TCD fake power; 1: Follow TCD fake power
 #define DEF_BTTFN_TT        1     // 0: "9" (in OPR-mode) and TT button trigger stand-alone TT; 1: They trigger BTTFN-wide TT
