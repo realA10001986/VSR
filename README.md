@@ -22,6 +22,13 @@ Features include
 
 For information on updating the firmware of your VSR, see [here](#firmware-installation--firmware-update).
 
+#### What's new in 2.00
+
+- Re-arrange WiFi Configuration page for a better user experience
+- BTTFN: "Hostname of TCD" now defaults to "timecircuits" instead of being empty. As a result, a factory-fresh VSR now connects to a TCD in the network without any user configuration changes.
+- Deleting static IP data or temporarily clearing the VSR-AP password now requires holding button "10" during (real) power-on and, while still holding "10", pressing "9" exactly twice. The old procedure (holding 4C in Admin button mode) no longer applies.
+- Holding button "10" during (real)power-on and, while still holding "10", pressing "4C" exactly five times within 10 seconds resets all settings to factory defaults.
+
 ## Initial Configuration
 
 **Some key features of your VSR require an SD card.** The first step is therefore to put a **good-quality** ("endurance", "industrial", "long life", ...) **and empty microSD card into the card slot**. The SD card must be inserted before powering up the VSR. It is not recognized if inserted while the VSR is running. Furthermore, do not remove the SD card while the VSR is powered.
@@ -68,9 +75,6 @@ Click on "WiFi Configuration" and either select a network from the top of the pa
 
 >If there are several APs with identical SSID nearby, you can select a specific AP by its BSSID (AP's MAC address). You can either manually find out your AP's BSSID and enter it or have it filled out automatically: Click "Scan for networks", then "Show all". If you click on an AP, its BSSID will be copied into BSSID field in the form below. To see which AP is which, hover over the name to see its BSSID as a tooltip.
 
->Your VSR requests an IP address via DHCP, unless you entered valid data in the fields for static IP addresses (IP, gateway, netmask, DNS). If the device is inaccessible as a result of incorrect static IPs, wait until the VSR has completed its startup sequence, then _hold_ all three buttons until "ADM" is displayed, then _hold_ button ```4C```. After "RST" has been displayed, power-down the VSR. Upon power-up, the device is reset to DHCP.
-
-<!--
 >Your VSR requests an IP address via DHCP, unless you entered valid data in the fields for static IP addresses (IP, gateway, netmask, DNS). If the device is inaccessible as a result of incorrect static IPs,
 >- power-down the device,
 >- press button ```10``` and keep it pressed,
@@ -79,7 +83,7 @@ Click on "WiFi Configuration" and either select a network from the top of the pa
 >- press button ```9``` twice within 10 seconds (the display will show "RST" after the second press),
 >- then release button ```10```.
 >
->This procedure causes static IP data to be deleted; the device will return to using DHCP.-->
+>This procedure causes static IP data to be deleted; the device will return to using DHCP.
 </details>
 
 If the VSR fails to connect, it falls back to AP-mode. You can trigger another connection attempt by _holding_ button ```10``` in [Admin button mode](#admin-mode).
@@ -629,7 +633,7 @@ The firmware consists of two parts: The main firmware, and a sound-pack.
 
 First, download main firmware and sound-pack. Both files are in every [Release package](https://github.com/realA10001986/VSR/releases/latest), and named
 - "**vsr-A10001986-Vx.xx.bin**", and
-- "**sound-pack-vrXX.zip**".
+- "**VSRA-VRxx.bin**".
 
 ### Main firmware
 
@@ -651,10 +655,9 @@ After updating the main firmware, there will be a notification on the Config Por
 _Installing the sound-pack requires an [SD card](#initial-configuration)._
 
 To update the sound-pack of your VSR, 
-- extract the downloaded zip file. It contains one file named VSRA.bin.
 - enter the [Config Portal](#the-config-portal),
 - click on "Update & Upload",
-- select the VSRA.bin file in the _bottom_ file selector, and
+- select the VSRA-VRxx.bin file in the _top_ file selector, and
 - click on *Upload*.
 
 <details>
@@ -662,14 +665,13 @@ To update the sound-pack of your VSR,
 <br>
 Alternatively, you can install the sound-pack the following way:
 <ul>
-<li>Using a computer, copy "VSRA.bin" to the root directory of a FAT32 formatted SD card;</li>
+<li>Using a computer, copy "VSRA-VRxx.bin" to a FAT32 formatted SD card and rename it to "VSRA.bin",</li>
 <li>power down the VSR,</li>
 <li>insert this SD card into the slot and</li>
 <li>power up the VSR; the sound-pack will be installed automatically.</li>
 </ul>
 </details>
 
-<!--
 ## Factory Reset
 
 To reset your VSR to factory default settings, 
@@ -681,8 +683,6 @@ To reset your VSR to factory default settings,
 - then release button ```10```.
 
 Since any configured WiFi connection is deleted as well, the VSR will reboot in AP-mode.
-
--->
 
 ---
 
@@ -722,13 +722,27 @@ Through this page you can either connect your VSR to your local WiFi network or 
 
 To connect your VSR to your WiFi network, all you need to do is either to click on one of the networks listed at the top or to enter a __Network name (SSID)__, and optionally a __password__ (WPAx). If there is no list displayed, click on "Scan for Networks".
 
->By default, the VSR requests an IP address via DHCP. However, you can also configure a static IP for the VSR by entering the IP, netmask, gateway and DNS server. All four fields must be filled for a valid static IP configuration. If you want to stick to DHCP, leave those four fields empty.
-
 If there are several APs with identical SSID nearby, the VSR will connect to the first one found, which might not be the one with the strongest signal. It is therefore recommended to select the nearest/strongest AP by its BSSID (AP's MAC address, a unique identifier for a specific AP). You can either manually find out your AP's BSSID and enter it or have it filled out automatically: Click "Scan for networks", then "Show all". If you click on an AP, its BSSID will be copied into BSSID field in the form below. To see which AP is which, hover over the name to see its BSSID as a tooltip.
 
 ##### &#9193; Forget Saved WiFi Network
 
 Checking this box (and clicking SAVE) deletes the currently saved WiFi network (SSID and password as well as static IP data) and reboots the device; it will restart in "access point" (AP) mode. See [here](#connecting-to-a-wifi-network).
+
+##### &#9193; Static IP
+
+By default, the VSR requests an IP address via DHCP. However, you can also configure a static IP for the VSR by entering the IP, netmask, gateway and DNS server. All four fields must be filled for a valid static IP configuration. If you want to stick to DHCP, leave those four fields empty.
+
+##### &#9193; WiFi connection attempts
+
+Number of times the firmware tries to reconnect to a WiFi network, before falling back to AP-mode. See [here](#connecting-to-a-wifi-network)
+
+##### &#9193; Hostname
+
+The device's hostname in the WiFi network. Defaults to 'vsr'. This also is the domain name at which the Config Portal is accessible from a browser in the same local network. The URL of the Config Portal then is http://<i>hostname</i>.local (the default is http://vsr.local).
+
+If you have more than one VSR in your local network, please give them unique hostnames.
+
+_This setting applies to both AP-mode and when your VSR is connected to a WiFi network._ 
 
 ##### &#9193; Car mode settings
 
@@ -741,18 +755,6 @@ The **_TCD-AP BSSID_** field is optional for you to fill out. The TCD displays i
 
 If you want to enter Car mode immediately after saving your settings, check **_Enable car mode now_**. You can also later toggle between Car mode and normal WiFi connection by holding button "9" in Admin button mode.
 
-##### &#9193; Hostname
-
-The device's hostname in the WiFi network. Defaults to 'vsr'. This also is the domain name at which the Config Portal is accessible from a browser in the same local network. The URL of the Config Portal then is http://<i>hostname</i>.local (the default is http://vsr.local).
-
-If you have more than one VSR in your local network, please give them unique hostnames.
-
-_This setting applies to both AP-mode and when your VSR is connected to a WiFi network._ 
-
-##### &#9193; WiFi connection attempts
-
-Number of times the firmware tries to reconnect to a WiFi network, before falling back to AP-mode. See [here](#connecting-to-a-wifi-network)
-
 #### <ins>Settings for AP-mode</ins>
 
 ##### &#9193; Network name (SSID) appendix
@@ -763,9 +765,6 @@ By default, when your VSR creates a WiFi network of its own ("AP-mode"), this ne
 
 By default, and if this field is empty, the VSR's own WiFi network ("VSR-AP") will be unprotected. If you want to protect your VSR access point, enter your password here. It needs to be 8 characters in length and only characters A-Z, a-z, 0-9 and - are allowed.
 
-If you forget this password and are thereby locked out of your VSR, select _Admin_ [button mode](#button-modes) and _hold_ ```4C```; "RST" will be displayed, and your WiFi password is deleted. Then power-down and power-up your VSR and the access point will start unprotected.
-
-<!--
 If you forget this password and are thereby locked out of your VSR,
 - power-down the device,
 - press button ```10``` and keep it pressed,
@@ -774,7 +773,7 @@ If you forget this password and are thereby locked out of your VSR,
 - press button ```9``` twice within 10 seconds (the display will show "RST" after the second press),
 - then release button ```10```.
 
-The VSR will boot and start the access point - this once - without a password, thereby giving you an opportunity to connect without a password and to either look up or change said password. When you reboot or power-cycle the VSR, VSR-AP will be password protected again. -->
+The VSR will boot and start the access point - this once - without a password, thereby giving you an opportunity to connect without a password and to either look up or change said password. When you reboot or power-cycle the VSR, VSR-AP will be password protected again.
 
 ##### &#9193; WiFi channel
 
