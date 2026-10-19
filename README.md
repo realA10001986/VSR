@@ -26,8 +26,8 @@ For information on updating the firmware of your VSR, see [here](#firmware-insta
 
 - Re-arrange WiFi Configuration page for a better user experience
 - BTTFN: "Hostname of TCD" now defaults to "timecircuits" instead of being empty. As a result, a factory-fresh VSR now connects to a TCD in the network without any user configuration changes.
-- Deleting static IP data or temporarily clearing the VSR-AP password now requires holding button "10" during (real) power-on and, while still holding "10", pressing "9" exactly twice. The old procedure (holding 4C in Admin button mode) no longer applies.
-- Holding button "10" during (real)power-on and, while still holding "10", pressing "4C" exactly five times within 10 seconds resets all settings to factory defaults.
+- Deleting static IP data or temporarily clearing the VSR-AP password now requires holding button ```10``` during (real) power-on and, while still holding ```10```, pressing ```9``` exactly twice. The old procedure (holding 4C in Admin button mode) no longer applies.
+- Holding button ```10``` during (real)power-on and, while still holding ```10```, pressing ```4C``` exactly five times within 10 seconds resets all settings to factory defaults.
 
 ## Initial Configuration
 
