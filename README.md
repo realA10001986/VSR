@@ -28,6 +28,9 @@ For information on updating the firmware of your VSR, see [here](#firmware-insta
 - BTTFN: "Hostname of TCD" now defaults to "timecircuits" instead of being empty. As a result, a factory-fresh VSR now connects to a TCD in the network without any user configuration changes.
 - Deleting static IP data or temporarily clearing the VSR-AP password now requires holding button ```10``` during (real) power-on and, while still holding ```10```, pressing ```9``` exactly twice. The old procedure (holding 4C in Admin button mode) no longer applies.
 - Holding button ```10``` during (real)power-on and, while still holding ```10```, pressing ```4C``` exactly five times within 10 seconds resets all settings to factory defaults.
+- New sound-pack (VR05)
+- Sound-pack uploads are done through the top file selector, and no longer through the bottom one. The bottom one is for custom mp3 file upload only.
+- **Future firmware updates may only consist of one single file instead of "main firmware" plus "sound-pack". Firmware updates will require an SD card. In order to update to versions beyond 2.00, version 2.00 must be installed first.**
 
 ## Initial Configuration
 
