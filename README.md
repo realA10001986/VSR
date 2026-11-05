@@ -638,6 +638,9 @@ First, download main firmware and sound-pack. Both files are in every [Release p
 - "**vsr-A10001986-Vx.xx.bin**", and
 - "**VSRA-VRxx.bin**".
 
+> [!TIP]
+> &#127381; If you want to update several props at a time, you can download all current files from one place: https://all.out-a-ti.me
+
 ### Main firmware
 
 To update the main firmware of your VSR, 
