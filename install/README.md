@@ -1,3 +1,8 @@
+__Users of mobile devices__: You can easily download the update file(s) from the [Release](https://vsrr.out-a-ti.me) page, under "Assets".
+
+___
+
+
 This folder holds all files necessary for immediate installation on your VSR. Here you'll find
 - a binary of the current firmware, ready for upload to the device ("vsr-A10001986-Vx.xx.bin");
 - the latest matching sound-pack ("VSRA-VRxx.bin")
