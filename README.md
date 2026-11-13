@@ -639,7 +639,7 @@ First, download main firmware and sound-pack. Both files are in every [Release p
 - "**VSRA-VRxx.bin**".
 
 > [!TIP]
-> &#127381; If you want to update several props at a time, you can download all current files from one place: https://all.out-a-ti.me
+> &#127381; If you want to update several props at a time, you can download all current firmwares from one place: https://all.out-a-ti.me
 
 ### Main firmware
 
